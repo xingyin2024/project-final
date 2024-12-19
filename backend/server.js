@@ -1,8 +1,12 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import listEndpoints from "express-list-endpoints";
+import dotenv from "dotenv";
 
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/final-project";
+dotenv.config();
+
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/traktamente";
 mongoose.connect(mongoUrl);
 mongoose.Promise = Promise;
 
@@ -13,7 +17,11 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello Technigo!");
+  const endpoints = listEndpoints(app);
+  res.send({
+    message: "Welcome to my API endpoints - Traktamente",
+    endpoints: endpoints,
+  });
 });
 
 // Start the server
