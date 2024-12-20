@@ -8,7 +8,7 @@ import EditTrip from "../pages/EditTrip";
 import TripDetail from "../pages/TripDetail";
 import Admin from "../pages/Admin";
 import Profile from "../pages/Profile";
-import ProtectedRoute from "../toutes/ProtectedRoute";
+import ProtectedRoute from "../routes/ProtectedRoute";
 
 const AppRoutes = (
   <>
