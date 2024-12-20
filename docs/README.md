@@ -42,6 +42,8 @@ Include a docs/ folder for storing developer documentation, such as API specs, a
 │   │   │   ├── Register.jsx # Register page
 │   │   │   ├── Dashboard.jsx # User dashboard
 │   │   │   ├── TripReport.jsx # Trip reporting page
+│   │   │   ├── NewTripReport.jsx # Create new trip page
+│   │   │   ├── Admin.jsx    # Admin login page
 │   │   │   ├── Profile.jsx  # User profile page
 │   │   ├── styles/          # CSS files for styling the app
 │   │   │   ├── index.css    # Global and shared CSS styles
