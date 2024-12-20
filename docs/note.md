@@ -23,5 +23,3 @@
 ## Strech goal
 - complete the validation for Case Rules for input both from back- & frontend (**email to lowercase**)
 - set up validation rules for password (minlength, characters+number, etc.)
-
----

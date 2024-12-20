@@ -112,4 +112,4 @@ To complete this project efficiently while keeping the MVP goals and structure i
 5. **Phase 5 (Testing & Deployment)**: Test and deploy the full-stack application.
 6. **Phase 6 (Stretch Goals)**: Add enhancements like day/night mode and notifications.
 
-By following this roadmap, you'll ensure a well-structured project that aligns with your MVP goals while allowing room for enhancements in the future.
+By following this roadmap, you'll ensure a well-structured project that aligns with your MVP goals while allowing room for enhancements in the future

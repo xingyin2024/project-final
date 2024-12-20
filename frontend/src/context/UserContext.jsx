@@ -4,26 +4,18 @@ import { useNavigate } from "react-router-dom";
 
 const UserContext = createContext();
 
-// Define roles as constants to avoid hardcoding strings
-const ROLES = {
-  ADMIN: "admin",
-  COWORKER: "co-worker",
-};
-
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // User information
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // User login status
+  const [user, setUser] = useState(null); //Stores user details such as name and email; initially set to null.
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authenticated, setAuthenticated] = useState({
     accessToken: localStorage.getItem("accessToken"),
     auth: false,
-  }); // Authentication state
-  const [loading, setLoading] = useState(false); // Loading state for async actions
-  const [error, setError] = useState(null); // Error state for handling errors gracefully
+  });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const apiUrl = import.meta.env.BASE_URL || "http://localhost:8080"; // API base URL
+  const apiUrl = import.meta.env.BASE_URL || "http://localhost:8080";
 
-  // Load user details from localStorage on component mount
   useEffect(() => {
     const firstName = localStorage.getItem("firstName");
     if (firstName) {
@@ -31,125 +23,126 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  // Generalized API request function to avoid redundancy
-  const apiRequest = async (endpoint, options) => {
-    try {
-      const response = await fetch(`${apiUrl}/${endpoint}`, options);
-      if (!response.ok) {
-        throw new Error("API request failed");
-      }
-      return await response.json();
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  };
-
-  // Handle user login
   const login = async (loginData) => {
     setLoading(true);
-    setError(null);
     try {
-      const data = await apiRequest("login", {
+      const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(loginData),
       });
+
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data = await response.json();
 
       if (data.notFound) {
         throw new Error("Invalid username or password");
       }
 
-      // Store user details and authentication state
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("firstName", data.firstName);
+
       setAuthenticated({
         accessToken: data.accessToken,
         auth: true,
       });
+
       setUser({
         firstName: data.firstName,
         username: data.username,
         email: data.email,
-        role: data.role,
       });
-      setIsLoggedIn(true);
 
-      // Navigate based on user role
-      if (data.role === ROLES.ADMIN) {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error(err);
-    } finally {
+      setIsLoggedIn(true);
       setLoading(false);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      throw err;
     }
   };
 
-  // Handle user logout
   const signout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("firstName");
+
     setIsLoggedIn(false);
-    setAuthenticated({ accessToken: null, auth: false });
+    setAuthenticated({
+      accessToken: null,
+      auth: false,
+    });
+
     setUser(null);
     navigate("/");
   };
 
-  // Handle user registration
   const registerUser = async (userData) => {
     setLoading(true);
-    setError(null);
     try {
-      const data = await apiRequest("register", {
+      const response = await fetch(`${apiUrl}/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(userData),
       });
 
-      // Store user details and authentication state
+      if (!response.ok) {
+        throw new Error("Registration failed");
+      }
+
+      const data = await response.json();
+
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("firstName", data.firstName);
+
       setAuthenticated({
         accessToken: data.accessToken,
         auth: true,
       });
+
       setUser({
         firstName: data.firstName,
         username: userData.username,
         email: userData.email,
-        role: userData.role,
       });
+
       setIsLoggedIn(true);
+      setLoading(false);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
       console.error(err);
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
-  // Fetch trips for authenticated user
   const fetchTrips = async () => {
     setLoading(true);
-    setError(null);
     try {
-      const data = await apiRequest("trips", {
+      const response = await fetch(`${apiUrl}/trips`, {
         headers: {
           Authorization: localStorage.getItem("accessToken"),
         },
       });
+
+      if (!response.ok) {
+        throw new Error("Unauthorized access to trips");
+      }
+
+      const data = await response.json();
+      setLoading(false);
       return data;
     } catch (err) {
-      setError(err.message);
       console.error(err);
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
@@ -166,7 +159,6 @@ export const UserProvider = ({ children }) => {
         registerUser,
         fetchTrips,
         loading,
-        error,
       }}
     >
       {children}
