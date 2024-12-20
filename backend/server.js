@@ -5,6 +5,7 @@ import bcrypt from "bcrypt-nodejs";
 import crypto from "crypto";
 import listEndpoints from "express-list-endpoints";
 import dotenv from "dotenv"; // Import dotenv for environment variables
+import { error } from "console";
 
 dotenv.config();// Load environment variables from the .env file
 
@@ -93,16 +94,21 @@ app.use((req, res, next) => {
 });
 
 // Routes
-// get users, for test purpose, shall NOT have!
+// get all users only allowned for admin user
 app.get("/users", async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const allUsers = await User.find().exec();
+    if (allUsers.length > 0) {
+      res.status(200).json(allUsers);
+    } else (
+      res.status(404).send({ error: "No users found" })
+    )
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
- 
+
+// Create user with req.body
 app.post("/users", async (req, res) => {
   try {
     const { username, password, firstName, lastName, email, role } = req.body;
@@ -125,22 +131,38 @@ app.post("/users", async (req, res) => {
   }
 });
 
-app.get("/secrets", authenticateUser);
-app.get("/secrets", (req, res) => {
-  res.json({ message: "this is a secret message" })
-});
-
+// Endpoint for login
 app.post("/sessions", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+  const { username, email, password } = req.body;  
+  let user;
+
+  // Find username or email in data
+  if (username) {
+    user = await User.findOne({ username });    
+  } else if (email) {
+    user = await User.findOne({ email })
+  };
+
     // if user found and the password is correct
-    res.json({ id: user._id, accessToken: user.accessToken })
+  if (user && bcrypt.compareSync(password, user.password)) {
+    res.json({
+      id: user._id,
+      username: user.username,
+      firstName: user.firstName,
+      accessToken: user.accessToken
+    })
   } else {
     // if user not found
     res.json({ notFound: true })
-  }
+  };
 })
 
+// Route for create trips
+
+app.get("/trips", authenticateUser);
+app.get("/trips", (req, res) => {
+  res.json({ message: "this is a secret message" })
+});
 
 // App endpoints documentation
 app.get("/", (req, res) => {
