@@ -22,7 +22,7 @@ const tripSchema = new mongoose.Schema({
     enum: ["approved", "awaiting approval", "not submitted"],
     default: "not submitted"
   },
-  userID: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true

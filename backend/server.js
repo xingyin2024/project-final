@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import User from "./models/userModel";
 import Trip from "./models/tripModel";
 import { registerValidationRules, validate } from "./middleware/validation";
-import { authenticateUser, authenticateAdmin } from "./middleware/auth";
+import { authenticateUser } from "./middleware/auth";
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +52,13 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Pagination defaults
+const getPagination = (page = 1, limit = 10) => {
+  const sanitizedPage = Math.max(1, Number(page) || 1);
+  const sanitizedLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+  return { page: sanitizedPage, limit: sanitizedLimit };
+};
+
 // Routes
 
 // Register endpoint | Create user with req.body
@@ -64,7 +71,8 @@ app.post(
       const { username, password, firstName, lastName, email, role } = req.body;
       // DO NOT STORE PLAINTEXT PASSWORDS
       const salt = bcrypt.genSaltSync();
-      const hashedPassword=bcrypt.hashSync(password, salt)
+      const hashedPassword = bcrypt.hashSync(password, salt);
+      
       const user = new User({
         username,
         password: hashedPassword,
@@ -126,13 +134,18 @@ app.post("/login", async (req, res) => {
 app.get(
   "/users",
   authenticateUser,
-  authenticateAdmin,
-    async (req, res) => {
+  async (req, res) => {
     try {
+      const user = req.user;
+      // Add authentication middleware to restrict access to admins
+      if (user.role !== "admin") {
+        return res.status(403).json({ success: false, message: "Access denied" });
+      }
+
       const allUsers = await User.find();
-      res.status(200).json(allUsers);
+      res.status(200).json({ success: true, data: allUsers });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch users" });
+      handleMongoError(error, res, "Failed to fetch users");
     }
   }
 );
@@ -143,26 +156,43 @@ app.get(
   authenticateUser,
   async (req, res) => {
     try {
-      const { status, page = 1, limit = 10 } = req.query;
+      const { status, userId, page, limit } = req.query;
       const user = req.user;
+      const { page: sanitizedPage, limit: sanitizedLimit } = getPagination(page, limit);
 
-      const filter = user.role === "admin" ? {} : { userId: user._id };
-      if (status) filter.status = status;
+      // Validate userId if provided
+      if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: "Invalid userId" });
+      }
+
+      // Determine filter logic
+      let filter;
+      if (user.role === "admin") {
+        filter = userId ? { userID: userId } : {};
+      } else {
+        filter = { userID: user._id };
+      }
+
+      if (status) {
+        filter.status = status;
+      }
 
       const trips = await Trip.find(filter)
-        .skip((page - 1) * limit)
-        .limit(Number(limit));
+        .skip((sanitizedPage - 1) * sanitizedLimit)
+        .limit(sanitizedLimit)
+        .populate("userId", "firstName lastName")
+        .populate("submission.approvedBy", "firstName lastName email"); // Populate only specific fields
 
       const totalTrips = await Trip.countDocuments(filter);
 
       res.status(200).json({
         success: true,
         data: trips,
-        currentPage: Number(page),
-        totalPages: Math.ceil(totalTrips / limit),
+        currentPage: sanitizedPage,
+        totalPages: Math.ceil(totalTrips / sanitizedLimit),
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch trips" });
+      res.status(500).json(error, res, "Failed to fetch trips");
     }
   }
 );
@@ -180,8 +210,7 @@ app.post(
         hotelBreakfastDays = 0,
         mileageKm = 0,
         status = "not submitted",
-        calculatedData,
-        submission = {}, // Allow submission field from request
+        calculatedData,        
       } = req.body;
 
       const user = req.user;
@@ -193,17 +222,12 @@ app.post(
         hotelBreakfastDays,
         mileageKm,
         status,
-        userID: user._id,
+        userId: req.user._id, // Auto-set from authenticated user
         creation: {
           createdBy: `${req.user.firstName} ${req.user.lastName}`,
           createdAt: new Date(),
         },
-        calculatedData,
-        submission: {
-          updatedAt: submission.updatedAt || null,
-          approvedBy: submission.approvedBy || null,
-          approvedAt: submission.approvedAt || null,
-        },        
+        calculatedData,        
       });
 
       const savedTrip = await trip.save();
@@ -237,7 +261,7 @@ app.patch(
       }
 
       // Ensure the user is the owner of the trip or an admin
-      if (trip.userID.toString() !== user._id.toString() && user.role !== "admin") {
+      if (trip.userId.toString() !== user._id.toString() && user.role !== "admin") {
         return res.status(403).json({ success: false, message: "Access denied" });
       }
 
