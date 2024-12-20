@@ -25,6 +25,7 @@ dist-ssr
 
 package-lock.json
 
+# dotenv environment variable files
 .env
 .env.local
 .env.development.local

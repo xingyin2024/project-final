@@ -2,7 +2,7 @@
 Include a docs/ folder for storing developer documentation, such as API specs, architecture diagrams, and endpoint documentation. This will help new contributors.
 
 # Final-project-TRAKTAMENTE folder structure
-├── backend/                  # Backend logic for APIs and database interactions
+├── backend/                 # Backend logic for APIs and database interactions
 │   ├── .babelrc             # Babel configuration for JavaScript transpiling
 │   ├── package.json         # Backend dependencies and scripts
 │   ├── README.md            # Backend documentation

@@ -11,7 +11,7 @@ dotenv.config();// Load environment variables from the .env file
 
 // Defining port and connecting to mongoose
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/traktamente";
-console.log("MongoDB Connection String:", mongoUrl);  
+// console.log("MongoDB Connection String:", mongoUrl);  
 mongoose.connect(mongoUrl);
 mongoose.Promise = Promise;
 
@@ -94,22 +94,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
-// get all users only allowned for admin user
-app.get("/users", async (req, res) => {
-  try {
-    const allUsers = await User.find().exec();
-    if (allUsers.length > 0) {
-      res.status(200).json(allUsers);
-    } else (
-      res.status(404).send({ error: "No users found" })
-    )
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
-// Create user with req.body
-app.post("/users", async (req, res) => {
+// Endpoint for Register | Create user with req.body
+app.post("/register", async (req, res) => {
   try {
     const { username, password, firstName, lastName, email, role } = req.body;
     // DO NOT STORE PLAINTEXT PASSWORDS
@@ -118,9 +105,9 @@ app.post("/users", async (req, res) => {
     user.save()
     res.status(201).json({
       success: true,
-      message: "User created",
-      id: user._id,
-      accessToken: user.accessToken,
+      message: "Register successfully",
+      // id: user._id,
+      // accessToken: user.accessToken,
     })
   } catch (error) {
     res.status(400).json({
@@ -132,7 +119,7 @@ app.post("/users", async (req, res) => {
 });
 
 // Endpoint for login
-app.post("/sessions", async (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, email, password } = req.body;  
   let user;
 
@@ -149,6 +136,7 @@ app.post("/sessions", async (req, res) => {
       id: user._id,
       username: user.username,
       firstName: user.firstName,
+      email: user.email,
       accessToken: user.accessToken
     })
   } else {
@@ -157,8 +145,21 @@ app.post("/sessions", async (req, res) => {
   };
 })
 
-// Route for create trips
+// get all users only allowned for admin user
+app.get("/users", async (req, res) => {
+  try {
+    const allUsers = await User.find().exec();
+    if (allUsers.length > 0) {
+      res.status(200).json(allUsers);
+    } else (
+      res.status(404).send({ error: "No users found" })
+    )
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+// Route for create trips
 app.get("/trips", authenticateUser);
 app.get("/trips", (req, res) => {
   res.json({ message: "this is a secret message" })

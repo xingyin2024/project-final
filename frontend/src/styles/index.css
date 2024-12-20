@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  margin: 0;
+  font-family: "Inter", "Roboto", serif, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: "Poppins", source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+/* Remove this code. Should be global and in a separate component folder */
+input {
+  margin: 10px 0;
+  font-family: "Poppins", source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+a {
+  text-decoration: none;
+}
