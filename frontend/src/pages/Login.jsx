@@ -1,20 +1,26 @@
-import { useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login } = useUser();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { email, password } = formData;
-    login(email, password);
+    try {
+      await login(formData);
+      navigate("/dashboard"); // Redirect to the dashboard upon successful login
+    } catch (err) {
+      setError(err.message); // Set error message if login fails
+    }
   };
 
   return (
@@ -31,7 +37,10 @@ const Login = () => {
           </Link>
         </p>
       </div>
-      
+
+      {/* Error Message */}
+      {error && <p className="error-message">{error}</p>}
+
       {/* Login Form */}
       <form className="login-register-form" onSubmit={handleSubmit}>
         <input

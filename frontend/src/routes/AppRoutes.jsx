@@ -7,8 +7,8 @@ import CreateTrip from "../pages/CreateTrip";
 import EditTrip from "../pages/EditTrip";
 import TripDetail from "../pages/TripDetail";
 import Admin from "../pages/Admin";
-import Settings from "../pages/Settings";
-import ProtectedRoute from "../components/ProtectedRoute";
+import Profile from "../pages/Profile";
+import ProtectedRoute from "../toutes/ProtectedRoute";
 
 const AppRoutes = (
   <>
@@ -29,17 +29,17 @@ const AppRoutes = (
       path="/create-trip"
       element={<ProtectedRoute><CreateTrip /></ProtectedRoute>} />
     <Route
-      path="/edit-trip/:id"
+      path="/trips/:id"
       element={<ProtectedRoute><EditTrip /></ProtectedRoute>} />
     <Route
-      path="/trip/:id"
+      path="/trips/:id"
       element={<ProtectedRoute><TripDetail /></ProtectedRoute>} />
     <Route
       path="/admin"
       element={<ProtectedRoute role="admin"><Admin /></ProtectedRoute>} />
     <Route
-      path="/settings"
-      element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      path="/profile"
+      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
     {/* Fallback */}
     <Route

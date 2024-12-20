@@ -1,36 +1,44 @@
-import { useEffect, useState, useContext } from "react";
-import { fetchMockData } from "../utils/fetchMockData.js";
-import { AuthContext } from "../context/AuthContext.js";
+import { useEffect, useState } from "react";
+import { useUser } from "../context/UserContext";
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useUser();
   const [trips, setTrips] = useState([]);
   const [summary, setSummary] = useState({ submitted: 0, notSubmitted: 0 });
 
   useEffect(() => {
     const getTrips = async () => {
-      const allTrips = await fetchMockData("trips"); // Fetch trips from trips.json
+      try {
+        const response = await fetch("/api/trips"); // Replace with actual API endpoint
+        const allTrips = await response.json();
 
-      // Filter trips created by the logged-in user
-      const userTrips = allTrips.filter((trip) => trip.userId === user?.id);
+        // Filter trips created by the logged-in user
+        const userTrips = allTrips.filter((trip) => trip.userId === user?.id);
 
-      // Calculate the number of trips based on status
-      const notSubmitted = userTrips.filter((trip) => trip.status === "Not Submitted").length;
-      const submitted = userTrips.filter(
-        (trip) => trip.status !== "Not Submitted"
-      ).length; // Include Approved and Awaiting Approval
+        // Calculate the number of trips based on status
+        const notSubmitted = userTrips.filter(
+          (trip) => trip.status === "Not Submitted"
+        ).length;
+        const submitted = userTrips.filter(
+          (trip) => trip.status !== "Not Submitted"
+        ).length; // Include Approved and Awaiting Approval
 
-      setSummary({ submitted, notSubmitted });
-      setTrips(userTrips);
+        setSummary({ submitted, notSubmitted });
+        setTrips(userTrips);
+      } catch (error) {
+        console.error("Error fetching trips:", error);
+      }
     };
 
-    getTrips();
+    if (user) {
+      getTrips();
+    }
   }, [user]);
 
   return (
     <div className="dashboard-container">
       {/* Header */}
-      <h1 className="dashboard-header">Hello! {user?.firstname || "Guest"}</h1>
+      <h1 className="dashboard-header">Hello! {user?.firstName || "Guest"}</h1>
 
       {/* Summary Cards */}
       <div className="summary-cards">
@@ -65,7 +73,7 @@ const Dashboard = () => {
             <h3 className="trip-card-title">
               {trip.title} ({new Date(trip.startDate).getFullYear()})
             </h3>
-            <p className="trip-card-location">{trip.location}</p>
+            <p className="trip-card-location">{trip.location.city}, {trip.location.country}</p>
             <p className="trip-card-amount">Total Amount: ${trip.totalAmount}</p>
             <p className="trip-card-status">Status: {trip.status}</p>
           </li>

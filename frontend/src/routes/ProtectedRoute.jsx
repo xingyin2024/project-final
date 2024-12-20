@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 
-export const ProtectedRoute = ({ children, role }) => {
+const ProtectedRoute = ({ children, role }) => {
   const { user, isLoggedIn } = useUser();
 
   // If the user is not logged in, redirect to the welcome page
@@ -20,3 +20,4 @@ export const ProtectedRoute = ({ children, role }) => {
   return children;
 };
 
+export default ProtectedRoute

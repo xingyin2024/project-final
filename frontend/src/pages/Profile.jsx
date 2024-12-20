@@ -1,11 +1,11 @@
-import { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
+import { useUser } from "../context/UserContext";
 
 const Profile = () => {
-  const { user, login } = useContext(AuthContext); // Mock login to update user details
+  const { user, setUser } = useUser();
   const [formData, setFormData] = useState({
-    firstname: user?.firstname || "",
-    secondname: user?.secondname || "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
     email: user?.email || "",
     phone: user?.phone || "",
   });
@@ -17,20 +17,20 @@ const Profile = () => {
   };
 
   const handleSave = () => {
-    // Simulate updating user details (In real implementation, call backend API here)
-    login({ ...user, ...formData });
+    // Simulate updating user details locally
+    setUser({ ...user, ...formData }); // Updates the context with new user details
     setIsEditing(false);
   };
 
   return (
     <div className="settings-container">
       {/* Header */}
-      <h1 className="settings-header">Hello, {user?.firstname || "Guest"}!</h1>
+      <h1 className="settings-header">Hello, {user?.firstName || "Guest"}!</h1>
 
       {/* Profile Section */}
       <div className="profile-section">
         <img
-          src="/profile-pic.png" // Replace with dynamic profile image source
+          src="/profile-pic.png" // Replace with dynamic profile image source if available
           alt="Profile"
           className="profile-pic-main"
         />
@@ -42,19 +42,19 @@ const Profile = () => {
           <label className="form-label">Firstname</label>
           <input
             type="text"
-            name="firstname"
-            value={formData.firstname}
+            name="lastName"
+            value={formData.firstName}
             disabled={!isEditing}
             onChange={handleChange}
             className={`textinput ${!isEditing ? "disabled-input" : ""}`}
           />
         </div>
         <div className="form-row">
-          <label className="form-label">Secondname</label>
+          <label className="form-label">Lastname</label>
           <input
             type="text"
-            name="secondname"
-            value={formData.secondname}
+            name="lastName"
+            value={formData.lastName}
             disabled={!isEditing}
             onChange={handleChange}
             className={`textinput ${!isEditing ? "disabled-input" : ""}`}
@@ -66,17 +66,6 @@ const Profile = () => {
             type="email"
             name="email"
             value={formData.email}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className={`textinput ${!isEditing ? "disabled-input" : ""}`}
-          />
-        </div>
-        <div className="form-row">
-          <label className="form-label">Telephone</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
             disabled={!isEditing}
             onChange={handleChange}
             className={`textinput ${!isEditing ? "disabled-input" : ""}`}
