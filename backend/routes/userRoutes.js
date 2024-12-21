@@ -1,11 +1,17 @@
-const express = require('express');
-const { registerUser, loginUser } = require('../controllers/userController');
+import express from "express";
+import { registerUser, loginUser, getUsers } from "../controllers/userController";
+import { registerValidationRules, validate } from "../middleware/validation";
+import { authenticateUser } from "./middleware/auth";
+
 const router = express.Router();
 
-// Registration Route
-router.post('/register', registerUser);
+// Register endpoint | Create user with req.body
+router.post("/register", registerValidationRules, validate, registerUser);
 
-// Login Route
-router.post('/login', loginUser);
+// Login endpoint
+router.post("/login", loginUser);
 
-export { router as userRoutes};
+// Get all users (admin only)
+router.get("/", authenticateUser, getUsers);
+
+export { router as userRoutes };
