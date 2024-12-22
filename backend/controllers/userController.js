@@ -1,6 +1,6 @@
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 import bcrypt from "bcrypt-nodejs";
-import handleMongoError from "../utils/handleMongoError";
+import { handleMongoError } from "../utils/handleMongoError.js";
 
 // POST (create) a new user
 const registerUser = async (req, res) => {
@@ -81,4 +81,4 @@ const getUsers = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUsers };
+export { registerUser, loginUser, getUsers };

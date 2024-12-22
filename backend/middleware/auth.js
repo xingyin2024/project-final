@@ -1,7 +1,7 @@
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 
 //Authenticate user as middleware
-const authenticateUser = async (req, res, next) => {
+export const authenticateUser = async (req, res, next) => {
   try {
     const accessToken = req.header("Authorization");
     if (!accessToken) {
@@ -20,5 +20,3 @@ const authenticateUser = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
-
-module.exports = { authenticateUser };

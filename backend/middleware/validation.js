@@ -1,4 +1,4 @@
-const { check, validationResult } = require("express-validator");
+import { check, validationResult } from "express-validator";
 
 // Validation rules for user registration
 const registerValidationRules = [
@@ -22,7 +22,4 @@ const validate = (req, res, next) => {
   next();
 };
 
-module.exports = {
-  registerValidationRules,
-  validate,
-};
+export { registerValidationRules, validate };

@@ -22,6 +22,7 @@ Include a docs/ folder for storing developer documentation, such as API specs, a
 │   │   ├── tripModel.js         # Trip Mongoose schema and model
 │   ├── routes/
 │   │   ├── userRoutes.js        # User-related routes
+│   │   ├── authRoutes.js        # Login/register-related routes
 │   │   ├── tripRoutes.js        # Trip-related routes
 │   ├── utils/
 │   │   ├── handleMongoError.js  # Reusable error handler for MongoDB

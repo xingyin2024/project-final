@@ -1,7 +1,7 @@
-import Trip from "../models/tripModel";
+import Trip from "../models/tripModel.js";
 import mongoose from "mongoose";
-import handleMongoError from "../utils/handleMongoError";
-import getPagination from "../utils/pagination";
+import { handleMongoError } from "../utils/handleMongoError.js";
+import { getPagination } from "../utils/pagination.js";
 
 // POST (create) a new trip
 const createTrip = async (req, res) => {
@@ -136,4 +136,4 @@ const updateTrip = async (req, res) => {
   }
 };
 
-module.exports = { createTrip, getTrips, updateTrip };
+export { createTrip, getTrips, updateTrip };

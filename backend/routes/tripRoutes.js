@@ -1,6 +1,6 @@
 import express from "express";
-import { createTrip, getTrips, updateTrip } from "../controllers/tripController";
-import { authenticateUser } from "./middleware/auth";
+import { createTrip, getTrips, updateTrip } from "../controllers/tripController.js";
+import { authenticateUser } from '../middleware/auth.js';
 
 const router = express.Router();
 
