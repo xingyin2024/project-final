@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import "../styles/auth.css";
 
 const Welcome = () => {
   return (

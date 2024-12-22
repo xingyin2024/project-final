@@ -19,6 +19,7 @@
     var(--pink-via) 50%,
     var(--pink-to) 100%
   );
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

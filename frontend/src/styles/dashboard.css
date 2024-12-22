@@ -1,0 +1,93 @@
+/* Dashboard Styles */
+.dashboard-container {
+  padding: 24px;
+  margin-top: 60px;
+}
+
+.dashboard-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sum-card {
+  text-align: left;
+  padding: 8px;
+  background: white;
+  border: 1px solid var(--black-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover transition */
+}
+
+.sum-card:hover {
+  transform: translateY(-4px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+  border-color: var(--pink-from); /* Change border color to pink gradient start */
+}
+
+.sum-card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.sum-card-value {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--black-mid);
+  line-height: 32px;
+}
+
+/* Recent Trips Header */
+.recent-trips-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.recent-trips-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Trip Cards */
+.trip-card {
+  background: white;
+  border: 1px solid var(--black-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover */
+  cursor: pointer;
+}
+
+.trip-card:hover {
+  transform: translateY(-4px); /* Lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+  border-color: var(--pink-from); /* Border matches hover color */
+}
+
+.trip-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.trip-card-location,
+.trip-card-amount,
+.trip-card-status {
+  font-size: 0.875rem;
+  color: var(--black-mid);
+  margin-bottom: 8px;
+}

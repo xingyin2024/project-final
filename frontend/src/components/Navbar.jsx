@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CiHome, CiSettings, CiLogin, CiLogout } from "react-icons/ci";
 import { IoGridOutline, IoCreateOutline } from "react-icons/io5";
-import { AuthContext } from "../context/AuthContext";
+
 
 const IconButton = ({ onClick, isClose }) => (
   <button
@@ -55,7 +55,7 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => {
 };
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  // const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 

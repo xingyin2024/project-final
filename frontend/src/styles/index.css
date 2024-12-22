@@ -30,13 +30,6 @@ code, body {
   font-family: var(--font-family-inter);
 }
 
-main {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
 ul {
   list-style: none;
   margin: 0;
@@ -60,10 +53,12 @@ a {
 /* Utility */
 .gradient-text {
   background: linear-gradient(
-    to bottom, 
-    var(--pink-from) 0%, 
-    var(--pink-via) 50%, 
-    var(--pink-to) 100%);
+    to bottom,
+    var(--pink-from) 0%,
+    var(--pink-via) 50%,
+    var(--pink-to) 100%
+  );
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -127,12 +122,13 @@ a {
 
 .text-btn {
   background: linear-gradient(
-    to bottom, 
-    var(--pink-from) 0%, 
-    var(--pink-via) 50%, 
-    var(--pink-to) 100%);
+    to bottom,
+    var(--pink-from) 0%,
+    var(--pink-via) 50%,
+    var(--pink-to) 100%
+  );
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent;
   border: none;
   cursor: pointer;
   font-size: 1rem;
