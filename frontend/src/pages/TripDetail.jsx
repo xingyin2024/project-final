@@ -1,46 +1,78 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-const TripDetail = () => {
-  const { id } = useParams();
-  const [trip, setTrip] = useState(null);
-  const [error, setError] = useState(null);
+const BASE_URL = import.meta.env.VITE_BASE_URL; // For Vite-based projects
 
-  const apiUrl = import.meta.env.BASE_URL || "http://localhost:8080"; // Define API base URL
+const TripDetail = () => {
+  const { id } = useParams(); // Extract trip ID from the URL
+  const [trip, setTrip] = useState(null);
+  const [error, setError] = useState(null); // State for error handling
 
   useEffect(() => {
     const getTrip = async () => {
       try {
-        const response = await fetch(`${apiUrl}/trips/${id}`); // Fetch specific trip by ID
+        const response = await fetch(`${BASE_URL}/trips/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            // Include token for authenticated request
+          },
+        });
+
         if (!response.ok) {
-          throw new Error("Failed to fetch trip details");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch trip details");
         }
-        const tripData = await response.json();
-        setTrip(tripData);
+
+        const data = await response.json();
+        setTrip(data.data); // Adjust to match your API response structure
       } catch (err) {
+        console.error("Error fetching trip:", err);
         setError(err.message);
-        console.error("Error fetching trip details:", err);
       }
     };
 
     getTrip();
-  }, [id, apiUrl]);
+  }, [id]);
 
-  if (error) return <p className="error-message">{error}</p>;
+  if (error) {
+    return <p className="error-message">Error: {error}</p>;
+  }
 
-  if (!trip) return <p>Loading...</p>;
+  if (!trip) {
+    return <p>Loading...</p>;
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{trip.title}</h1>
-      <p><strong>Location:</strong> {trip.location.city}, {trip.location.country}</p>
-      <p><strong>Start Date:</strong> {new Date(trip.startDate).toLocaleString()}</p>
-      <p><strong>End Date:</strong> {new Date(trip.endDate).toLocaleString()}</p>
-      <p><strong>Total Days:</strong> {trip.totalDays}</p>
-      <p><strong>Hotel Breakfast Days:</strong> {trip.hotelBreakfastDays}</p>
-      <p><strong>Mileage:</strong> {trip.mileage} miles</p>
-      <p><strong>Total Amount:</strong> {trip.totalAmount} SEK</p>
-      <p><strong>Status:</strong> {trip.status}</p>
+    <div className="trip-detail-container">
+      <h1>{trip.title}</h1>
+      <p>
+        <strong>Location:</strong> {trip.location.city}, {trip.location.country}
+      </p>
+      <p>
+        <strong>Start Date:</strong>{" "}
+        {new Date(trip.tripDate.startDate).toLocaleString()}
+      </p>
+      <p>
+        <strong>End Date:</strong>{" "}
+        {new Date(trip.tripDate.endDate).toLocaleString()}
+      </p>
+      <p>
+        <strong>Total Days:</strong> {trip.calculatedData?.totalDays || "N/A"}
+      </p>
+      <p>
+        <strong>Hotel Breakfast Days:</strong> {trip.hotelBreakfastDays}
+      </p>
+      <p>
+        <strong>Mileage:</strong> {trip.mileageKm} km
+      </p>
+      <p>
+        <strong>Total Amount:</strong> {trip.calculatedData?.totalAmount || "N/A"} SEK
+      </p>
+      <p>
+        <strong>Status:</strong> {trip.status}
+      </p>
     </div>
   );
 };

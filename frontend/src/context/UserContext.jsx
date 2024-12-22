@@ -1,173 +1,71 @@
-import PropTypes from "prop-types";
-import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useState } from "react";
+
+// Retrieve BASE_URL from environment variables
+const BASE_URL = import.meta.env.VITE_BASE_URL; // For Vite-based projects
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null); //Stores user details such as name and email; initially set to null.
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authenticated, setAuthenticated] = useState({
-    accessToken: localStorage.getItem("accessToken"),
-    auth: false,
-  });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const navigate = useNavigate();
-  const apiUrl = import.meta.env.BASE_URL || "http://localhost:8080";
-
-  useEffect(() => {
-    const firstName = localStorage.getItem("firstName");
-    if (firstName) {
-      setUser({ firstName });
-    }
-  }, []);
-
-  const login = async (loginData) => {
-    setLoading(true);
+  const register = async (formData) => {
     try {
-      const response = await fetch(`${apiUrl}/login`, {
+      const response = await fetch(`${BASE_URL}/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
 
       const data = await response.json();
-
-      if (data.notFound) {
-        throw new Error("Invalid username or password");
+      if (data.success) {
+        setUser(data.user);
+        localStorage.setItem("accessToken", data.data.accessToken); // Save token in localStorage
+      } else {
+        throw new Error(data.message || "Registration failed");
       }
-
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("firstName", data.firstName);
-
-      setAuthenticated({
-        accessToken: data.accessToken,
-        auth: true,
-      });
-
-      setUser({
-        firstName: data.firstName,
-        username: data.username,
-        email: data.email,
-      });
-
-      setIsLoggedIn(true);
-      setLoading(false);
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      throw err;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error; // Rethrow error to handle in the registration form
     }
   };
 
-  const signout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("firstName");
+  const login = async (credentials) => {
+    try {
+      const response = await fetch(`${BASE_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
 
-    setIsLoggedIn(false);
-    setAuthenticated({
-      accessToken: null,
-      auth: false,
-    });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
 
+      setUser(data.data); // Update the user state
+      localStorage.setItem("accessToken", data.data.accessToken); // Save token in localStorage
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error; // Rethrow the error for the login form to handle
+    }
+  };
+
+  const logout = () => {
     setUser(null);
-    navigate("/");
+    localStorage.removeItem("accessToken");
   };
 
-  const registerUser = async (userData) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Registration failed");
-      }
-
-      const data = await response.json();
-
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("firstName", data.firstName);
-
-      setAuthenticated({
-        accessToken: data.accessToken,
-        auth: true,
-      });
-
-      setUser({
-        firstName: data.firstName,
-        username: userData.username,
-        email: userData.email,
-      });
-
-      setIsLoggedIn(true);
-      setLoading(false);
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  const fetchTrips = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/trips`, {
-        headers: {
-          Authorization: localStorage.getItem("accessToken"),
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Unauthorized access to trips");
-      }
-
-      const data = await response.json();
-      setLoading(false);
-      return data;
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      throw err;
-    }
-  };
+  // Check if the user is an admin
+  const isAdmin = () => user?.role === "admin";
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        isLoggedIn,
-        setIsLoggedIn,
-        authenticated,
-        login,
-        signout,
-        registerUser,
-        fetchTrips,
-        loading,
-      }}
-    >
+    <UserContext.Provider value={{ user, register, login, logout, isAdmin }}>
       {children}
     </UserContext.Provider>
   );
 };
 
+// Custom hook for using UserContext
 export const useUser = () => useContext(UserContext);
 
-UserProvider.propTypes = {
-  children: PropTypes.any,
-};
+export default UserContext;

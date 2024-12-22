@@ -1,4 +1,5 @@
-import { Route } from "react-router-dom";
+import { Route, Navigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 import Welcome from "../pages/Welcome";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -8,39 +9,33 @@ import EditTrip from "../pages/EditTrip";
 import TripDetail from "../pages/TripDetail";
 import Admin from "../pages/Admin";
 import Profile from "../pages/Profile";
-import ProtectedRoute from "../routes/ProtectedRoute";
 import NotFound from "../pages/NotFound";
 
-const AppRoutes = (
-  <>
-    {/* Public Routes */}
-    <Route path="/" element={<Welcome />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
 
-    {/* Protected Routes */}
-    <Route
-      path="/dashboard"
-      element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-    <Route
-      path="/create-trip"
-      element={<ProtectedRoute><CreateTrip /></ProtectedRoute>} />
-    <Route
-      path="/trips/:id"
-      element={<ProtectedRoute><EditTrip /></ProtectedRoute>} />
-    <Route
-      path="/trips/:id"
-      element={<ProtectedRoute><TripDetail /></ProtectedRoute>} />
-    <Route
-      path="/admin"
-      element={<ProtectedRoute role="admin"><Admin /></ProtectedRoute>} />
-    <Route
-      path="/profile"
-      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+const AppRoutes = () => {
+  const { user, isAdmin } = useUser();
 
-    {/* Fallback */}
-    <Route path="*" element={<NotFound />} />
-  </>
-);
+  return (
+    <>
+      {/* Public Routes */}
+      <Route path="/" element={<Welcome />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+      <Route path="/create-trip" element={user ? <CreateTrip /> : <Navigate to="/login" />} />
+      <Route path="/trips/:id" element={user ? <EditTrip /> : <Navigate to="/login" />} />
+      <Route path="/trips/:id" element={user ? <TripDetail /> : <Navigate to="/login" />} />
+      <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+
+      {/* Admin Route */}
+      <Route path="/admin" element={isAdmin() ? <Admin /> : <Navigate to="/dashboard" />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<NotFound />} />
+    </>
+  );
+};
 
 export default AppRoutes;

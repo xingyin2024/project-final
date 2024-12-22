@@ -45,6 +45,10 @@ const loginUser = async (req, res) => {
     const user = username
       ? await User.findOne({ username })
       : await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     if (user && bcrypt.compareSync(password, user.password)) {
       return res.status(200).json({
@@ -59,7 +63,7 @@ const loginUser = async (req, res) => {
         },
       });
     } else {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res.status(401).json({ success: false, message: "Invalid password" });
     }
   } catch (error) {
     handleMongoError(error, res, "Failed to log in");

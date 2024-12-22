@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
+import "../styles/dashboard.css";
 
 const Dashboard = () => {
   const { user } = useUser();
@@ -11,7 +12,7 @@ const Dashboard = () => {
       try {
         const response = await fetch("/api/trips"); // Replace with actual API endpoint
         const allTrips = await response.json();
-
+ 
         // Filter trips created by the logged-in user
         const userTrips = allTrips.filter((trip) => trip.userId === user?.id);
 

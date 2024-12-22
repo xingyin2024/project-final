@@ -88,6 +88,36 @@ const getTrips = async (req, res) => {
   }
 };
 
+const getTripById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user; // Get authenticated user from middleware
+
+    // Validate trip ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid trip ID" });
+    }
+
+    const trip = await Trip.findById(id)
+      .populate("userId", "firstName lastName")
+      .populate("submission.approvedBy", "firstName lastName email");
+
+    if (!trip) {
+      return res.status(404).json({ success: false, message: "Trip not found" });
+    }
+
+    // Check if the user is authorized to access this trip
+    if (user.role !== "admin" && trip.userId.toString() !== user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    res.status(200).json({ success: true, data: trip });
+  } catch (error) {
+    console.error("Error fetching trip by ID:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch trip" });
+  }
+};
+
 // PATCH (update) a trip by :id
 const updateTrip = async (req, res) => {
   try {
@@ -136,4 +166,4 @@ const updateTrip = async (req, res) => {
   }
 };
 
-export { createTrip, getTrips, updateTrip };
+export { createTrip, getTrips, updateTrip, getTripById };
