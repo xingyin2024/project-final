@@ -15,6 +15,8 @@ Include a docs/ folder for storing developer documentation, such as API specs, a
 │   ├── middleware/
 │   │   ├── auth.js              # Authentication and authorization middleware
 │   │   ├── validation.js        # Input validation middleware
+│   │   ├── checkDbConnection.js # MongoDB connection check middleware
+│   │   ├── errorHandler.js        # Error handler middleware
 │   ├── models/
 │   │   ├── userModel.js         # User Mongoose schema and model
 │   │   ├── tripModel.js         # Trip Mongoose schema and model
@@ -34,19 +36,29 @@ Include a docs/ folder for storing developer documentation, such as API specs, a
 │   │   ├── components/           # Reusable React components
 │   │   │   ├── Button.jsx        # Button component
 │   │   │   ├── Navbar.jsx        # Navbar/Sidebar component
+│   │   ├── context/              # Main pages for the app
+│   │   │   ├── UserContext.jsx   # React context for managing user authentication and related state
 │   │   ├── pages/                # Main pages for the app
 │   │   │   ├── Welcome.jsx       # Welcome page
 │   │   │   ├── Login.jsx         # Login page
 │   │   │   ├── Register.jsx      # Register page
 │   │   │   ├── Dashboard.jsx      # User dashboard
-│   │   │   ├── TripReport.jsx      # Trip reporting page
-│   │   │   ├── NewTripReport.jsx      # Create new trip page
+│   │   │   ├── TripDetail.jsx      # Trip reporting page
+│   │   │   ├── CreateTrip.jsx      # Create a new trip page
+│   │   │   ├── EditTrip.jsx      # Edit an existing trip page
 │   │   │   ├── Admin.jsx         # Admin login page
 │   │   │   ├── Profile.jsx       # User profile page
+│   │   │   ├── NotFound.jsx       # 404 not found page (back to welcome page if not a valid user or to dashboard)
+│   │   ├── routes/              # Main pages for the app
+│   │   │   ├── AppRoutes.jsx     # Centralized app routes here
+│   │   │   ├── ProtectedRoutes.jsx # Render pages or not based on user role and id
 │   │   ├── styles/               # CSS files for styling the app
 │   │   │   ├── index.css         # Global and shared CSS styles
-│   │   │   ├── auth.css          # Login/Register specific styles
-│   │   │   ├── dashboard.css      # Dashboard specific styles
+│   │   │   ├── auth.css          # Welcome/Login/Register specific styles
+│   │   │   ├── dashboard.css     # Dashboard specific styles
+│   │   │   ├── admin.css         # Admin specific styles
+│   │   │   ├── profile.css       # Profile specific styles
+│   │   │   ├── trip.css          # Trip (create/edit/detail) specific styles
 │   │   ├── App.jsx               # Main React component
 │   │   ├── main.jsx              # Entry point for React app
 │   ├── index.html                # HTML template for the app

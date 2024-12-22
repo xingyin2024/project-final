@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { UserProvider } from "./context/UserContext";
-import Header from "./components/Header";
+import NavBar from "./components/Navbar";
 
 export const App = () => {
   return (
     <>
       <BrowserRouter>
         <UserProvider>
-          <Header />
+          <NavBar/>
           <main>
             <Routes>{AppRoutes}</Routes>
           </main>

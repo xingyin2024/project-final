@@ -9,17 +9,14 @@ import TripDetail from "../pages/TripDetail";
 import Admin from "../pages/Admin";
 import Profile from "../pages/Profile";
 import ProtectedRoute from "../routes/ProtectedRoute";
+import NotFound from "../pages/NotFound";
 
 const AppRoutes = (
   <>
     {/* Public Routes */}
     <Route path="/" element={<Welcome />} />
-    <Route
-      path="/login"
-      element={<Login />} />
-    <Route
-      path="/register"
-      element={<Register />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
 
     {/* Protected Routes */}
     <Route
@@ -42,9 +39,7 @@ const AppRoutes = (
       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
     {/* Fallback */}
-    <Route
-      path="*"
-      element={<Login />} />
+    <Route path="*" element={<NotFound />} />
   </>
 );
 

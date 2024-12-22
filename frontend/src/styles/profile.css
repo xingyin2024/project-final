@@ -1,0 +1,76 @@
+/* Profile Page Styles */
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  margin-top: 60px;
+}
+
+.profile-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: black;
+  text-align: left;
+  width: 100%;
+  max-width: 400px; /* Match the width of the form */
+}
+
+/* Profile Section */
+.profile-section {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--black-light);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  border: 8px solid var(--black-light);
+  overflow: hidden; /* Ensures the image fits within the circular container */
+}
+
+.profile-pic-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image scales properly */
+  border-radius: 50%; /* Keep the circular shape */
+}
+
+/* Form */
+.profile-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--black-darker);
+  margin-bottom: 4px;
+}
+
+.disabled-input {
+  background: var(--black-light);
+  color: black;
+  cursor: not-allowed;
+}
+
+/* Buttons Section */
+.profile-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.sm-btn-footer {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+}

@@ -1,0 +1,59 @@
+/* Welcome Page Styles */
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: white;
+  text-align: center;
+  position: relative; /* Ensure relative positioning for children like btn-footer */  
+}
+
+.welcome-title {
+  font-size: 2.5rem; /* Equivalent to text-4xl */
+  font-weight: bold;
+  background: linear-gradient(
+    to bottom,
+    var(--pink-from) 0%,
+    var(--pink-via) 50%,
+    var(--pink-to) 100%
+  );
+  -webkit-text-fill-color: transparent;
+}
+
+/***********************/
+
+/* Login Page Styles */
+.login-register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: white;
+}
+
+/* Header Container */
+.login-register-header-container {
+  width: 100%;
+  max-width: 300px; /* Matches the input width */
+  margin-bottom: 24px; /* Space between header and inputs */
+}
+
+.login-register-header {
+  color: black;
+  font-family: "Inter", sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.login-register-text {
+  margin-top: 8px;
+  color: var(--black-dark);
+}
+
+.login-register-form {
+  width: 100%;
+  max-width: 300px;
+}
