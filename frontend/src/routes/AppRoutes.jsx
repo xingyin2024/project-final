@@ -1,4 +1,4 @@
-import { Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import Welcome from "../pages/Welcome";
 import Login from "../pages/Login";
@@ -16,7 +16,7 @@ const AppRoutes = () => {
   const { user, isAdmin } = useUser();
 
   return (
-    <>
+    <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
@@ -34,7 +34,7 @@ const AppRoutes = () => {
 
       {/* Fallback */}
       <Route path="*" element={<NotFound />} />
-    </>
+    </Routes>
   );
 };
 

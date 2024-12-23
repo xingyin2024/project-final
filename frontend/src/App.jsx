@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { UserProvider } from "./context/UserContext";
 import NavBar from "./components/Navbar";
@@ -6,14 +6,14 @@ import NavBar from "./components/Navbar";
 export const App = () => {
   return (
     <>
-      <BrowserRouter>
+      <Router>
         <UserProvider>
-          <NavBar/>
+          <NavBar />
           <main>
-            <Routes>{AppRoutes}</Routes>
+            <AppRoutes />
           </main>
         </UserProvider>
-      </BrowserRouter>
+      </Router>
     </>
   );
 };
