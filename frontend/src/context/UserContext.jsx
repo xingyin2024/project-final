@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import PropTypes from "prop-types";
+import { createContext, useContext, useState, useEffect } from "react";
 
 // Retrieve BASE_URL from environment variables
 const BASE_URL = import.meta.env.VITE_BASE_URL; // For Vite-based projects
@@ -7,9 +8,37 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false); // Handles animation for loading
+  const [error, setError] = useState(null); // Handles error messages
+
+  // Load user from localStorage on initial render
+  useEffect(() => {
+    const storedToken = localStorage.getItem("accessToken");
+    if (storedToken) {
+      setUser({ accessToken: storedToken });
+    }
+  }, []);
+
+  // Centralized function to handle requests with loading and error state
+  const handleRequestWithLoading = async (callback) => {
+    setLoading(true); // Start loading
+    setError(null); // Clear previous errors
+    try {
+      await callback(); // Execute the provided callback
+    } catch (err) {
+      // Log error and set user-friendly message
+      console.error("Error occurred:", err);
+      setError(
+        err.response?.message || err.message || "An unexpected error occurred."
+      );
+      throw err; // Rethrow error for calling functions to handle
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
   const register = async (formData) => {
-    try {
+    return handleRequestWithLoading(async () => {
       const response = await fetch(`${BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -17,20 +46,18 @@ export const UserProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      if (data.success) {
-        setUser(data.user);
-        localStorage.setItem("accessToken", data.data.accessToken); // Save token in localStorage
-      } else {
-        throw new Error(data.message || "Registration failed");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed.");
       }
-    } catch (error) {
-      console.error("Registration failed:", error);
-      throw error; // Rethrow error to handle in the registration form
-    }
+
+      setUser(data.user);
+      localStorage.setItem("accessToken", data.data.accessToken);
+    });
   };
 
   const login = async (credentials) => {
-    try {
+    return handleRequestWithLoading(async () => {
       const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,16 +65,14 @@ export const UserProvider = ({ children }) => {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.message || "Login failed.");
       }
 
-      setUser(data.data); // Update the user state
-      localStorage.setItem("accessToken", data.data.accessToken); // Save token in localStorage
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error; // Rethrow the error for the login form to handle
-    }
+      setUser(data.data);
+      localStorage.setItem("accessToken", data.data.accessToken);
+    });
   };
 
   const logout = () => {
@@ -59,7 +84,18 @@ export const UserProvider = ({ children }) => {
   const isAdmin = () => user?.role === "admin";
 
   return (
-    <UserContext.Provider value={{ user, register, login, logout, isAdmin }}>
+    <UserContext.Provider
+      value={{
+        user,
+        register,
+        login,
+        logout,
+        isAdmin,
+        loading,
+        error,
+        setError, // Allow components to clear errors if needed
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -69,3 +105,7 @@ export const UserProvider = ({ children }) => {
 export const useUser = () => useContext(UserContext);
 
 export default UserContext;
+
+UserProvider.propTypes = {
+  children: PropTypes.any,
+};

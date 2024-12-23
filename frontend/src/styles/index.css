@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  border: 1px solid red;
 }
 
 :root {
@@ -79,6 +80,7 @@ a {
   font-weight: 600;
   font-size: medium;
   transition: all 0.3s ease-in-out;
+  cursor: pointer;
 }
 
 .primary-btn:hover {
