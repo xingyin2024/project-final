@@ -1,8 +1,11 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CiHome, CiSettings, CiLogin, CiLogout } from "react-icons/ci";
-import { IoGridOutline, IoCreateOutline } from "react-icons/io5";
 
+import { CiHome, CiLogin, CiLogout } from "react-icons/ci";
+import { IoGridOutline, IoCreateOutline, IoMailOutline, IoInformationCircleOutline, IoPersonCircleOutline } from "react-icons/io5";
+
+import UserContext from "../context/UserContext";
+import "../styles/navbar.css";
 
 const IconButton = ({ onClick, isClose }) => (
   <button
@@ -27,35 +30,33 @@ const IconButton = ({ onClick, isClose }) => (
   </button>
 );
 
-const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => {
-  const sharedClasses =
-    "nav-item flex items-center px-4 py-2 rounded-md text-black-mid transition hover:bg-white hover:text-pink-from hover:border-pink-from";
-  const IconComponent = <Icon className="nav-icon" size={20} />;
-  const Label = <span>{label}</span>;
-
-  if (isButton) {
-    return (
-      <li>
-        <button className={`${sharedClasses} border w-full text-left`} onClick={onClick}>
-          {IconComponent}
-          {Label}
-        </button>
-      </li>
-    );
-  }
-
-  return (
-    <li>
-      <Link to={to} className={`${sharedClasses} border`} onClick={onClick}>
-        {IconComponent}
-        {Label}
+const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
+  <li>
+    {isButton ? (
+      <button
+        className="nav-item"
+        onClick={onClick}
+        aria-label={label}
+      >
+        <Icon className="nav-icon" />
+        {label}
+      </button>
+    ) : (
+      <Link
+        to={to}
+        className="nav-item"
+        aria-label={label}
+        onClick={onClick}
+      >
+        <Icon className="nav-icon" />
+        {label}
       </Link>
-    </li>
-  );
-};
+    )}
+  </li>
+);
 
 const Navbar = () => {
-  // const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(UserContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -65,6 +66,23 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+const navItems = user
+    ? [
+        { to: "/dashboard", icon: CiHome, label: "Dashboard" },
+        { to: "/create-trip", icon: IoCreateOutline, label: "Create Trip" },
+        { to: "/profile", icon: IoPersonCircleOutline , label: "Profile" },
+        ...(user.role === "admin"
+          ? [{ to: "/admin", icon: IoGridOutline, label: "Admin" }]
+          : []),
+        { isButton: true, onClick: handleLogout, icon: CiLogout, label: "Logout" },
+      ]
+    : [
+        { to: "/", icon: CiHome, label: "Home" },
+        { to: "/about", icon: IoInformationCircleOutline, label: "About" },
+        { to: "/contact", icon: IoMailOutline, label: "Contact" },
+        { to: "/login", icon: CiLogin, label: "Login" },
+      ];
+
   return (
     <div className="navbar-container">
       {/* Hamburger Icon */}
@@ -72,40 +90,25 @@ const Navbar = () => {
 
       {/* Navbar Drawer */}
       {menuOpen && (
-        <div
-          className={`nav-drawer nav-drawer-open`}
-        >
+        <div className="nav-drawer">
           {/* Close Icon */}
           <IconButton onClick={() => setMenuOpen(false)} isClose />
 
-          {/* Profile Section */}
+          {/* Profile Section or Placeholder */}
           <div className="profile-section">
-            <img
-              src="/profile-pic.png"
-              alt="Profile"
-              className="profile-pic"
-            />
-            <span className="profile-name">Hi! {user?.firstname || "Guest"}</span>
+            {user ? (
+              <>
+                <img src="/profile-pic.png" alt="Profile" className="profile-pic" />
+                <span className="profile-name">Hi! {user.firstName || "Guest"}</span>
+              </>
+            ) : (
+              <div className="profile-placeholder"></div> /* Placeholder for consistent layout */
+            )}
           </div>
 
           {/* Navigation Links */}
           <ul className="nav-items">
-            {[
-              { to: "/dashboard", icon: CiHome, label: "Dashboard" },
-              { to: "/create-trip", icon: IoCreateOutline, label: "Create Trip Report" },
-              { to: "/settings", icon: CiSettings, label: "Settings" },
-              ...(user?.role === "admin"
-                ? [{ to: "/admin", icon: IoGridOutline, label: "Admin" }]
-                : []),
-              user
-                ? {
-                    isButton: true,
-                    onClick: handleLogout,
-                    icon: CiLogout,
-                    label: "Logout",
-                  }
-                : { to: "/login", icon: CiLogin, label: "Login" },
-            ].map(({ to, icon, label, isButton = false, onClick }, index) => (
+            {navItems.map(({ to, icon, label, isButton = false, onClick }, index) => (
               <NavItem
                 key={index}
                 to={to}

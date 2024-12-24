@@ -12,12 +12,13 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null); // Handles error messages
 
   // Load user from localStorage on initial render
-  useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
-    if (storedToken) {
-      setUser({ accessToken: storedToken });
-    }
-  }, []);
+useEffect(() => {
+  const storedToken = localStorage.getItem("accessToken");
+  const storedUser = localStorage.getItem("user"); // Save full user details
+  if (storedToken && storedUser) {
+    setUser(JSON.parse(storedUser)); // Parse and set the full user object
+  }
+}, []);
 
   // Centralized function to handle requests with loading and error state
   const handleRequestWithLoading = async (callback) => {
@@ -72,12 +73,14 @@ export const UserProvider = ({ children }) => {
 
       setUser(data.data);
       localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.data)); // Save full user data
     });
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user"); // Clear user details
   };
 
   // Check if the user is an admin
@@ -93,7 +96,7 @@ export const UserProvider = ({ children }) => {
         isAdmin,
         loading,
         error,
-        setError, // Allow components to clear errors if needed
+        setError, 
       }}
     >
       {children}

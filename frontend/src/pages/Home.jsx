@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import "../styles/auth.css";
 
-const Welcome = () => {
+const Home = () => {
   return (
     <div className="welcome-container">
       {/* Header */}
@@ -17,4 +17,4 @@ const Welcome = () => {
   );
 };
 
-export default Welcome;
+export default Home;
