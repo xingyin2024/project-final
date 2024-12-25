@@ -12,18 +12,19 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null); // Handles error messages
 
   // Load user from localStorage on initial render
-useEffect(() => {
-  const storedToken = localStorage.getItem("accessToken");
-  const storedUser = localStorage.getItem("user"); // Save full user details
-  if (storedToken && storedUser) {
-    setUser(JSON.parse(storedUser)); // Parse and set the full user object
-  }
-}, []);
+  useEffect(() => {
+    const storedToken = localStorage.getItem("accessToken");
+    const storedUser = localStorage.getItem("user"); // Save full user details
+    if (storedToken && storedUser) {
+      setUser(JSON.parse(storedUser)); // Parse and set the full user object
+    }
+  }, []);
 
   // Centralized function to handle requests with loading and error state
   const handleRequestWithLoading = async (callback) => {
     setLoading(true); // Start loading
     setError(null); // Clear previous errors
+    
     try {
       await callback(); // Execute the provided callback
     } catch (err) {

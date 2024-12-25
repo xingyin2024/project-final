@@ -5,16 +5,14 @@ import NavBar from "./components/Navbar";
 
 export const App = () => {
   return (
-    <>
-      <Router>
-        <UserProvider>
-          <NavBar />
-          <main>
-            <AppRoutes />
-          </main>
-        </UserProvider>
-      </Router>
-    </>
+    <Router>
+      <UserProvider>
+        <NavBar />
+        <main>
+          <AppRoutes />
+        </main>
+      </UserProvider>
+    </Router>    
   );
 };
 

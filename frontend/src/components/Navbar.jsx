@@ -45,8 +45,8 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
       <Link
         to={to}
         className="nav-item"
-        aria-label={label}
         onClick={onClick}
+        aria-label={label}
       >
         <Icon className="nav-icon" />
         {label}
@@ -65,24 +65,24 @@ const Navbar = () => {
     navigate("/");
     setMenuOpen(false);
   };
-
-const navItems = user
+  
+  const navItems = user
     ? [
-        { to: "/dashboard", icon: CiHome, label: "Dashboard" },
-        { to: "/create-trip", icon: IoCreateOutline, label: "Create Trip" },
-        { to: "/profile", icon: IoPersonCircleOutline , label: "Profile" },
-        ...(user.role === "admin"
-          ? [{ to: "/admin", icon: IoGridOutline, label: "Admin" }]
-          : []),
-        { isButton: true, onClick: handleLogout, icon: CiLogout, label: "Logout" },
-      ]
+      { to: "/dashboard", icon: CiHome, label: "Dashboard" },
+      { to: "/create-trip", icon: IoCreateOutline, label: "Create Trip" },
+      { to: "/profile", icon: IoPersonCircleOutline , label: "Profile" },
+      ...(user.role === "admin"
+      ? [{ to: "/admin", icon: IoGridOutline, label: "Admin" }]
+      : []),
+      { isButton: true, onClick: handleLogout, icon: CiLogout, label: "Logout" },
+    ]
     : [
-        { to: "/", icon: CiHome, label: "Home" },
-        { to: "/about", icon: IoInformationCircleOutline, label: "About" },
-        { to: "/contact", icon: IoMailOutline, label: "Contact" },
-        { to: "/login", icon: CiLogin, label: "Login" },
-      ];
-
+      { to: "/", icon: CiHome, label: "Home" },
+      { to: "/about", icon: IoInformationCircleOutline, label: "About" },
+      { to: "/contact", icon: IoMailOutline, label: "Contact" },
+      { to: "/login", icon: CiLogin, label: "Login" },
+    ];
+  
   return (
     <div className="navbar-container">
       {/* Hamburger Icon */}
