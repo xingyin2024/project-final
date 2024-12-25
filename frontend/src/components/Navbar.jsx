@@ -56,7 +56,7 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
 );
 
 const Navbar = () => {
-  const { user, logout } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);  
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
