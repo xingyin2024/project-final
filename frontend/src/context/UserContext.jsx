@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user"); // Save full user details
+    
     if (storedToken && storedUser) {
       setUser(JSON.parse(storedUser)); // Parse and set the full user object
     }
