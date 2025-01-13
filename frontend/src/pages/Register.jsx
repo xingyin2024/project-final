@@ -3,11 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import Loading from "../assets/Loading.json";
 
-import UserContext from "../context/UserContext";
+import { useUser }  from "../context/UserContext";
 import "../styles/auth.css";
 
 const Register = () => {
-  const { register, loading, error, setError } = useContext(UserContext);
+  const { register, loading, error, setError } = useUser(); // Use the register function from UserContext
   const [formData, setFormData] = useState({
     username: "",
     password: "",

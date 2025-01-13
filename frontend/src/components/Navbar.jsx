@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CiHome, CiLogin, CiLogout } from "react-icons/ci";
 import { IoGridOutline, IoCreateOutline, IoMailOutline, IoInformationCircleOutline, IoPersonCircleOutline } from "react-icons/io5";
 
-import UserContext from "../context/UserContext";
+import { useUser } from "../context/UserContext";
 import "../styles/navbar.css";
 
 const IconButton = ({ onClick, isClose }) => (
@@ -56,7 +56,7 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
 );
 
 const Navbar = () => {
-  const { user, logout } = useContext(UserContext);  
+  const { user, logout } = useUser();  
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
