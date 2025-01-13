@@ -1,47 +1,32 @@
 import PropTypes from "prop-types";
 import { createContext, useContext, useState, useEffect } from "react";
 
-// Retrieve BASE_URL from environment variables
 const BASE_URL = import.meta.env.VITE_BASE_URL; // For Vite-based projects
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false); // Handles animation for loading
+  const [authLoading, setAuthLoading] = useState(true); // Indicates authentication loading
   const [error, setError] = useState(null); // Handles error messages
 
   // Load user from localStorage on initial render
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
-    const storedUser = localStorage.getItem("user"); // Save full user details
-    
+    const storedUser = localStorage.getItem("user");
+
     if (storedToken && storedUser) {
-      setUser(JSON.parse(storedUser)); // Parse and set the full user object
+      setUser(JSON.parse(storedUser));
     }
+
+    setAuthLoading(false); // Mark authentication check as complete
   }, []);
 
-  // Centralized function to handle requests with loading and error state
-  const handleRequestWithLoading = async (callback) => {
-    setLoading(true); // Start loading
-    setError(null); // Clear previous errors
-    
-    try {
-      await callback(); // Execute the provided callback
-    } catch (err) {
-      // Log error and set user-friendly message
-      console.error("Error occurred:", err);
-      setError(
-        err.response?.message || err.message || "An unexpected error occurred."
-      );
-      throw err; // Rethrow error for calling functions to handle
-    } finally {
-      setLoading(false); // Stop loading
-    }
-  };
-
   const register = async (formData) => {
-    return handleRequestWithLoading(async () => {
+    setAuthLoading(true);
+    setError(null);
+
+    try {
       const response = await fetch(`${BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,13 +39,23 @@ export const UserProvider = ({ children }) => {
         throw new Error(data.message || "Registration failed.");
       }
 
-      setUser(data.user);
+      setUser(data.data);
       localStorage.setItem("accessToken", data.data.accessToken);
-    });
+      localStorage.setItem("user", JSON.stringify(data.data));
+    } catch (err) {
+      console.error("Error during registration:", err);
+      setError(err.message || "An unexpected error occurred.");
+      throw err; // Allow error handling in calling components
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const login = async (credentials) => {
-    return handleRequestWithLoading(async () => {
+    setAuthLoading(true);
+    setError(null);
+
+    try {
       const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,30 +70,35 @@ export const UserProvider = ({ children }) => {
 
       setUser(data.data);
       localStorage.setItem("accessToken", data.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.data)); // Save full user data
-    });
+      localStorage.setItem("user", JSON.stringify(data.data));
+    } catch (err) {
+      console.error("Error during login:", err);
+      setError(err.message || "An unexpected error occurred.");
+      throw err; // Allow error handling in calling components
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("user"); // Clear user details
+    localStorage.removeItem("user");
   };
 
-  // Check if the user is an admin
   const isAdmin = () => user?.role === "admin";
 
   return (
     <UserContext.Provider
       value={{
         user,
+        authLoading,
         register,
         login,
         logout,
         isAdmin,
-        loading,
         error,
-        setError, 
+        setError,
       }}
     >
       {children}
@@ -106,7 +106,6 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-// Custom hook for using UserContext
 export const useUser = () => useContext(UserContext);
 
 export default UserContext;

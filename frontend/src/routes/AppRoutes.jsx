@@ -13,7 +13,12 @@ import NotFound from "../pages/NotFound";
 
 
 const AppRoutes = () => {
-  const { user, isAdmin } = useUser();
+  const { user, isAdmin, authLoading } = useUser();
+
+  // Show a loading indicator while authentication is being determined
+  if (authLoading) {
+    return <p>Loading...</p>; // Replace with a spinner or styled loading component
+  }
 
   return (
     <Routes>
