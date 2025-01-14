@@ -60,9 +60,9 @@ const getTrips = async (req, res) => {
     // Determine filter logic
     let filter;
     if (user.role === "admin") {
-      filter = userId ? { userID: userId } : {};
+      filter = userId ? { userId } : {}; // Correct field name
     } else {
-      filter = { userID: user._id };
+      filter = { userId: user._id }; // Correct field name
     }
 
     if (status) {
@@ -88,6 +88,7 @@ const getTrips = async (req, res) => {
   }
 };
 
+// GET a trip by :id
 const getTripById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -107,7 +108,10 @@ const getTripById = async (req, res) => {
     }
 
     // Check if the user is authorized to access this trip
-    if (user.role !== "admin" && trip.userId.toString() !== user._id.toString()) {
+    if (
+      user.role !== "admin" && 
+      !trip.userId.equals(user._id) // Use Mongoose's `equals` method for ObjectId comparison
+    ) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
