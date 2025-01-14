@@ -46,35 +46,27 @@ const TripDetail = () => {
 
   return (
     <div className="trip-detail-container">
-      <h1>{trip.title}</h1>
-      <p>
-        <strong>Location:</strong> {trip.location.city}, {trip.location.country}
-      </p>
-      <p>
-        <strong>Start Date:</strong>{" "}
-        {new Date(trip.tripDate.startDate).toLocaleString()}
-      </p>
-      <p>
-        <strong>End Date:</strong>{" "}
-        {new Date(trip.tripDate.endDate).toLocaleString()}
-      </p>
-      <p>
-        <strong>Total Days:</strong> {trip.calculatedData?.totalDays || "N/A"}
-      </p>
-      <p>
-        <strong>Hotel Breakfast Days:</strong> {trip.hotelBreakfastDays}
-      </p>
-      <p>
-        <strong>Mileage:</strong> {trip.mileageKm} km
-      </p>
-      <p>
-        <strong>Total Amount:</strong> {trip.calculatedData?.totalAmount || "N/A"} SEK
-      </p>
-      <p>
-        <strong>Status:</strong> {trip.status}
-      </p>
+      <header>
+        <Button onClick={() => window.history.back()}>&larr; Back</Button>
+        <h1>Trip Detail</h1>
+      </header>
+
+      <div className="trip-detail">
+        
+        <p>Trip Code</p>
+        <p>{ trip.data.title}</p>
+      </div>
+
+      <div className="actions">
+        <Button type="secondary">Edit</Button>
+        <Button type="secondary">Delete</Button>
+        <Button type="primary">Submit</Button>
+      </div>
+
     </div>
   );
 };
 
 export default TripDetail;
+
+

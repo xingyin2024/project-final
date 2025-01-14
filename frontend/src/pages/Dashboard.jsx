@@ -24,7 +24,6 @@ const Dashboard = () => {
         }
 
         console.log("Fetching trips from:", `${BASE_URL}/trips`);
-        console.log("Using access token:", accessToken);
 
         // Fetch trips from backend
         const response = await fetch(`${BASE_URL}/trips`, {
