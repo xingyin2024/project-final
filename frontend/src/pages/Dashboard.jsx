@@ -23,8 +23,6 @@ const Dashboard = () => {
           throw new Error("Unauthorized: No access token found.");
         }
 
-        console.log("Fetching trips from:", `${BASE_URL}/trips`);
-
         // Fetch trips from backend
         const response = await fetch(`${BASE_URL}/trips`, {
           method: "GET",
@@ -34,31 +32,25 @@ const Dashboard = () => {
           },
         });
 
-        console.log("Response status:", response.status);
-
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Error data:", errorData);
           throw new Error(errorData.message || "Failed to fetch trips.");
         }
 
         const data = await response.json();
-        console.log("Fetched data:", data);
 
         // Filter trips by logged-in user's `_id`
         const userTrips = data.data.filter(
-          (trip) => trip.userId._id === user?._id
+          (trip) => trip.userId?._id === user?.id
         );
-
-        console.log("Filtered trips for user:", userTrips);
 
         // Calculate summary
         const notSubmitted = userTrips.filter(
-          (trip) => trip.status === "not submitted"
+          (trip) => trip.status.toLowerCase() === "not submitted"
         ).length;
 
-        const submitted = userTrips.filter(
-          (trip) => ["approved", "awaiting approval"].includes(trip.status)
+        const submitted = userTrips.filter((trip) =>
+          ["approved", "awaiting approval"].includes(trip.status.toLowerCase())
         ).length;
 
         setTrips(userTrips);
@@ -120,12 +112,12 @@ const Dashboard = () => {
           >
             {/* Trip Title and Date */}
             <h3 className="trip-card-title">
-              {trip.title} ({new Date(trip.tripDate.startDate).getFullYear()})
+              {trip.title} ({new Date(trip.tripDate?.startDate).getFullYear()})
             </h3>
 
             {/* Trip Location */}
             <p className="trip-card-location">
-              Location: {trip.location.city}, {trip.location.country}
+              Location: {trip.location?.city || "Unknown"}, {trip.location?.country || "Unknown"}
             </p>
 
             {/* Trip Duration */}
@@ -139,19 +131,24 @@ const Dashboard = () => {
             </p>
 
             {/* Status */}
-            <p className={`trip-card-status status-${trip.status.replace(" ", "-").toLowerCase()}`}>
+            <p
+              className={`trip-card-status status-${trip.status
+                .replace(" ", "-")
+                .toLowerCase()}`}
+            >
               Status: {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
             </p>
 
             {/* Created By */}
             <p className="trip-card-creator">
-              Created By: {trip.creation.createdBy}
+              Created By: {trip.creation?.createdBy || "Unknown"}
             </p>
 
             {/* Submission Info */}
-            {trip.submission.approvedBy ? (
+            {trip.submission?.approvedBy ? (
               <p className="trip-card-approval">
-                Approved By: {trip.submission.approvedBy.firstName} {trip.submission.approvedBy.lastName}
+                Approved By: {trip.submission.approvedBy.firstName}{" "}
+                {trip.submission.approvedBy.lastName}
               </p>
             ) : (
               <p className="trip-card-approval">Approval Pending</p>
