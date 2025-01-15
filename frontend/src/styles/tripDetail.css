@@ -80,6 +80,7 @@
   color: var(--status-warning);
 }
 
+/* buttons */
 .trip-detail-actions {
   display: flex;
   flex-direction: column;
@@ -88,7 +89,6 @@
 
 .trip-detail-actions-row {
   display: flex;
-  justify-content: space-between;
-  gap: 16px; /* Space between buttons in the same row */
+  justify-content: center;
+  gap: 24px; /* Space between Edit and Delete buttons */
 }
-

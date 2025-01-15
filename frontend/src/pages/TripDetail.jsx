@@ -1,6 +1,7 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { IoArrowBackSharp } from "react-icons/io5";
+import { useUser } from "../context/UserContext"; // Access user context
 import "../styles/tripDetail.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -9,6 +10,7 @@ const TripDetail = () => {
   const { id } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { user, isAdmin } = useUser(); // Get user role from context
 
   const [trip, setTrip] = useState(state?.trip || null);
   const [loading, setLoading] = useState(!state?.trip);
@@ -47,8 +49,107 @@ const TripDetail = () => {
     }
   }, [id, trip]);
 
+  const handleApprove = () => {
+    console.log("Approve trip:", trip._id);
+    // Add API call to approve the trip here
+  };
+
   if (loading) return <p>Loading trip details...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
+
+  const renderActionButtons = () => {
+  if (!trip) return null;
+
+  const { status } = trip;
+
+  // For Co-worker
+  if (!isAdmin()) {
+    if (status === "not submitted") {
+      return (
+        <div className="trip-detail-actions">
+          <div className="trip-detail-actions-row">
+            <button
+              className="secondary-btn"
+              onClick={() => navigate(`/edit-trip/${id}`)}
+            >
+              Edit
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => console.log("Delete trip", id)}
+            >
+              Delete
+            </button>
+          </div>
+          <div className="trip-detail-actions-row">
+            <button
+              className="primary-btn"
+              onClick={() => console.log("Submit trip", id)}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return null; // No buttons for other statuses
+  }
+
+  // For Admin
+  if (isAdmin()) {
+    if (status === "awaiting approval") {
+      return (
+        <div className="trip-detail-actions">
+          <div className="trip-detail-actions-row">
+            <button
+              className="secondary-btn"
+              onClick={() => navigate(`/edit-trip/${id}`)}
+            >
+              Edit
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => console.log("Delete trip", id)}
+            >
+              Delete
+            </button>
+          </div>
+          <div className="trip-detail-actions-row">
+            <button
+              className="primary-btn"
+              onClick={handleApprove}
+            >
+              Approve
+            </button>
+          </div>
+        </div>
+      );
+    }
+    if (status === "not submitted" || status === "approved") {
+      return (
+        <div className="trip-detail-actions">
+          <div className="trip-detail-actions-row">
+            <button
+              className="secondary-btn"
+              onClick={() => navigate(`/edit-trip/${id}`)}
+            >
+              Edit
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => console.log("Delete trip", id)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  return null;
+};
+
 
   return (
     <div className="trip-detail-container">
@@ -94,7 +195,7 @@ const TripDetail = () => {
 
         <div className="trip-detail-row">
           <p className="trip-detail-label">Total Traktamente Day</p>
-          <p className="trip-detail-value">{trip.calculatedData?.totalDays || "N/A"} days</p>
+          <p className="trip-detail-value">{trip.calculatedData?.totalDays || 0} days</p>
         </div>
 
         <div className="trip-detail-row">
@@ -130,21 +231,8 @@ const TripDetail = () => {
         </div>
       </div>
 
-      <div className="trip-detail-actions">
-        <div className="trip-detail-actions-row">
-          <button className="secondary-btn" onClick={() => navigate(`/edit-trip/${id}`)}>
-            Edit
-          </button>
-          <button className="secondary-btn" onClick={() => console.log("Delete trip", id)}>
-            Delete
-          </button>
-        </div>
-        <div className="trip-detail-actions-row">
-          <button className="primary-btn" onClick={() => console.log("Submit trip", id)}>
-            Submit
-          </button>
-        </div>
-      </div>
+      {/* Render action buttons based on status and role */}
+      {renderActionButtons()}
     </div>
   );
 };
