@@ -100,15 +100,15 @@
 }
 
 .status-approved {
-  color: #1d9e33; /* Green for Approved */
+  color: var(--status-success); /* Green for Approved */
 }
 
 .status-awaiting-approval {
-  color: #eaa221; /* Yellow for Awaiting Approval */
+  color: var(--status-processing); /* Yellow for Awaiting Approval */
 }
 
 .status-not-submitted {
-  color: #f42828; /* Red for Not Submitted */
+  color: var(--status-warning); /* Red for Not Submitted */
 }
 
 .status-default {

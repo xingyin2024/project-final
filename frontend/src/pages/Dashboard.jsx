@@ -55,8 +55,6 @@ const Dashboard = () => {
           ["approved", "awaiting approval"].includes(trip.status.toLowerCase())
         ).length;
 
-        console.log(userTrips);
-
         setTrips(userTrips);
         setSummary({ submitted, notSubmitted });
       } catch (err) {
@@ -126,7 +124,7 @@ const Dashboard = () => {
 
             {/* Trip Duration */}
             <p className="trip-card-duration">
-              Duration: {trip.calculatedData?.totalDays || "N/A"} day(s)
+              Duration: {trip.calculatedData?.totalDays || 0} day(s)
             </p>
 
             {/* Total Amount */}
