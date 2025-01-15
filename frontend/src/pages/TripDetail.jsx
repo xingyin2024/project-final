@@ -70,13 +70,17 @@ const TripDetail = () => {
           <div className="trip-detail-actions-row">
             <button
               className="secondary-btn"
-              onClick={() => navigate(`/edit-trip/${id}`)}
+              onClick={() => console.log("Edit trip", id)}
             >
               Edit
             </button>
             <button
               className="secondary-btn"
-              onClick={() => console.log("Delete trip", id)}
+              onClick={() =>
+                navigate(`/edit-trip/${trip._id}`, {
+                  state: { trip }, // Pass trip data to the EditTrip page
+                })
+              }
             >
               Delete
             </button>
@@ -103,7 +107,11 @@ const TripDetail = () => {
           <div className="trip-detail-actions-row">
             <button
               className="secondary-btn"
-              onClick={() => navigate(`/edit-trip/${id}`)}
+              onClick={() =>
+                navigate(`/edit-trip/${trip._id}`, {
+                  state: { trip }, // Pass trip data to the EditTrip page
+                })
+              }
             >
               Edit
             </button>
@@ -131,7 +139,11 @@ const TripDetail = () => {
           <div className="trip-detail-actions-row">
             <button
               className="secondary-btn"
-              onClick={() => navigate(`/edit-trip/${id}`)}
+              onClick={() =>
+                navigate(`/edit-trip/${trip._id}`, {
+                  state: { trip }, // Pass trip data to the EditTrip page
+                })
+              }
             >
               Edit
             </button>

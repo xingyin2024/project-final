@@ -42,6 +42,14 @@ const AppRoutes = () => {
         path="/trip/:id"
         element={user ? <TripDetail /> : <Navigate to="/" />} />
       <Route
+        path="/create-trip"
+        element={user ? <CreateTrip /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/edit-trip/:id"
+        element={user ? <EditTrip /> : <Navigate to="/" />}
+      />      
+      <Route
         path="/profile"
         element={user ? <Profile /> : <Navigate to="/" />} />
 

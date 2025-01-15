@@ -99,7 +99,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <img src="/profile-pic.png" alt="Profile" className="profile-pic" />
-                <span className="profile-name">Hi! {user.firstName || "Guest"}</span>
+                <span className="profile-name">Hi {user.firstName || "Guest"}!</span>
               </>
             ) : (
               <div className="profile-placeholder"></div> /* Placeholder for consistent layout */
