@@ -85,9 +85,32 @@
 }
 
 .trip-card-location,
-.trip-card-amount,
-.trip-card-status {
+.trip-card-duration {
   font-size: 0.875rem;
   color: var(--black-mid);
   margin-bottom: 8px;
+}
+
+/* Trip Status Styling */
+.trip-card-amount,
+.trip-card-status {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.status-approved {
+  color: #1d9e33; /* Green for Approved */
+}
+
+.status-awaiting-approval {
+  color: #eaa221; /* Yellow for Awaiting Approval */
+}
+
+.status-not-submitted {
+  color: #f42828; /* Red for Not Submitted */
+}
+
+.status-default {
+  color: var(--black-mid); /* Default for other statuses */
 }

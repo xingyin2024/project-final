@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/dashboard.css";
 
@@ -11,6 +12,7 @@ const Dashboard = () => {
   const [summary, setSummary] = useState({ submitted: 0, notSubmitted: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize navigate function
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -52,6 +54,8 @@ const Dashboard = () => {
         const submitted = userTrips.filter((trip) =>
           ["approved", "awaiting approval"].includes(trip.status.toLowerCase())
         ).length;
+
+        console.log(userTrips);
 
         setTrips(userTrips);
         setSummary({ submitted, notSubmitted });
@@ -108,7 +112,7 @@ const Dashboard = () => {
           <li
             key={trip._id}
             className="trip-card"
-            onClick={() => console.log(`Navigating to trip details for ID: ${trip._id}`)} // Replace with navigation logic
+            onClick={() => navigate(`/trip/${trip._id}`, { state: { trip } })} // Navigate to trip detail page & Pass the trip data
           >
             {/* Trip Title and Date */}
             <h3 className="trip-card-title">
@@ -132,27 +136,14 @@ const Dashboard = () => {
 
             {/* Status */}
             <p
-              className={`trip-card-status status-${trip.status
-                .replace(" ", "-")
-                .toLowerCase()}`}
+              className={`trip-card-status ${
+                trip.status
+                  ? `status-${trip.status.replace(" ", "-").toLowerCase()}`
+                  : "status-default"
+              }`}
             >
               Status: {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
-            </p>
-
-            {/* Created By */}
-            <p className="trip-card-creator">
-              Created By: {trip.creation?.createdBy || "Unknown"}
-            </p>
-
-            {/* Submission Info */}
-            {trip.submission?.approvedBy ? (
-              <p className="trip-card-approval">
-                Approved By: {trip.submission.approvedBy.firstName}{" "}
-                {trip.submission.approvedBy.lastName}
-              </p>
-            ) : (
-              <p className="trip-card-approval">Approval Pending</p>
-            )}
+            </p>      
           </li>
         ))}
       </ul>

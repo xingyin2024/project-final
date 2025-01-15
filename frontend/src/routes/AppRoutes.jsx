@@ -7,6 +7,8 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import CreateTrip from "../pages/CreateTrip";
+import TripDetail from "../pages/TripDetail";
+import EditTrip from "../pages/EditTrip";
 import Profile from "../pages/Profile";
 import Admin from "../pages/Admin";
 import NotFound from "../pages/NotFound";
@@ -36,6 +38,9 @@ const AppRoutes = () => {
       <Route
         path="/create-trip"
         element={user ? <CreateTrip /> : <Navigate to="/" />} />
+      <Route
+        path="/trip/:id"
+        element={user ? <TripDetail /> : <Navigate to="/" />} />
       <Route
         path="/profile"
         element={user ? <Profile /> : <Navigate to="/" />} />
