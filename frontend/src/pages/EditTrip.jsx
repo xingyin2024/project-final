@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { IoArrowBackSharp } from "react-icons/io5";
-import "../styles/tripDetail.css"; // Reuse styles from TripDetail
-import { formatDateTime } from "../utils/formatDateTime";
+import { IoArrowBackSharp, IoLocationOutline, IoLocate, IoChevronDownOutline } from "react-icons/io5";
+import countries from "../assets/traktamente-en.json";
+import favoriteCities from "../assets/fav-city.json";
+import "../styles/editTrip.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -11,11 +12,15 @@ const EditTrip = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [formData, setFormData] = useState(null);
+  const [originalData, setOriginalData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alertMessage, setAlertMessage] = useState(null);
+  const [countryDropdownVisible, setCountryDropdownVisible] = useState(false);
+  const [cityDropdownVisible, setCityDropdownVisible] = useState(false);
+  const [hotelBreakfastDropdownVisible, setHotelBreakfastDropdownVisible] = useState(false);
+  const [mileageDropdownVisible, setMileageDropdownVisible] = useState(false);
 
-  // Helper to format date for `datetime-local`
   const formatDateForInput = (date) => new Date(date).toISOString().slice(0, 16);
 
   useEffect(() => {
@@ -42,6 +47,7 @@ const EditTrip = () => {
         };
 
         setFormData({ ...data.data, tripDate: formattedTripDate });
+        setOriginalData({ ...data.data, tripDate: formattedTripDate }); // Store original data for comparison
       } catch (err) {
         setError(err.message);
       } finally {
@@ -55,66 +61,16 @@ const EditTrip = () => {
         endDate: formatDateForInput(state.trip.tripDate.endDate),
       };
       setFormData({ ...state.trip, tripDate: formattedTripDate });
+      setOriginalData({ ...state.trip, tripDate: formattedTripDate });
       setLoading(false);
     } else {
       fetchTrip();
     }
   }, [id, state]);
 
-  const calculateDaysAndAmount = () => {
-    if (!formData.tripDate.startDate || !formData.tripDate.endDate) return;
-
-    const startDate = new Date(formData.tripDate.startDate);
-    const endDate = new Date(formData.tripDate.endDate);
-
-    let totalDays = 0;
-
-    // Calculate start day
-    const startHour = startDate.getHours();
-    if (startHour >= 12) {
-      totalDays += 0.5; // PM counts as 0.5 day
-    } else {
-      totalDays += 1; // AM counts as 1 full day
-    }
-
-    // Calculate end day
-    const endHour = endDate.getHours();
-    if (endHour < 12) {
-      totalDays += 0.5; // AM counts as 0.5 day
-    } else {
-      totalDays += 1; // PM counts as 1 full day
-    }
-
-    // Calculate full days in between
-    const fullDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
-    if (fullDays > 0) {
-      totalDays += fullDays - 1; // Subtract 1 to exclude start and end days
-    }
-
-    // Validate hotelBreakfastDays
-    if (formData.hotelBreakfastDays > totalDays) {
-      setAlertMessage("Hotel Breakfast Days cannot exceed the total trip days.");
-    } else {
-      setAlertMessage(null);
-    }
-
-    // Calculate total amount (standardAmount is a placeholder)
-    const standardAmount = 500; // Placeholder
-    const totalAmount =
-      totalDays * standardAmount -
-      formData.hotelBreakfastDays * 52 +
-      (formData.mileageKm) * 25;
-
-    setFormData((prev) => ({
-      ...prev,
-      calculatedData: { totalDays, totalAmount },
-    }));
+  const isModified = () => {
+    return JSON.stringify(formData) !== JSON.stringify(originalData);
   };
-
-
-  useEffect(() => {
-    if (formData) calculateDaysAndAmount();
-  }, [formData?.tripDate, formData?.hotelBreakfastDays, formData?.mileageKm]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -124,7 +80,6 @@ const EditTrip = () => {
       const currentEndDate = new Date(formData.tripDate.endDate);
 
       if (newStartDate > currentEndDate) {
-        // Adjust end date to one day after the new start date
         const newEndDate = new Date(newStartDate);
         newEndDate.setDate(newStartDate.getDate() + 1);
 
@@ -160,6 +115,7 @@ const EditTrip = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isModified()) return; // Prevent submission if no changes are made
     setLoading(true);
 
     try {
@@ -190,18 +146,18 @@ const EditTrip = () => {
   if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div className="trip-detail-container">
-      <header className="trip-detail-header">
+    <div className="edit-trip-container">
+      <header className="edit-trip-header">
         <button className="back-button" onClick={() => navigate(-1)}>
           <IoArrowBackSharp size={20} />
         </button>
-        <h1 className="trip-detail-title">Edit Trip</h1>
+        <h1 className="edit-trip-title">Edit Trip Report</h1>
       </header>
 
       <form onSubmit={handleSubmit}>
-        <div className="trip-detail-content">
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Trip Code</p>
+        <div className="edit-trip-content">
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Trip Code</p>
             <input
               type="text"
               name="title"
@@ -211,16 +167,9 @@ const EditTrip = () => {
             />
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Location</p>
-            <div>
-              <input
-                type="text"
-                name="location.city"
-                value={formData.location.city}
-                onChange={handleChange}
-                placeholder="City"
-              />
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Location (Country)</p>
+            <div className="input-with-icon">
               <input
                 type="text"
                 name="location.country"
@@ -229,11 +178,26 @@ const EditTrip = () => {
                 placeholder="Country"
                 required
               />
+              <IoLocationOutline size={20} />
             </div>
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Trip Start</p>
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Location (City, optional)</p>
+            <div className="input-with-icon">
+              <input
+                type="text"
+                name="location.city"
+                value={formData.location.city}
+                onChange={handleChange}
+                placeholder="City"
+              />
+              <IoLocate size={20} />
+            </div>
+          </div>
+
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Trip Start Date and Time</p>
             <input
               type="datetime-local"
               name="tripDate.startDate"
@@ -243,8 +207,8 @@ const EditTrip = () => {
             />
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Trip End</p>
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Trip End Date and Time</p>
             <input
               type="datetime-local"
               name="tripDate.endDate"
@@ -254,52 +218,79 @@ const EditTrip = () => {
             />
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">No. of Hotel Breakfast</p>
-            <input
-              type="number"
-              name="hotelBreakfastDays"
-              value={formData.hotelBreakfastDays}
-              onChange={handleChange}
-              min="0"
-              required
-            />
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">No. of Hotel Breakfast</p>
+            <div className="input-with-icon">
+              <input
+                type="number"
+                name="hotelBreakfastDays"
+                value={formData.hotelBreakfastDays}
+                onChange={handleChange}
+                min="0"
+                required
+              />
+              <IoChevronDownOutline size={20} />
+            </div>
             {alertMessage && <p className="error-message">{alertMessage}</p>}
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Driving Mileage with Private Car (10km)</p>
-            <input
-              type="number"
-              name="mileageKm"
-              value={formData.mileageKm}
-              onChange={handleChange}
-              min="0"
-              required
-            />
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Driving Mileage with Private Car (10km)</p>
+            <div className="input-with-icon">
+              <input
+                type="number"
+                name="mileageKm"
+                value={formData.mileageKm}
+                onChange={handleChange}
+                min="0"
+                required
+              />
+              <IoChevronDownOutline size={20} />
+            </div>
           </div>
 
-          <hr className="trip-detail-divider" />
+          <hr className="edit-trip-divider" />
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Total Traktamente Day(s)</p>
-            <p className="trip-detail-value">
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Total Traktamente Day(s)</p>
+            <p className="edit-trip-value">
               {formData.calculatedData?.totalDays || 0} day(s)
             </p>
           </div>
 
-          <div className="trip-detail-row">
-            <p className="trip-detail-label">Total Amount</p>
-            <p className="trip-detail-value">
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Total Amount</p>
+            <p className="edit-trip-value">
               {formData.calculatedData?.totalAmount || 0} SEK
+            </p>
+          </div>
+
+          <hr className="edit-trip-divider" />
+
+          <div className="edit-trip-row">
+            <p className="edit-trip-label">Status:</p>
+            <p className="edit-trip-value status-value">
+              {formData.status}
             </p>
           </div>
         </div>
 
-        {/* Add navigation to tripDetail page with the trip data after successful updated or show proper error if submition when wrong */}
-        <button type="submit" className="primary-btn">
-          Update Trip
-        </button>
+        <div className="edit-trip-actions">
+          <button
+            type="submit"
+            className={`primary-btn ${isModified() ? "" : "primary-btn-disabled"}`}
+            disabled={!isModified()}
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

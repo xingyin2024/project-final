@@ -43,12 +43,28 @@ li {
 }
 
 input {
-  margin: 10px 0;
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid var(--black-border);
+  border-radius: 8px;
+  color: var(--black-dark);
   font-family: var(--font-family-roboto);
+  width: 100%;
+}
+
+input:focus {
+  border-color: var(--pink-from);
+  outline: none;
 }
 
 a {
   text-decoration: none;
+}
+
+hr {
+  border: 1px dashed var(--black-border);
+  margin: 24px 0;
 }
 
 /* Utility */
@@ -84,7 +100,8 @@ a {
 }
 
 .primary-btn:hover {
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.03);
 }
 
 .primary-btn:disabled {
