@@ -70,7 +70,11 @@ const TripDetail = () => {
           <div className="trip-detail-actions-row">
             <button
               className="secondary-btn"
-              onClick={() => console.log("Edit trip", id)}
+              onClick={() =>
+                navigate(`/edit-trip/${trip._id}`, {
+                  state: { trip }, // Pass trip data to the EditTrip page
+                })
+              }
             >
               Edit
             </button>
@@ -216,7 +220,7 @@ const TripDetail = () => {
         </div>
 
         <div className="trip-detail-row">
-          <p className="trip-detail-label">Driving Mileage with Private Car</p>
+          <p className="trip-detail-label">Driving Mileage with Private Car (10km)</p>
           <p className="trip-detail-value">{trip.mileageKm || 0} mile</p>
         </div>
 

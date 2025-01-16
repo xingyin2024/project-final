@@ -1,7 +1,7 @@
-import { IoCalendarOutline } from "react-icons/io5";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/createTrip.css"; // Create a specific CSS file for CreateTrip styling
+import { IoArrowBackSharp } from "react-icons/io5";
+import "../styles/tripDetail.css"; // Reuse TripDetail styles
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -14,19 +14,84 @@ const CreateTrip = () => {
     hotelBreakfastDays: 0,
     mileageKm: 0,
   });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [totalDays, setTotalDays] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  // Helper to calculate total days and amount
+  const calculateDaysAndAmount = () => {
+    if (!formData.tripDate.startDate || !formData.tripDate.endDate) return;
+
+    const startDate = new Date(formData.tripDate.startDate);
+    const endDate = new Date(formData.tripDate.endDate);
+
+    let calculatedDays = 0;
+
+    // Calculate start day
+    const startHour = startDate.getHours();
+    calculatedDays += startHour >= 12 ? 0.5 : 1;
+
+    // Calculate end day
+    const endHour = endDate.getHours();
+    calculatedDays += endHour < 12 ? 0.5 : 1;
+
+    // Calculate full days in between
+    const fullDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+    if (fullDays > 0) {
+      calculatedDays += fullDays - 1; // Subtract 1 to exclude start and end days
+    }
+
+    setTotalDays(calculatedDays);
+
+    // Validate hotelBreakfastDays
+    if (formData.hotelBreakfastDays > calculatedDays) {
+      setAlertMessage("Hotel Breakfast Days cannot exceed the total trip days.");
+    } else {
+      setAlertMessage(null);
+    }
+
+    // Calculate total amount (standardAmount is a placeholder)
+    const standardAmount = 500; // Placeholder
+    const calculatedAmount =
+      calculatedDays * standardAmount -
+      formData.hotelBreakfastDays * 52 +
+      (formData.mileageKm / 10) * 25;
+
+    setTotalAmount(calculatedAmount);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes("location.")) {
-      const [key, subKey] = name.split(".");
+    if (name === "tripDate.startDate") {
+      const newStartDate = new Date(value);
+      const currentEndDate = new Date(formData.tripDate.endDate);
+
+      if (newStartDate > currentEndDate) {
+        // Adjust end date to one day after the new start date
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setDate(newStartDate.getDate() + 1);
+
+        setFormData((prev) => ({
+          ...prev,
+          tripDate: {
+            ...prev.tripDate,
+            startDate: value,
+            endDate: newEndDate.toISOString().slice(0, 16),
+          },
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          tripDate: { ...prev.tripDate, startDate: value },
+        }));
+      }
+    } else if (name === "tripDate.endDate") {
       setFormData((prev) => ({
         ...prev,
-        [key]: { ...prev[key], [subKey]: value },
+        tripDate: { ...prev.tripDate, endDate: value },
       }));
-    } else if (name.includes("tripDate.")) {
+    } else if (name.includes("location.")) {
       const [key, subKey] = name.split(".");
       setFormData((prev) => ({
         ...prev,
@@ -39,8 +104,6 @@ const CreateTrip = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -50,7 +113,10 @@ const CreateTrip = () => {
           "Content-Type": "application/json",
           Authorization: accessToken,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          calculatedData: { totalDays, totalAmount },
+        }),
       });
 
       const data = await response.json();
@@ -62,88 +128,119 @@ const CreateTrip = () => {
       // Navigate to Dashboard after successful creation
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      console.error(err.message);
     }
   };
 
   return (
-    <div className="create-trip-container">
-      <h1>Create a New Trip</h1>
-      {error && <p className="error-message">{error}</p>}
+    <div className="trip-detail-container">
+      <header className="trip-detail-header">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <IoArrowBackSharp size={20} />
+        </button>
+        <h1>Create Trip Report</h1>
+      </header>
+
       <form onSubmit={handleSubmit}>
-        <label>
-          Trip Title:
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <label>
-          City:
-          <input
-            type="text"
-            name="location.city"
-            value={formData.location.city}
-            onChange={handleChange}
-          />
-        </label>
-        <label>
-          Country:
-          <input
-            type="text"
-            name="location.country"
-            value={formData.location.country}
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <label>
-          Start Date:
-          <input
-            type="datetime-local"
-            name="tripDate.startDate"
-            value={formData.tripDate.startDate}
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <label>
-          End Date:
-          <input
-            type="datetime-local"
-            name="tripDate.endDate"
-            value={formData.tripDate.endDate}
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <label>
-          Hotel Breakfast Days:
-          <input
-            type="number"
-            name="hotelBreakfastDays"
-            value={formData.hotelBreakfastDays}
-            onChange={handleChange}
-            min="0"
-          />
-        </label>
-        <label>
-          Mileage (km):
-          <input
-            type="number"
-            name="mileageKm"
-            value={formData.mileageKm}
-            onChange={handleChange}
-            min="0"
-          />
-        </label>
-        <button type="submit" className="primary-btn" disabled={loading}>
-          {loading ? "Creating..." : "Create Trip"}
+        <div className="trip-detail-content">
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Trip Code</p>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Enter your Trip Code"
+              required
+            />
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Location</p>
+            <div>
+              <input
+                type="text"
+                name="location.city"
+                value={formData.location.city}
+                onChange={handleChange}
+                placeholder="Enter City"
+              />
+              <input
+                type="text"
+                name="location.country"
+                value={formData.location.country}
+                onChange={handleChange}
+                placeholder="Enter Country"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Trip Start Date and Time</p>
+            <input
+              type="datetime-local"
+              name="tripDate.startDate"
+              value={formData.tripDate.startDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Trip End Date and Time</p>
+            <input
+              type="datetime-local"
+              name="tripDate.endDate"
+              value={formData.tripDate.endDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">No. of Hotel Breakfast</p>
+            <input
+              type="number"
+              name="hotelBreakfastDays"
+              value={formData.hotelBreakfastDays}
+              onChange={handleChange}
+              min="0"
+              required
+            />
+            {alertMessage && (
+              <p className="error-message">{alertMessage}</p>
+            )}
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Driving Mileage with Private Car (10km)</p>
+            <input
+              type="number"
+              name="mileageKm"
+              value={formData.mileageKm}
+              onChange={handleChange}
+              min="0"
+              required
+            />
+          </div>
+
+          <hr className="trip-detail-divider" />
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Total Traktamente Day</p>
+            <p className="trip-detail-value">{totalDays} day(s)</p>
+          </div>
+
+          <div className="trip-detail-row">
+            <p className="trip-detail-label">Total Amount</p>
+            <p className="trip-detail-value">{totalAmount} SEK</p>
+          </div>
+        </div>
+
+        // add navigation to tripDetail page with the trip data after successful creation
+        <button type="submit" className="primary-btn">
+          Save
         </button>
       </form>
     </div>
