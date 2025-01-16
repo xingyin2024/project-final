@@ -16,7 +16,10 @@ const CreateTrip = () => {
   });
   const [alertMessage, setAlertMessage] = useState(null);
   const [totalDays, setTotalDays] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [calculatedData, setCalculatedData] = useState({
+    totalDays: 0,
+    totalAmount: 0,
+  });
 
   // Helper to calculate total days and amount
   const calculateDaysAndAmount = () => {
@@ -238,7 +241,7 @@ const CreateTrip = () => {
           </div>
         </div>
 
-        // add navigation to tripDetail page with the trip data after successful creation
+        {/* Add navigation to tripDetail page with the trip data after successful creation or show proper error if submition when wrong*/}
         <button type="submit" className="primary-btn">
           Save
         </button>

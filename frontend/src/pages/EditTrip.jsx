@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { IoArrowBackSharp } from "react-icons/io5";
 import "../styles/tripDetail.css"; // Reuse styles from TripDetail
+import { formatDateTime } from "../utils/formatDateTime";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -102,7 +103,7 @@ const EditTrip = () => {
     const totalAmount =
       totalDays * standardAmount -
       formData.hotelBreakfastDays * 52 +
-      (formData.mileageKm / 10) * 25;
+      (formData.mileageKm) * 25;
 
     setFormData((prev) => ({
       ...prev,
@@ -194,7 +195,7 @@ const EditTrip = () => {
         <button className="back-button" onClick={() => navigate(-1)}>
           <IoArrowBackSharp size={20} />
         </button>
-        <h1>Edit Trip</h1>
+        <h1 className="trip-detail-title">Edit Trip</h1>
       </header>
 
       <form onSubmit={handleSubmit}>
@@ -295,6 +296,7 @@ const EditTrip = () => {
           </div>
         </div>
 
+        {/* Add navigation to tripDetail page with the trip data after successful updated or show proper error if submition when wrong */}
         <button type="submit" className="primary-btn">
           Update Trip
         </button>

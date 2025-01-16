@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useUser } from "../context/UserContext"; // Access user context
 import "../styles/tripDetail.css";
+import { formatDateTime } from "../utils/formatDateTime";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -192,20 +193,14 @@ const TripDetail = () => {
         <div className="trip-detail-row">
           <p className="trip-detail-label">Trip Start</p>
           <p className="trip-detail-value">
-            {new Date(trip.tripDate.startDate).toLocaleString("en-GB", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })}
+            {formatDateTime(trip.tripDate.startDate)}
           </p>
         </div>
 
         <div className="trip-detail-row">
           <p className="trip-detail-label">Trip End</p>
           <p className="trip-detail-value">
-            {new Date(trip.tripDate.endDate).toLocaleString("en-GB", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })}
+            {formatDateTime(trip.tripDate.endDate)}
           </p>
         </div>
 
