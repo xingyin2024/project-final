@@ -1,8 +1,9 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { IoArrowBackSharp } from "react-icons/io5";
 import { useUser } from "../context/UserContext"; // Access user context
+import TripCardHeader from "../components/TripCardHeader";
 import "../styles/tripDetail.css";
+import "../styles/tripCard.css";
 import { formatDateTime } from "../utils/formatDateTime";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -170,12 +171,7 @@ const TripDetail = () => {
 
   return (
     <div className="trip-detail-container">
-      <header className="trip-detail-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <IoArrowBackSharp size={20} />
-        </button>
-        <h1 className="trip-detail-title">Trip Detail</h1>
-      </header>
+      <TripCardHeader title="Trip Detail" />
 
       <div className="trip-detail-content">
         <div className="trip-detail-row">

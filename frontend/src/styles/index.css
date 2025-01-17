@@ -175,6 +175,16 @@ same om welcome, login, register pages*/
   }
 }
 
+/* TripCard Back Button */
+.back-button {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 /* Input Fields */
 .textinput {
   width: 100%;

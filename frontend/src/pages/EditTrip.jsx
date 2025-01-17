@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { IoArrowBackSharp, IoLocationOutline, IoLocate } from "react-icons/io5";
+import { IoLocationOutline, IoLocate } from "react-icons/io5";
 import favoriteCities from "../assets/fav-city.json";
 import useUniqueCountries from "../hooks/useUniqueCountries";
 import useAlert from "../hooks/useAlert";
 import AlertMessage from "../components/AlertMessage";
+import TripCardHeader from "../components/TripCardHeader";
 import "../styles/editTrip.css";
+import "../styles/tripCard.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -239,12 +241,7 @@ const EditTrip = () => {
 
   return (
     <div className="edit-trip-container">
-      <header className="edit-trip-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <IoArrowBackSharp size={20} />
-        </button>
-        <h1 className="edit-trip-title">Edit Trip</h1>
-      </header>
+      <TripCardHeader title="Edit Trip" />
 
       <form onSubmit={handleSubmit}>
         <div className="edit-trip-content">
@@ -351,6 +348,7 @@ const EditTrip = () => {
             />
             <AlertMessage message={getAlert("hotelBreakfastDays")} />
           </div>
+
           <div className="edit-trip-row">
             <p className="edit-trip-label">Driving Mileage with Private Car (10km)</p>
             <input
