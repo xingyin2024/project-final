@@ -1,7 +1,7 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import TripCardHeader from "../components/TripCardHeader";
+import TripFormHeader from "../components/TripFormHeader";
 // import "../styles/tripDetail.css";
 import "../styles/tripCard.css";
 import { formatDateTime } from "../utils/formatDateTime";
@@ -171,7 +171,7 @@ const TripDetail = () => {
 
   return (
     <div className="trip-detail-container">
-      <TripCardHeader title="Trip Detail" />
+      <TripFormHeader title="Trip Detail" />
 
       <div className="trip-detail-content">
         <div className="trip-detail-row">
@@ -211,7 +211,7 @@ const TripDetail = () => {
         </div>
 
         <div className="trip-detail-row">
-          <p className="trip-detail-label">Driving Mileage with Private Car (1 mil = 10 km)</p>
+          <p className="trip-detail-label">Driving Mil with Private Car (1 mil = 10 km)</p>
           <p className="trip-detail-value">{trip.mileageKm || 0} mil</p>
         </div>
 

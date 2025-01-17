@@ -1,10 +1,10 @@
-.trip-card-container {
+.trip-form-container {
   max-width: 600px;
   margin: 0 auto;
   padding: 16px;
 }
 
-.trip-card-header {
+.trip-form-header {
   text-align: center;
   display: flex;
   align-items: center;
@@ -14,12 +14,12 @@
 }
 
 
-.trip-card-title {
+.trip-form-title {
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.trip-card-content {
+.trip-form-content {
   background: white;
   padding: 16px;
   border-radius: 8px;
@@ -27,27 +27,54 @@
   margin-bottom: 24px;
 }
 
-.trip-card-row {
+.trip-form-row {
   margin-bottom: 16px;
 }
 
-.trip-card-label {
+.trip-form-label {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--black-mid);
   margin-bottom: 8px;
 }
 
-.trip-card-value {
+.trip-form-value {
   font-size: 1rem;
   font-weight: 600;
   color: var(--black-darker);
 }
 
-.trip-card-note {
+.trip-form-note {
   font-size: 0.875rem;
   font-style: italic;
   color: var(--black-mid);
+}
+
+.trip-form-status {
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.trip-form-status.success {
+  color: white;
+  background-color: var(--status-success);
+}
+
+.trip-form-status.processing {
+  color: white;
+  background-color: var(--status-processing);
+}
+
+.trip-form-status.warning {
+  color: white;
+  background-color: var(--status-warning);
+}
+
+.trip-form-status.default {
+  color: var(--black-dark);
+  background-color: var(--black-light);
 }
 
 .input-with-icon {
@@ -62,7 +89,7 @@
   color: var(--black-darker);
 }
 
-.trip-card-actions {
+.trip-form-actions {
   display: flex;
   justify-content: space-between;
   margin: 40px 0;

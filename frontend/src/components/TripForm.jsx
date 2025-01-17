@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { IoLocationOutline, IoLocate } from "react-icons/io5";
 import AlertMessage from "../components/AlertMessage";
-import "../styles/tripCard.css";
+import "../styles/tripForm.css";
 
-const TripCard = ({
+const TripForm = ({
   formData,
   handleChange,
   handleInputChange,
@@ -23,10 +23,10 @@ const TripCard = ({
   id, // Add id
 }) => (
   <form onSubmit={onSubmit}>
-    <div className="trip-card-content">
+    <div className="trip-form-content">
       {/* Title Input */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Trip Code</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Trip Code</p>
         <input
           type="text"
           name="title"
@@ -38,8 +38,8 @@ const TripCard = ({
       </div>
 
       {/* Country Input */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Location (Country)</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Location (Country)</p>
         <div className="input-with-icon">
           <input
             type="text"
@@ -69,8 +69,8 @@ const TripCard = ({
       </div>
 
       {/* City Input */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Location (City, optional)</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Location (City, optional)</p>
         <div className="input-with-icon">
           <input
             type="text"
@@ -93,8 +93,8 @@ const TripCard = ({
       </div>
 
       {/* Start and End Date Inputs */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Trip Start Date and Time</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Trip Start Date and Time</p>
         <input
           type="datetime-local"
           name="tripDate.startDate"
@@ -103,8 +103,8 @@ const TripCard = ({
           required
         />
       </div>
-      <div className="trip-card-row">
-        <p className="trip-card-label">Trip End Date and Time</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Trip End Date and Time</p>
         <input
           type="datetime-local"
           name="tripDate.endDate"
@@ -115,8 +115,8 @@ const TripCard = ({
       </div>
 
       {/* Hotel Breakfast and Mileage Inputs */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">No. of Hotel Breakfast (days)</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">No. of Hotel Breakfast (days)</p>
         <input
           type="number"
           name="hotelBreakfastDays"
@@ -127,8 +127,8 @@ const TripCard = ({
         />
         <AlertMessage message={getAlert("hotelBreakfastDays")} />
       </div>
-      <div className="trip-card-row">
-        <p className="trip-card-label">Driving Mil with Private Car (mil)</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Driving Mil with Private Car (mil)</p>
         <input
           type="number"
           name="mileageKm"
@@ -139,22 +139,22 @@ const TripCard = ({
         />
       </div>
 
-      <hr className="trip-card-divider" />
+      <hr className="trip-form-divider" />
 
       {/* Summary */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Total Traktamente Day(s)</p>
-        <p className="trip-card-value">{formData.calculatedData?.totalDays || 0} day(s)</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Total Traktamente Day(s)</p>
+        <p className="trip-form-value">{formData.calculatedData?.totalDays || 0} day(s)</p>
       </div>
-      <div className="trip-card-row">
-        <p className="trip-card-label">Total Amount</p>
-        <p className="trip-card-value">{formData.calculatedData?.totalAmount || 0} SEK</p>
+      <div className="trip-form-row">
+        <p className="trip-form-label">Total Amount</p>
+        <p className="trip-form-value">{formData.calculatedData?.totalAmount || 0} SEK</p>
       </div>
 
       {/* Total Amount Calculation Formula */}
-      <div className="trip-card-row">
-        <p className="trip-card-label">Calculation Formula:</p>
-        <p className="trip-card-note">
+      <div className="trip-form-row">
+        <p className="trip-form-label">Calculation Formula:</p>
+        <p className="trip-form-note">
           Total Amount = ({formData.calculatedData?.totalDays || 0} ×{" "}
           {formData.calculatedData?.standardAmount || "N/A"} kr) - (Breakfast Days × 58 kr) + (Mil × 25 kr)
         </p>
@@ -162,11 +162,11 @@ const TripCard = ({
 
       {includeStatus && (
         <>
-          <hr className="trip-card-divider" />
-          <div className="trip-card-row">
-            <p className="trip-card-label">Status:</p>
+          <hr className="trip-form-divider" />
+          <div className="trip-form-row">
+            <p className="trip-form-label">Status:</p>
             <p
-              className={`trip-card-status ${
+              className={`trip-form-status ${
                 formData.status?.toLowerCase().replace(" ", "-")
               }`}
             >
@@ -177,7 +177,7 @@ const TripCard = ({
       )}
       </div>
 
-      <div className="trip-card-actions">
+      <div className="trip-form-actions">
       <button
         type="submit"
         className={`primary-btn ${isModified && !hasActiveAlerts ? "" : "primary-btn-disabled"}`}
@@ -192,7 +192,7 @@ const TripCard = ({
   </form>
 );
 
-TripCard.propTypes = {
+TripForm.propTypes = {
   formData: PropTypes.object.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleInputChange: PropTypes.func.isRequired,
@@ -209,4 +209,4 @@ TripCard.propTypes = {
   includeStatus: PropTypes.bool,
 };
 
-export default TripCard;
+export default TripForm;

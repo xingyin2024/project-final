@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import countriesData from "../assets/traktamente-en.json";
 import favoriteCities from "../assets/fav-city.json";
 import useUniqueCountries from "../hooks/useUniqueCountries";
 import useAlert from "../hooks/useAlert";
-import TripCardHeader from "../components/TripCardHeader";
-import TripCard from "../components/TripCard";
+import TripFormHeader from "../components/TripFormHeader";
+import TripForm from "../components/TripForm";
+// import useTripForm from "../hooks/useTripForm";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -20,7 +22,7 @@ const EditTrip = () => {
   const [dropdownState, setDropdownState] = useState({ country: false, city: false });
   const [countrySuggestions, setCountrySuggestions] = useState([]);
   const [citySuggestions, setCitySuggestions] = useState([]);
-  // const [alertMessage, setAlertMessage] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { setAlert, clearAlert, getAlert } = useAlert();
@@ -186,6 +188,7 @@ const EditTrip = () => {
     const endDate = new Date(formData.tripDate.endDate);
     let totalDays = 0;
 
+    // Calculate partial and full days
     totalDays += startDate.getHours() >= 12 ? 0.5 : 1;
     totalDays += endDate.getHours() < 12 ? 0.5 : 1;
 
@@ -199,12 +202,23 @@ const EditTrip = () => {
       clearAlert("hotelBreakfastDays");
     }
 
-    // Calculate total amount (standardAmount is a placeholder)
-    const standardAmount = 500; // Placeholder for standard amount
+    // Get standard amount for the country and year
+    const { country } = formData.location;
+    const tripYear = new Date(formData.tripDate.startDate).getFullYear();
+    const countryData = countriesData.find(
+      (item) => item["country or territory"] === country && item.year === String(tripYear)
+    );
+    const standardAmount = countryData ? parseFloat(countryData["standard amount"]) : 0;
+
+    // Calculate total amount 
     const totalAmount =
       totalDays * standardAmount - formData.hotelBreakfastDays * 52 + formData.mileageKm * 25;
 
-    setFormData((prev) => ({ ...prev, calculatedData: { totalDays, totalAmount } }));
+    // Update calculated data
+    setFormData((prev) => ({
+      ...prev,
+      calculatedData: { totalDays, totalAmount, standardAmount },
+    }));    
   };
 
   // Recalculate when relevant fields change
@@ -212,7 +226,7 @@ const EditTrip = () => {
     if (formData) calculateDaysAndAmount();
   }, [formData?.tripDate, formData?.hotelBreakfastDays, formData?.mileageKm]);
 
-  // Submit updated trip data
+  // Handle save button click with form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isModified()) return;
@@ -247,9 +261,9 @@ const EditTrip = () => {
 
   return (
     <div className="trip-card-container">
-      <TripCardHeader title="Edit Trip" />
+      <TripFormHeader title="Edit Trip" />
 
-      <TripCard
+      <TripForm
         formData={formData}
         handleChange={handleChange}
         handleInputChange={handleInputChange}
