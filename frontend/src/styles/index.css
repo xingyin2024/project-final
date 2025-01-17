@@ -42,22 +42,6 @@ li {
   padding: 0;
 }
 
-input {
-  flex: 1;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid var(--black-border);
-  border-radius: 8px;
-  color: var(--black-dark);
-  font-family: var(--font-family-roboto);
-  width: 100%;
-}
-
-input:focus {
-  border-color: var(--pink-from);
-  outline: none;
-}
-
 a {
   text-decoration: none;
 }
@@ -79,6 +63,11 @@ hr {
   -webkit-text-fill-color: transparent;
 }
 
+.error-message {
+  color: var(--status-warning);
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
 
 /* Buttons */
 .primary-btn {
@@ -209,5 +198,21 @@ same om welcome, login, register pages*/
   border: 1px solid var(--pink-from);
   background: white;
   color: var(--pink-from);
+  outline: none;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid var(--black-border);
+  border-radius: 8px;
+  color: var(--black-dark);
+  font-family: var(--font-family-roboto);
+  width: 100%;
+}
+
+input:focus {
+  border-color: var(--pink-from);
   outline: none;
 }
