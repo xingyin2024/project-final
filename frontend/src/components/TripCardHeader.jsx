@@ -2,6 +2,7 @@ import React from "react";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import "../styles/tripCard.css";
 
 const TripCardHeader = ({ title }) => {
   const navigate = useNavigate();

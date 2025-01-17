@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { IoLocationOutline, IoLocate } from "react-icons/io5";
 import favoriteCities from "../assets/fav-city.json";
 import useUniqueCountries from "../hooks/useUniqueCountries";
 import useAlert from "../hooks/useAlert";
-import AlertMessage from "../components/AlertMessage";
 import TripCardHeader from "../components/TripCardHeader";
-import "../styles/editTrip.css";
-import "../styles/tripCard.css";
+import TripCard from "../components/TripCard";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -75,6 +72,12 @@ const EditTrip = () => {
   // Check if form data has been modified
   const isModified = () => JSON.stringify(formData) !== JSON.stringify(originalData);
 
+  // Check if there are any active alerts
+  const hasActiveAlerts = () => {
+    const alerts = getAlert() || {}; // Ensure `alerts` is always an object
+    return !!Object.values(getAlert()).find((alert) => alert);
+  };
+  
   // Handle general input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -227,7 +230,9 @@ const EditTrip = () => {
         const data = await response.json();
         throw new Error(data.message || "Failed to update trip.");
       }
-      navigate("/dashboard");
+
+      // Redirect to the TripDetail page on success
+      navigate(`/trip/${id}`, { state: { updated: true } });
     } catch (err) {
       setError(err.message);
       setAlert("general", "Error updating trip details.");
@@ -236,160 +241,32 @@ const EditTrip = () => {
     }
   };
 
+
   if (loading) return <p>Loading trip details...</p>;
   if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div className="edit-trip-container">
+    <div className="trip-card-container">
       <TripCardHeader title="Edit Trip" />
 
-      <form onSubmit={handleSubmit}>
-        <div className="edit-trip-content">
-          {/* Title Input */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Trip Code</p>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              placeholder="Select or type Trip Code"
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Country Input */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Location (Country)</p>
-            <div className="input-with-icon">
-              <input
-                type="text"
-                className="dropdown-input"
-                value={formData?.location?.country || ""}
-                placeholder="Select or type Country"
-                onChange={(e) => handleInputChange("country", e.target.value)}
-                onBlur={() => validateCountry()}
-                required
-              />
-              <IoLocationOutline size={20} onClick={() => toggleDropdown("country")} />
-              {dropdownState.country && (
-                <ul className="dropdown">
-                  {countrySuggestions.map((item, index) => (
-                    <li
-                      key={index}
-                      onClick={() => handleSelect("country", item["country or territory"])}
-                      className="dropdown-item"
-                    >
-                      {item["country or territory"]}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <AlertMessage message={getAlert("country")} />
-          </div>
-
-          {/* City Input */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Location (City, optional)</p>
-            <div className="input-with-icon">
-              <input
-                type="text"
-                className="dropdown-input"
-                value={formData?.location?.city || ""}
-                placeholder="Select or type City"
-                onChange={(e) => handleInputChange("city", e.target.value)}
-              />
-              <IoLocate size={20} onClick={() => toggleDropdown("city")} />
-              {dropdownState.city && (
-                <ul className="dropdown">
-                  {citySuggestions.map((city, index) => (
-                    <li key={index} onClick={() => handleSelect("city", city)} className="dropdown-item">
-                      {city}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          {/* Start and End Date Inputs */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Trip Start Date and Time</p>
-            <input
-              type="datetime-local"
-              name="tripDate.startDate"
-              value={formData.tripDate.startDate}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Trip End Date and Time</p>
-            <input
-              type="datetime-local"
-              name="tripDate.endDate"
-              value={formData.tripDate.endDate}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Hotel Breakfast and Mileage Inputs */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">No. of Hotel Breakfast</p>
-            <input
-              type="number"
-              name="hotelBreakfastDays"
-              value={formData.hotelBreakfastDays || "0"}
-              onChange={handleChange}
-              min="0"
-              required
-            />
-            <AlertMessage message={getAlert("hotelBreakfastDays")} />
-          </div>
-
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Driving Mileage with Private Car (10km)</p>
-            <input
-              type="number"
-              name="mileageKm"
-              value={formData.mileageKm || "0"}
-              onChange={handleChange}
-              min="0"
-              required
-            />
-          </div>
-
-          <hr className="edit-trip-divider" />
-
-          {/* Summary */}
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Total Traktamente Day(s)</p>
-            <p className="edit-trip-value">{formData.calculatedData?.totalDays || 0} day(s)</p>
-          </div>
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Total Amount</p>
-            <p className="edit-trip-value">{formData.calculatedData?.totalAmount || 0} SEK</p>
-          </div>
-
-          <hr className="edit-trip-divider" />
-
-          <div className="edit-trip-row">
-            <p className="edit-trip-label">Status:</p>
-            <p className="edit-trip-value status-value">{formData.status}</p>
-          </div>
-        </div>
-
-        <div className="edit-trip-actions">
-          <button type="submit" className={`primary-btn ${isModified() ? "" : "primary-btn-disabled"}`} disabled={!isModified()}>
-            Save
-          </button>
-          <button type="button" className="secondary-btn" onClick={() => navigate(-1)}>
-            Cancel
-          </button>
-        </div>
-      </form>
+      <TripCard
+        formData={formData}
+        handleChange={handleChange}
+        handleInputChange={handleInputChange}
+        validateCountry={validateCountry}
+        toggleDropdown={toggleDropdown}
+        dropdownState={dropdownState}
+        countrySuggestions={countrySuggestions}
+        citySuggestions={citySuggestions}
+        handleSelect={handleSelect}
+        getAlert={getAlert}
+        onSubmit={handleSubmit}
+        isModified={isModified()}
+        hasActiveAlerts={hasActiveAlerts()}        
+        includeStatus={true}
+        navigate={navigate} // Pass navigate
+        id={id} // Pass id for use in navigation        
+      />
     </div>
   );
 };

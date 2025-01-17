@@ -1,8 +1,8 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useUser } from "../context/UserContext"; // Access user context
+import { useUser } from "../context/UserContext";
 import TripCardHeader from "../components/TripCardHeader";
-import "../styles/tripDetail.css";
+// import "../styles/tripDetail.css";
 import "../styles/tripCard.css";
 import { formatDateTime } from "../utils/formatDateTime";
 
@@ -211,8 +211,8 @@ const TripDetail = () => {
         </div>
 
         <div className="trip-detail-row">
-          <p className="trip-detail-label">Driving Mileage with Private Car (10km)</p>
-          <p className="trip-detail-value">{trip.mileageKm || 0} mile</p>
+          <p className="trip-detail-label">Driving Mileage with Private Car (1 mil = 10 km)</p>
+          <p className="trip-detail-value">{trip.mileageKm || 0} mil</p>
         </div>
 
         <hr className="trip-detail-divider" />

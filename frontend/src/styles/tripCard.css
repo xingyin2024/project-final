@@ -14,12 +14,12 @@
 }
 
 
-.trip-title {
+.trip-card-title {
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.trip-content {
+.trip-card-content {
   background: white;
   padding: 16px;
   border-radius: 8px;

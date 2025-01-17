@@ -18,7 +18,10 @@ const useAlert = () => {
   };
 
   // Retrieve the alert for a specific field
-  const getAlert = (field) => alerts[field] || null;
+  const getAlert = (field) => {
+    if (field) return alerts[field] || null; // Return specific alert if field is provided
+    return alerts || {}; // Always return an object
+  };
 
   return { setAlert, clearAlert, getAlert };
 };
