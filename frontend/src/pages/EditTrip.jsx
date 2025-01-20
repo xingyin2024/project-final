@@ -193,10 +193,7 @@ const EditTrip = () => {
       return;
     }
 
-    // (2) Otherwise do the normal logic
-    const { country } = location;
-
-    // Validate hotelBreakfastDays
+    // If breakfastDays > totalDays => alert
     if (hotelBreakfastDays > totalDays) {
       setAlert(
         'hotelBreakfastDays',
@@ -206,11 +203,11 @@ const EditTrip = () => {
       clearAlert('hotelBreakfastDays');
     }
 
-    // Get standard amount for the country and year from JSON file
+    // find standardAmount
     const tripYear = new Date(formData.tripDate.startDate).getFullYear();
     const countryData = countriesData.find(
       (item) =>
-        item['country or territory'] === country &&
+        item['country or territory'] === location.country &&
         item.year === String(tripYear)
     );
     const standardAmount = countryData
@@ -487,7 +484,10 @@ const EditTrip = () => {
 
   return (
     <div className="trip-form-container">
-      <TripFormHeader title="Edit Trip" />
+      <TripFormHeader
+        title="Edit Trip"
+        onBack={() => navigate(`/trip/${id}`)}
+      />
 
       {/*
         Integrate the TripDayCalculator here.

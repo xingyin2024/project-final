@@ -226,7 +226,13 @@ const CreateTrip = () => {
         clearAlert('tripDate');
       }
     } else if (name.includes('location.')) {
-      // e.g. "location.country"
+      const [key, subKey] = name.split('.');
+      setFormData((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], [subKey]: value },
+      }));
+    } else if (name.includes('calculatedData.')) {
+      // e.g. "calculatedData.totalDays"
       const [_, field] = name.split('.');
       // if user typed totalDays => set manualOverride
       if (field === 'totalDays') {
@@ -235,10 +241,14 @@ const CreateTrip = () => {
 
       setFormData((prev) => ({
         ...prev,
-        location: {
-          ...prev.location,
-          [field]: value,
+        calculatedData: {
+          ...prev.calculatedData,
+          [field]: parseFloat(value) || 0,
         },
+        // keep top-level totalDays in sync
+        ...(field === 'totalDays'
+          ? { totalDays: parseFloat(value) || 0 }
+          : null),
       }));
     } else {
       // e.g. "title", "hotelBreakfastDays", "mileageKm"
@@ -380,7 +390,7 @@ const CreateTrip = () => {
       */}
       <TripFormHeader
         title="Create Trip Report"
-        customBack={() => navigate('/dashboard')}
+        onBack={() => navigate('/dashboard')}
       />
 
       <TripDayCalculator

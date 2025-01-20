@@ -217,7 +217,10 @@ const TripDetail = () => {
 
   return (
     <div className="trip-form-container">
-      <TripFormHeader title="Trip Detail" />
+      <TripFormHeader
+        title="Trip Detail"
+        onBack={() => navigate('/dashboard')}
+      />
 
       <div className="trip-form-content">
         <div className="trip-form-row">
