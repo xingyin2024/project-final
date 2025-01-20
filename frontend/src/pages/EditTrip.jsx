@@ -16,7 +16,6 @@ const EditTrip = () => {
   const { state } = useLocation();
   const sortedCountries = useUniqueCountries();
 
-  // State for managing form data, dropdowns, errors, and alerts
   // ----------------------------------------------------------------
   // 1) Default formData shape
   // ----------------------------------------------------------------
@@ -53,7 +52,6 @@ const EditTrip = () => {
   // ----------------------------------------------------------------
   const { setAlert, clearAlert, getAlert } = useAlert();
 
-  // ----------------------------------------------------------------
   // 3) Manual override logic
   //    - If user types totalDays by hand, we set manualOverride = true
   //    - Then TripDayCalculator won't overwrite it
@@ -88,13 +86,35 @@ const EditTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 4) Helper to format date for datetime-local
+  // 4.1) Helper to format date for datetime-local
   // ----------------------------------------------------------------
   const formatDateForInput = (date) =>
     new Date(date).toISOString().slice(0, 16);
 
   // ----------------------------------------------------------------
-  // 5) Fetch or use state.trip
+  // 4.1) Helper function to unify setting form data from any "trip" source
+  // ----------------------------------------------------------------
+  const applyTripData = (trip) => {
+    const formattedTripDate = {
+      startDate: formatDateForInput(trip.tripDate.startDate),
+      endDate: formatDateForInput(trip.tripDate.endDate),
+    };
+    const initialDays = trip.calculatedData?.totalDays ?? 0;
+
+    return {
+      ...trip,
+      location: { ...trip.location },
+      tripDate: formattedTripDate,
+      totalDays: initialDays,
+      calculatedData: {
+        ...trip.calculatedData,
+        totalDays: initialDays,
+      },
+    };
+  };
+
+  // ----------------------------------------------------------------
+  // 5) useEffect to load data from either state.trip or fetch
   // ----------------------------------------------------------------
   useEffect(() => {
     const fetchTrip = async () => {
@@ -109,39 +129,14 @@ const EditTrip = () => {
         });
 
         const data = await response.json();
-        if (!response.ok)
+        if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch trip details.');
+        }
 
-        const formattedTripDate = {
-          startDate: formatDateForInput(data.data.tripDate.startDate),
-          endDate: formatDateForInput(data.data.tripDate.endDate),
-        };
-
-        // Take the backend's calculatedData.totalDays if present
-        const initialDays = data.data.calculatedData?.totalDays ?? 0;
-
-        setFormData({
-          ...data.data,
-          location: { ...data.data.location },
-          tripDate: formattedTripDate,
-          // Make sure the top-level totalDays is set from DB if available
-          totalDays: initialDays,
-          calculatedData: {
-            ...data.data.calculatedData,
-            totalDays: initialDays,
-          },
-        });
-
-        setOriginalData({
-          ...data.data,
-          location: { ...data.data.location },
-          tripDate: formattedTripDate,
-          totalDays: initialDays,
-          calculatedData: {
-            ...data.data.calculatedData,
-            totalDays: initialDays,
-          },
-        });
+        // transform the fetched trip the same way
+        const fromFetch = applyTripData(data.data);
+        setFormData(fromFetch);
+        setOriginalData(fromFetch);
       } catch (err) {
         setError(err.message);
         setAlert('general', 'Error fetching trip details.');
@@ -150,59 +145,31 @@ const EditTrip = () => {
       }
     };
 
+    // If we have trip data from state, skip fetch
     if (state?.trip) {
-      // If data is from routing state...
-      const formattedTripDate = {
-        startDate: formatDateForInput(state.trip.tripDate.startDate),
-        endDate: formatDateForInput(state.trip.tripDate.endDate),
-      };
-
-      const initialDays = state.trip.calculatedData?.totalDays ?? 0;
-
-      setFormData({
-        ...state.trip,
-        tripDate: formattedTripDate,
-        location: { ...state.trip.location },
-        totalDays: initialDays,
-        calculatedData: {
-          ...state.trip.calculatedData,
-          totalDays: initialDays,
-        },
-      });
-
-      setOriginalData({
-        ...state.trip,
-        tripDate: formattedTripDate,
-        location: { ...state.trip.location },
-        totalDays: initialDays,
-        calculatedData: {
-          ...state.trip.calculatedData,
-          totalDays: initialDays,
-        },
-      });
-
-      setLoading(false); // make sure loading is off here
+      const fromState = applyTripData(state.trip);
+      setFormData(fromState);
+      setOriginalData(fromState);
+      setLoading(false);
     } else {
       fetchTrip();
     }
   }, [id, state]);
 
   // ----------------------------------------------------------------
-  // 6) isModified + hasActiveAlerts to check if anything changed and if there are active alerts
+  // 6) isModified:Check if form data has been modified
+  // + hasActiveAlerts: Check if there are any active alerts
   // ----------------------------------------------------------------
-  const isModified = () => {
+  const isModified = () =>
     JSON.stringify(formData) !== JSON.stringify(originalData);
-  };
 
   const hasActiveAlerts = () => {
     const alerts = getAlert() || {}; // Ensure `alerts` is always an object
     return !!Object.values(getAlert()).find((alert) => alert);
   };
 
-  // ----------------------------------------------------------------
-  // 7) Calculation logic with a "guard" to avoid re-assigning
-  //    the same numeric values
-  // ----------------------------------------------------------------
+  // 4) Recalculate total amount whenever relevant fields change
+  // or if the user typed a new totalDays manually.
   const calculateDaysAndAmount = () => {
     // Use the totalDays from state which is set by handleDaysCalculated
     const {
@@ -212,32 +179,24 @@ const EditTrip = () => {
       mileageKm = 0,
     } = formData;
 
-    // If totalDays=0 => total=0
+    // (1) If totalDays is 0 -> totalAmount = 0 no matter what
     if (totalDays === 0) {
-      setFormData((prev) => {
-        // Check if these fields are already 0
-        const alreadyZero =
-          prev.calculatedData.totalDays === 0 &&
-          (prev.calculatedData.totalAmount ?? 0) === 0 &&
-          (prev.calculatedData.standardAmount ?? 0) === 0;
-        if (alreadyZero) {
-          return prev; // no changes
-        }
-        // else update to zeros
-        return {
-          ...prev,
-          calculatedData: {
-            ...prev.calculatedData,
-            totalDays: 0,
-            totalAmount: 0,
-            standardAmount: 0,
-          },
-        };
-      });
+      setFormData((prev) => ({
+        ...prev,
+        calculatedData: {
+          ...prev.calculatedData,
+          totalDays: 0,
+          totalAmount: 0,
+          standardAmount: 0,
+        },
+      }));
       return;
     }
 
-    // Validate hotelBreakfastDays <= totalDays
+    // (2) Otherwise do the normal logic
+    const { country } = location;
+
+    // Validate hotelBreakfastDays
     if (hotelBreakfastDays > totalDays) {
       setAlert(
         'hotelBreakfastDays',
@@ -247,45 +206,31 @@ const EditTrip = () => {
       clearAlert('hotelBreakfastDays');
     }
 
+    // Get standard amount for the country and year from JSON file
     const tripYear = new Date(formData.tripDate.startDate).getFullYear();
     const countryData = countriesData.find(
       (item) =>
-        item['country or territory'] === location.country &&
+        item['country or territory'] === country &&
         item.year === String(tripYear)
     );
     const standardAmount = countryData
       ? parseFloat(countryData['standard amount'])
       : 0;
 
-    // (days * standard) - (breakfastDays * 58) + (mileageKm * 25)
-    const newTotalAmount =
+    // Calculate total amount
+    const totalAmount =
       totalDays * standardAmount - hotelBreakfastDays * 58 + mileageKm * 25;
 
-    // guard: only set state if there's a change
-    setFormData((prev) => {
-      const oldCalc = prev.calculatedData || {};
-      const oldStandard = oldCalc.standardAmount ?? 0;
-      const oldAmount = oldCalc.totalAmount ?? 0;
-
-      const noChange =
-        oldCalc.totalDays === totalDays &&
-        oldStandard === standardAmount &&
-        oldAmount === newTotalAmount;
-
-      if (noChange) {
-        return prev; // do nothing
-      }
-
-      return {
-        ...prev,
-        calculatedData: {
-          ...prev.calculatedData,
-          totalDays,
-          standardAmount,
-          totalAmount: newTotalAmount,
-        },
-      };
-    });
+    // Update your formData
+    setFormData((prev) => ({
+      ...prev,
+      calculatedData: {
+        ...prev.calculatedData,
+        totalDays,
+        totalAmount,
+        standardAmount,
+      },
+    }));
   };
 
   // Validate country input
@@ -321,7 +266,7 @@ const EditTrip = () => {
     formData?.hotelBreakfastDays,
     formData?.mileageKm,
     formData?.location?.country,
-    formData.totalDays, // also re-calc if user typed new day count
+    formData.totalDays, // watch for manual changes
   ]);
 
   // ----------------------------------------------------------------
@@ -486,7 +431,7 @@ const EditTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 12) toggleDropdown visibility and reset suggestions
+  // 12) toggleDropdown visibility
   // ----------------------------------------------------------------
   const toggleDropdown = (key) => {
     setDropdownState((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -501,11 +446,11 @@ const EditTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 13) onSubmit: Save button onclick with form submission
+  // 13) onSubmit: Save button click with form submission
   // ----------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isModified()) return; // no changes => do nothing
+    if (!isModified()) return;
 
     setLoading(true);
     try {
@@ -524,7 +469,7 @@ const EditTrip = () => {
         throw new Error(data.message || 'Failed to update trip.');
       }
 
-      // success => go detail page
+      // Redirect to the TripDetail page on success
       navigate(`/trip/${id}`, { state: { updated: true } });
     } catch (err) {
       setError(err.message);
@@ -545,7 +490,7 @@ const EditTrip = () => {
       <TripFormHeader title="Edit Trip" />
 
       {/*
-        Provide auto-calc for partial days, skipping if user overrode.
+        Integrate the TripDayCalculator here.
         - Pass the start and end date from formData
         - Pass the handleDaysCalculated callback
       */}
