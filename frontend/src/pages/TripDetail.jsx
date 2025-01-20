@@ -52,9 +52,66 @@ const TripDetail = () => {
     }
   }, [id, trip]);
 
-  const handleApprove = () => {
-    console.log('Approve trip:', trip._id);
-    // Add API call to approve the trip here
+  // In TripDetail:
+  const handleDelete = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch(`${BASE_URL}/trips/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: accessToken },
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete trip.');
+      }
+      // maybe navigate to dashboard
+      navigate('/dashboard', { state: { deleted: true } });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleSubmitTrip = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch(`${BASE_URL}/trips/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: accessToken,
+        },
+        body: JSON.stringify({ status: 'awaiting approval' }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to submit trip.');
+      }
+      // reload or navigate
+      navigate(`/trip/${id}`, { state: { updated: true } });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch(`${BASE_URL}/trips/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: accessToken,
+        },
+        body: JSON.stringify({ status: 'approved' }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to approve trip.');
+      }
+      navigate(`/trip/${id}`, { state: { updated: true } });
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   if (loading) return <p>Loading trip details...</p>;
@@ -74,7 +131,7 @@ const TripDetail = () => {
               <button
                 className="secondary-btn"
                 onClick={() =>
-                  navigate(`/edit-trip/${trip._id}`, {
+                  navigate(`/edit-trip/${id}`, {
                     state: { trip }, // Pass trip data to the EditTrip page
                   })
                 }
@@ -83,20 +140,13 @@ const TripDetail = () => {
               </button>
               <button
                 className="secondary-btn"
-                onClick={() =>
-                  navigate(`/edit-trip/${trip._id}`, {
-                    state: { trip }, // Pass trip data to the EditTrip page
-                  })
-                }
+                onClick={handleDelete} // call handleDelete
               >
                 Delete
               </button>
             </div>
             <div className="trip-form-actions-row">
-              <button
-                className="primary-btn"
-                onClick={() => console.log('Submit trip', id)}
-              >
+              <button className="primary-btn" onClick={handleSubmitTrip}>
                 Submit
               </button>
             </div>
@@ -115,7 +165,7 @@ const TripDetail = () => {
               <button
                 className="secondary-btn"
                 onClick={() =>
-                  navigate(`/edit-trip/${trip._id}`, {
+                  navigate(`/edit-trip/${id}`, {
                     state: { trip }, // Pass trip data to the EditTrip page
                   })
                 }
@@ -124,7 +174,7 @@ const TripDetail = () => {
               </button>
               <button
                 className="secondary-btn"
-                onClick={() => console.log('Delete trip', id)}
+                onClick={handleDelete} // call handleDelete
               >
                 Delete
               </button>
@@ -144,7 +194,7 @@ const TripDetail = () => {
               <button
                 className="secondary-btn"
                 onClick={() =>
-                  navigate(`/edit-trip/${trip._id}`, {
+                  navigate(`/edit-trip/${id}`, {
                     state: { trip }, // Pass trip data to the EditTrip page
                   })
                 }
@@ -153,7 +203,7 @@ const TripDetail = () => {
               </button>
               <button
                 className="secondary-btn"
-                onClick={() => console.log('Delete trip', id)}
+                onClick={handleDelete} // call handleDelete
               >
                 Delete
               </button>
@@ -162,7 +212,6 @@ const TripDetail = () => {
         );
       }
     }
-
     return null;
   };
 
