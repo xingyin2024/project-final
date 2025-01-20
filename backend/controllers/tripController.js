@@ -147,29 +147,41 @@ const updateTrip = async (req, res) => {
         .json({ success: false, message: 'Trip not found' });
     }
 
-    // Restrict approval updates to the logged-in admin
-    if (updates.submission?.approvedBy) {
-      if (user.role !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied: Only admins can approve trips.',
-        });
-      }
-      if (updates.submission.approvedBy !== user._id.toString()) {
+    // Role-based logic
+    if (user.role === 'admin') {
+      // Admin-specific logic
+      if (
+        updates.status === 'approved' &&
+        trip.status === 'awaiting approval'
+      ) {
+        // Only update `approvedBy` if the status is changing to `approved`
+        updates.submission = updates.submission || {};
+        updates.submission.approvedBy = user._id.toString();
+        updates.submission.approvedAt = new Date();
+      } else if (updates.status === 'approved' && trip.status === 'approved') {
         return res.status(400).json({
           success: false,
-          message:
-            "Invalid operation: `approvedBy` must match the logged-in admin's ID.",
+          message: 'This trip is already approved.',
         });
       }
-    }
+    } else {
+      // Non-admin users
+      if (updates.submission?.approvedBy || updates.status === 'approved') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: You cannot approve trips.',
+        });
+      }
 
-    // Ensure the user is the owner of the trip or an admin
-    if (
-      trip.userId.toString() !== user._id.toString() &&
-      user.role !== 'admin'
-    ) {
-      return res.status(403).json({ success: false, message: 'Access denied' });
+      // Ensure the user is the owner of the trip or an admin
+      if (
+        trip.userId.toString() !== user._id.toString() &&
+        user.role !== 'admin'
+      ) {
+        return res
+          .status(403)
+          .json({ success: false, message: 'Access denied' });
+      }
     }
 
     // Apply updates

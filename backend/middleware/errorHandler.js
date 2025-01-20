@@ -1,4 +1,9 @@
 export const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, message: "Internal Server Error", errors: err.message });
-}
+  res
+    .status(500)
+    .json({
+      success: false,
+      message: 'Internal Server Error',
+      errors: err.message,
+    });
+};
