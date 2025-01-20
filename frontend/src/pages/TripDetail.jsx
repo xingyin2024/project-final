@@ -1,10 +1,9 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useUser } from "../context/UserContext";
-import TripFormHeader from "../components/TripFormHeader";
-// import "../styles/tripDetail.css";
-import "../styles/tripCard.css";
-import { formatDateTime } from "../utils/formatDateTime";
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useUser } from '../context/UserContext';
+import TripFormHeader from '../components/TripFormHeader';
+import '../styles/tripForm.css';
+import { formatDateTime } from '../utils/formatDateTime';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -23,19 +22,21 @@ const TripDetail = () => {
       const fetchTrip = async () => {
         try {
           setLoading(true);
-          const accessToken = localStorage.getItem("accessToken");
+          const accessToken = localStorage.getItem('accessToken');
 
           const response = await fetch(`${BASE_URL}/trips/${id}`, {
-            method: "GET",
+            method: 'GET',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               Authorization: accessToken,
             },
           });
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || "Failed to fetch trip details.");
+            throw new Error(
+              errorData.message || 'Failed to fetch trip details.'
+            );
           }
 
           const data = await response.json();
@@ -52,7 +53,7 @@ const TripDetail = () => {
   }, [id, trip]);
 
   const handleApprove = () => {
-    console.log("Approve trip:", trip._id);
+    console.log('Approve trip:', trip._id);
     // Add API call to approve the trip here
   };
 
@@ -60,178 +61,178 @@ const TripDetail = () => {
   if (error) return <p className="error-message">Error: {error}</p>;
 
   const renderActionButtons = () => {
-  if (!trip) return null;
+    if (!trip) return null;
 
-  const { status } = trip;
+    const { status } = trip;
 
-  // For Co-worker
-  if (!isAdmin()) {
-    if (status === "not submitted") {
-      return (
-        <div className="trip-detail-actions">
-          <div className="trip-detail-actions-row">
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                navigate(`/edit-trip/${trip._id}`, {
-                  state: { trip }, // Pass trip data to the EditTrip page
-                })
-              }
-            >
-              Edit
-            </button>
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                navigate(`/edit-trip/${trip._id}`, {
-                  state: { trip }, // Pass trip data to the EditTrip page
-                })
-              }
-            >
-              Delete
-            </button>
+    // For Co-worker
+    if (!isAdmin()) {
+      if (status === 'not submitted') {
+        return (
+          <div className="trip-form-actions">
+            <div className="trip-form-actions-row">
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  navigate(`/edit-trip/${trip._id}`, {
+                    state: { trip }, // Pass trip data to the EditTrip page
+                  })
+                }
+              >
+                Edit
+              </button>
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  navigate(`/edit-trip/${trip._id}`, {
+                    state: { trip }, // Pass trip data to the EditTrip page
+                  })
+                }
+              >
+                Delete
+              </button>
+            </div>
+            <div className="trip-form-actions-row">
+              <button
+                className="primary-btn"
+                onClick={() => console.log('Submit trip', id)}
+              >
+                Submit
+              </button>
+            </div>
           </div>
-          <div className="trip-detail-actions-row">
-            <button
-              className="primary-btn"
-              onClick={() => console.log("Submit trip", id)}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      );
+        );
+      }
+      return null; // No buttons for other statuses
     }
-    return null; // No buttons for other statuses
-  }
 
-  // For Admin
-  if (isAdmin()) {
-    if (status === "awaiting approval") {
-      return (
-        <div className="trip-detail-actions">
-          <div className="trip-detail-actions-row">
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                navigate(`/edit-trip/${trip._id}`, {
-                  state: { trip }, // Pass trip data to the EditTrip page
-                })
-              }
-            >
-              Edit
-            </button>
-            <button
-              className="secondary-btn"
-              onClick={() => console.log("Delete trip", id)}
-            >
-              Delete
-            </button>
+    // For Admin
+    if (isAdmin()) {
+      if (status === 'awaiting approval') {
+        return (
+          <div className="trip-form-actions">
+            <div className="trip-form-actions-row">
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  navigate(`/edit-trip/${trip._id}`, {
+                    state: { trip }, // Pass trip data to the EditTrip page
+                  })
+                }
+              >
+                Edit
+              </button>
+              <button
+                className="secondary-btn"
+                onClick={() => console.log('Delete trip', id)}
+              >
+                Delete
+              </button>
+            </div>
+            <div className="trip-form-actions-row">
+              <button className="primary-btn" onClick={handleApprove}>
+                Approve
+              </button>
+            </div>
           </div>
-          <div className="trip-detail-actions-row">
-            <button
-              className="primary-btn"
-              onClick={handleApprove}
-            >
-              Approve
-            </button>
+        );
+      }
+      if (status === 'not submitted' || status === 'approved') {
+        return (
+          <div className="trip-form-actions">
+            <div className="trip-form-actions-row">
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  navigate(`/edit-trip/${trip._id}`, {
+                    state: { trip }, // Pass trip data to the EditTrip page
+                  })
+                }
+              >
+                Edit
+              </button>
+              <button
+                className="secondary-btn"
+                onClick={() => console.log('Delete trip', id)}
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
     }
-    if (status === "not submitted" || status === "approved") {
-      return (
-        <div className="trip-detail-actions">
-          <div className="trip-detail-actions-row">
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                navigate(`/edit-trip/${trip._id}`, {
-                  state: { trip }, // Pass trip data to the EditTrip page
-                })
-              }
-            >
-              Edit
-            </button>
-            <button
-              className="secondary-btn"
-              onClick={() => console.log("Delete trip", id)}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      );
-    }
-  }
 
-  return null;
-};
-
+    return null;
+  };
 
   return (
-    <div className="trip-detail-container">
+    <div className="trip-form-container">
       <TripFormHeader title="Trip Detail" />
 
-      <div className="trip-detail-content">
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Trip Code</p>
-          <p className="trip-detail-value">{trip.title}</p>
+      <div className="trip-form-content">
+        <div className="trip-form-row">
+          <p className="trip-form-label">Trip Code</p>
+          <p className="trip-form-value">{trip.title}</p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Location</p>
-          <p className="trip-detail-value">
+        <div className="trip-form-row">
+          <p className="trip-form-label">Location</p>
+          <p className="trip-form-value">
             {trip.location.city}, {trip.location.country}
           </p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Trip Start</p>
-          <p className="trip-detail-value">
+        <div className="trip-form-row">
+          <p className="trip-form-label">Trip Start</p>
+          <p className="trip-form-value">
             {formatDateTime(trip.tripDate.startDate)}
           </p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Trip End</p>
-          <p className="trip-detail-value">
+        <div className="trip-form-row">
+          <p className="trip-form-label">Trip End</p>
+          <p className="trip-form-value">
             {formatDateTime(trip.tripDate.endDate)}
           </p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Total Traktamente Day</p>
-          <p className="trip-detail-value">{trip.calculatedData?.totalDays || 0} days</p>
+        <div className="trip-form-row">
+          <p className="trip-form-label">Total Traktamente Day</p>
+          <p className="trip-form-value">
+            {trip.calculatedData?.totalDays || 0} days
+          </p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">No. of Hotel Breakfast</p>
-          <p className="trip-detail-value">{trip.hotelBreakfastDays || 0} days</p>
+        <div className="trip-form-row">
+          <p className="trip-form-label">No. of Hotel Breakfast</p>
+          <p className="trip-form-value">{trip.hotelBreakfastDays || 0} days</p>
         </div>
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Driving Mil with Private Car (1 mil = 10 km)</p>
-          <p className="trip-detail-value">{trip.mileageKm || 0} mil</p>
+        <div className="trip-form-row">
+          <p className="trip-form-label">
+            Driving Mil with Private Car (1 mil = 10 km)
+          </p>
+          <p className="trip-form-value">{trip.mileageKm || 0} mil</p>
         </div>
 
-        <hr className="trip-detail-divider" />
+        <hr className="trip-form-divider" />
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label total-label">Total Amount</p>
-          <p className="trip-detail-value total-value">
+        <div className="trip-form-row">
+          <p className="trip-form-label total-label">Total Amount</p>
+          <p className="trip-form-value total-value">
             {trip.calculatedData?.totalAmount || 0} SEK
           </p>
         </div>
 
-        <hr className="trip-detail-divider" />
+        <hr className="trip-form-divider" />
 
-        <div className="trip-detail-row">
-          <p className="trip-detail-label">Status:</p>
+        <div className="trip-form-row">
+          <p className="trip-form-label">Status:</p>
           <p
-            className={`trip-detail-status ${
-              trip.status.toLowerCase().replace(" ", "-")
-            }`}
+            className={`trip-form-status ${trip.status
+              .toLowerCase()
+              .replace(' ', '-')}`}
           >
             {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
           </p>

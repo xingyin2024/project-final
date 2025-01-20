@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { IoLocationOutline, IoLocate } from "react-icons/io5";
-import AlertMessage from "../components/AlertMessage";
-import "../styles/tripForm.css";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { IoLocationOutline, IoLocate } from 'react-icons/io5';
+import AlertMessage from '../components/AlertMessage';
+import '../styles/tripForm.css';
 
 const TripForm = ({
   formData,
@@ -30,7 +30,7 @@ const TripForm = ({
         <input
           type="text"
           name="title"
-          value={formData.title || ""}
+          value={formData.title || ''}
           placeholder="Select or type Trip Code"
           onChange={handleChange}
           required
@@ -44,28 +44,33 @@ const TripForm = ({
           <input
             type="text"
             className="dropdown-input"
-            value={formData?.location?.country || ""}
+            value={formData?.location?.country || ''}
             placeholder="Select or type Country"
-            onChange={(e) => handleInputChange("country", e.target.value)}
+            onChange={(e) => handleInputChange('country', e.target.value)}
             onBlur={() => validateCountry()}
             required
           />
-          <IoLocationOutline size={20} onClick={() => toggleDropdown("country")} />
+          <IoLocationOutline
+            size={20}
+            onClick={() => toggleDropdown('country')}
+          />
           {dropdownState.country && (
             <ul className="dropdown">
               {countrySuggestions.map((item, index) => (
                 <li
                   key={index}
-                  onClick={() => handleSelect("country", item["country or territory"])}
+                  onClick={() =>
+                    handleSelect('country', item['country or territory'])
+                  }
                   className="dropdown-item"
                 >
-                  {item["country or territory"]}
+                  {item['country or territory']}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <AlertMessage message={getAlert("country")} />
+        <AlertMessage message={getAlert('country')} />
       </div>
 
       {/* City Input */}
@@ -75,15 +80,19 @@ const TripForm = ({
           <input
             type="text"
             className="dropdown-input"
-            value={formData?.location?.city || ""}
+            value={formData?.location?.city || ''}
             placeholder="Select or type City"
-            onChange={(e) => handleInputChange("city", e.target.value)}
+            onChange={(e) => handleInputChange('city', e.target.value)}
           />
-          <IoLocate size={20} onClick={() => toggleDropdown("city")} />
+          <IoLocate size={20} onClick={() => toggleDropdown('city')} />
           {dropdownState.city && (
             <ul className="dropdown">
               {citySuggestions.map((city, index) => (
-                <li key={index} onClick={() => handleSelect("city", city)} className="dropdown-item">
+                <li
+                  key={index}
+                  onClick={() => handleSelect('city', city)}
+                  className="dropdown-item"
+                >
                   {city}
                 </li>
               ))}
@@ -98,7 +107,7 @@ const TripForm = ({
         <input
           type="datetime-local"
           name="tripDate.startDate"
-          value={formData.tripDate?.startDate || ""}
+          value={formData.tripDate?.startDate || ''}
           onChange={handleChange}
           required
         />
@@ -108,9 +117,23 @@ const TripForm = ({
         <input
           type="datetime-local"
           name="tripDate.endDate"
-          value={formData.tripDate?.endDate || ""}
+          value={formData.tripDate?.endDate || ''}
           onChange={handleChange}
           required
+        />
+        <AlertMessage message={getAlert('tripDate')} />
+      </div>
+
+      <div className="trip-form-row">
+        <p className="trip-form-label">Total Traktamente Day</p>
+        <input
+          type="number"
+          name="calculatedData.totalDays"
+          step="0.5"
+          min="0"
+          value={formData.calculatedData?.totalDays ?? ''}
+          onChange={handleChange}
+          className="trip-form-input"
         />
       </div>
 
@@ -120,19 +143,19 @@ const TripForm = ({
         <input
           type="number"
           name="hotelBreakfastDays"
-          value={formData.hotelBreakfastDays || "0"}
+          value={formData.hotelBreakfastDays || '0'}
           onChange={handleChange}
           min="0"
           required
         />
-        <AlertMessage message={getAlert("hotelBreakfastDays")} />
+        <AlertMessage message={getAlert('hotelBreakfastDays')} />
       </div>
       <div className="trip-form-row">
         <p className="trip-form-label">Driving Mil with Private Car (mil)</p>
         <input
           type="number"
           name="mileageKm"
-          value={formData.mileageKm || "0"}
+          value={formData.mileageKm || '0'}
           onChange={handleChange}
           min="0"
           required
@@ -144,50 +167,70 @@ const TripForm = ({
       {/* Summary */}
       <div className="trip-form-row">
         <p className="trip-form-label">Total Traktamente Day(s)</p>
-        <p className="trip-form-value">{formData.calculatedData?.totalDays || 0} day(s)</p>
+        <p className="trip-form-value total-value">
+          {formData.calculatedData?.totalDays || 0} day(s)
+        </p>
       </div>
       <div className="trip-form-row">
-        <p className="trip-form-label">Total Amount</p>
-        <p className="trip-form-value">{formData.calculatedData?.totalAmount || 0} SEK</p>
+        <p className="trip-form-label total-label">Total Amount</p>
+        <p className="total-value">
+          {formData.calculatedData?.totalAmount || 0} SEK
+        </p>
       </div>
 
       {/* Total Amount Calculation Formula */}
       <div className="trip-form-row">
         <p className="trip-form-label">Calculation Formula:</p>
         <p className="trip-form-note">
-          Total Amount = ({formData.calculatedData?.totalDays || 0} ×{" "}
-          {formData.calculatedData?.standardAmount || "N/A"} kr) - (Breakfast Days × 58 kr) + (Mil × 25 kr)
+          {formData.calculatedData?.totalDays === 0
+            ? 'Total Amount = 0 kr (since total days is 0).'
+            : `Total Amount = (${
+                formData.calculatedData?.totalDays || 0
+              } days × 
+           ${formData.calculatedData?.standardAmount || 'N/A'} kr) - (
+           ${formData.hotelBreakfastDays} breakfast days × 58 kr) + (
+           ${formData.mileageKm} mil × 25 kr)`}
         </p>
       </div>
 
       {includeStatus && (
         <>
           <hr className="trip-form-divider" />
+
           <div className="trip-form-row">
             <p className="trip-form-label">Status:</p>
             <p
-              className={`trip-form-status ${
-                formData.status?.toLowerCase().replace(" ", "-")
-              }`}
+              className={`trip-form-status ${formData?.status
+                ?.toLowerCase()
+                .replace(' ', '-')}`}
             >
-              {formData.status?.charAt(0).toUpperCase() + formData.status?.slice(1)}
+              {formData?.status?.charAt(0).toUpperCase() +
+                formData?.status?.slice(1)}
             </p>
           </div>
         </>
       )}
-      </div>
+    </div>
 
-      <div className="trip-form-actions">
-      <button
-        type="submit"
-        className={`primary-btn ${isModified && !hasActiveAlerts ? "" : "primary-btn-disabled"}`}
-        disabled={!isModified || hasActiveAlerts}
-      >
-        Save
-      </button>
-        <button type="button" className="secondary-btn" onClick={() => navigate(`/trip/${id}`)}>
+    <div className="trip-form-actions">
+      <div className="trip-form-actions-row">
+        <button
+          type="submit"
+          className={`primary-btn ${
+            isModified && !hasActiveAlerts ? '' : 'primary-btn-disabled'
+          }`}
+          disabled={!isModified || hasActiveAlerts}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="secondary-btn"
+          onClick={() => navigate(`/trip/${id}`)}
+        >
           Cancel
         </button>
+      </div>
     </div>
   </form>
 );

@@ -13,7 +13,6 @@
   margin-bottom: 24px;
 }
 
-
 .trip-form-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -44,6 +43,15 @@
   color: var(--black-darker);
 }
 
+.total-label {
+  font-weight: bold;
+}
+
+.total-value {
+  font-weight: bold;
+  color: var(--black-darker);
+}
+
 .trip-form-note {
   font-size: 0.875rem;
   font-style: italic;
@@ -52,29 +60,23 @@
 
 .trip-form-status {
   font-weight: bold;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  display: inline-block;
+  font-size: 1rem;
 }
 
-.trip-form-status.success {
-  color: white;
-  background-color: var(--status-success);
+.trip-form-status.approved {
+  color: var(--status-success);
 }
 
-.trip-form-status.processing {
-  color: white;
-  background-color: var(--status-processing);
+.trip-form-status.awaiting-approval {
+  color: var(--status-processing);
 }
 
-.trip-form-status.warning {
-  color: white;
-  background-color: var(--status-warning);
+.trip-form-status.not-submitted {
+  color: var(--status-warning);
 }
 
 .trip-form-status.default {
   color: var(--black-dark);
-  background-color: var(--black-light);
 }
 
 .input-with-icon {
@@ -91,9 +93,14 @@
 
 .trip-form-actions {
   display: flex;
+  flex-direction: column;
+  gap: 16px; /* Space between rows */
+}
+
+.trip-form-actions-row {
+  display: flex;
   justify-content: space-between;
-  margin: 40px 0;
-  gap: 40px;
+  gap: 40px; /* Space between Edit and Delete buttons */
 }
 
 .dropdown-icon {
