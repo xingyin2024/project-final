@@ -6,6 +6,7 @@ import useUniqueCountries from '../hooks/useUniqueCountries';
 import useAlert from '../hooks/useAlert';
 import TripFormHeader from '../components/TripFormHeader';
 import TripForm from '../components/TripForm';
+import TripFormButtons from '../components/TripFormButtons';
 import TripDayCalculator from '../components/TripDayCalculator';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -164,8 +165,8 @@ const EditTrip = () => {
     JSON.stringify(formData) !== JSON.stringify(originalData);
 
   const hasActiveAlerts = () => {
-    const alerts = getAlert() || {}; // Ensure `alerts` is always an object
-    return !!Object.values(getAlert()).find((alert) => alert);
+    // const alerts = getAlert() || {}; // Ensure `alerts` is always an object
+    return !!Object.values(getAlert() || {}).find((alert) => alert);
   };
 
   // 4) Recalculate total amount whenever relevant fields change
@@ -230,40 +231,24 @@ const EditTrip = () => {
     }));
   };
 
-  // Validate country input
-  const validateCountry = (inputValue = formData.location.country) => {
-    const trimmedCountry = inputValue?.trim().toLowerCase();
-    const isValid = sortedCountries.some(
-      (item) => item['country or territory'].toLowerCase() === trimmedCountry
-    );
-
-    if (!trimmedCountry) setAlert('country', 'Country field cannot be empty.');
-    else if (!isValid)
-      setAlert(
-        'country',
-        'No matched country found, please check your location.'
-      );
-    else clearAlert('country');
-  };
-
   // ----------------------------------------------------------------
   // 8) Re-run calculation on relevant changes
   // ----------------------------------------------------------------
   useEffect(() => {
     if (
-      formData?.tripDate?.startDate &&
-      formData?.tripDate?.endDate &&
-      formData?.location?.country
+      formData.tripDate.startDate &&
+      formData.tripDate.endDate &&
+      formData.location.country
     ) {
       calculateDaysAndAmount();
     }
   }, [
-    formData?.tripDate?.startDate,
-    formData?.tripDate?.endDate,
-    formData?.hotelBreakfastDays,
-    formData?.mileageKm,
-    formData?.location?.country,
-    formData.totalDays, // watch for manual changes
+    formData.tripDate.startDate,
+    formData.tripDate.endDate,
+    formData.hotelBreakfastDays,
+    formData.mileageKm,
+    formData.location.country,
+    formData.totalDays,
   ]);
 
   // ----------------------------------------------------------------
@@ -442,8 +427,24 @@ const EditTrip = () => {
     } // Show all cities
   };
 
+  // 13) Validate country input
+  const validateCountry = (inputValue = formData.location.country) => {
+    const trimmedCountry = inputValue?.trim().toLowerCase();
+    const isValid = sortedCountries.some(
+      (item) => item['country or territory'].toLowerCase() === trimmedCountry
+    );
+
+    if (!trimmedCountry) setAlert('country', 'Country field cannot be empty.');
+    else if (!isValid)
+      setAlert(
+        'country',
+        'No matched country found, please check your location.'
+      );
+    else clearAlert('country');
+  };
+
   // ----------------------------------------------------------------
-  // 13) onSubmit: Save button click with form submission
+  // 14) onSubmit: Save button click with form submission
   // ----------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -477,7 +478,7 @@ const EditTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 14) Render
+  // 15) Render
   // ----------------------------------------------------------------
   if (loading) return <p>Loading trip details...</p>;
   if (error) return <p className="error-message">{error}</p>;
@@ -485,39 +486,42 @@ const EditTrip = () => {
   return (
     <div className="trip-form-container">
       <TripFormHeader
-        title="Edit Trip"
+        title="Edit Trip Report"
         onBack={() => navigate(`/trip/${id}`)}
       />
 
-      {/*
+      <form onSubmit={handleSubmit}>
+        {/*
         Integrate the TripDayCalculator here.
         - Pass the start and end date from formData
         - Pass the handleDaysCalculated callback
       */}
-      <TripDayCalculator
-        startDateTime={formData.tripDate?.startDate}
-        endDateTime={formData.tripDate?.endDate}
-        onDaysCalculated={handleDaysCalculated}
-      />
+        <TripDayCalculator
+          startDateTime={formData.tripDate?.startDate}
+          endDateTime={formData.tripDate?.endDate}
+          onDaysCalculated={handleDaysCalculated}
+        />
 
-      <TripForm
-        formData={formData}
-        handleChange={handleChange}
-        handleInputChange={handleInputChange}
-        validateCountry={validateCountry}
-        toggleDropdown={toggleDropdown}
-        dropdownState={dropdownState}
-        countrySuggestions={countrySuggestions}
-        citySuggestions={citySuggestions}
-        handleSelect={handleSelect}
-        getAlert={getAlert}
-        onSubmit={handleSubmit}
-        isModified={isModified()}
-        hasActiveAlerts={hasActiveAlerts()}
-        includeStatus={true}
-        navigate={navigate} // Pass navigate
-        id={id} // Pass id for use in navigation
-      />
+        <TripForm
+          formData={formData}
+          handleChange={handleChange}
+          handleInputChange={handleInputChange}
+          validateCountry={validateCountry}
+          toggleDropdown={toggleDropdown}
+          dropdownState={dropdownState}
+          countrySuggestions={countrySuggestions}
+          citySuggestions={citySuggestions}
+          handleSelect={handleSelect}
+          getAlert={getAlert}
+          includeStatus={true} // show status field
+        />
+
+        <TripFormButtons
+          onSave={null} // we rely on type="submit"
+          onCancel={() => navigate(`/trip/${id}`)}
+          disabledSave={!isModified() || hasActiveAlerts()}
+        />
+      </form>
     </div>
   );
 };

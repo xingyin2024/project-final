@@ -6,9 +6,8 @@ import useUniqueCountries from '../hooks/useUniqueCountries';
 import useAlert from '../hooks/useAlert';
 import TripFormHeader from '../components/TripFormHeader';
 import TripForm from '../components/TripForm';
+import TripFormButtons from '../components/TripFormButtons';
 import TripDayCalculator from '../components/TripDayCalculator';
-
-// We'll import a common symmetricalDateFix if we create one. For now, we just inline it.
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -393,27 +392,42 @@ const CreateTrip = () => {
         onBack={() => navigate('/dashboard')}
       />
 
-      <TripDayCalculator
-        startDateTime={formData.tripDate?.startDate}
-        endDateTime={formData.tripDate?.endDate}
-        onDaysCalculated={handleDaysCalculated}
-      />
+      {/* 
+        (b) make a <form> here, so pressing "Save" (type="submit") triggers handleSubmit
+      */}
+      <form onSubmit={handleSubmit}>
+        <TripDayCalculator
+          startDateTime={formData.tripDate?.startDate}
+          endDateTime={formData.tripDate?.endDate}
+          onDaysCalculated={handleDaysCalculated}
+        />
 
-      <TripForm
-        formData={formData}
-        handleChange={handleChange}
-        handleInputChange={handleInputChange}
-        validateCountry={validateCountry}
-        toggleDropdown={toggleDropdown}
-        dropdownState={dropdownState}
-        countrySuggestions={countrySuggestions}
-        citySuggestions={citySuggestions}
-        handleSelect={handleSelect}
-        getAlert={getAlert}
-        onSubmit={handleSubmit}
-        isModified={isFormValid()} // isModified => we pass isFormValid
-        hasActiveAlerts={!!Object.values(getAlert() || {}).length} // disable if there's any active alert or form not valid
-      />
+        <TripForm
+          formData={formData}
+          handleChange={handleChange}
+          handleInputChange={handleInputChange}
+          dropdownState={dropdownState}
+          countrySuggestions={countrySuggestions}
+          citySuggestions={citySuggestions}
+          toggleDropdown={toggleDropdown}
+          handleSelect={handleSelect}
+          validateCountry={validateCountry}
+          getAlert={getAlert}
+        />
+
+        {/* 
+          (c) Place the Save/Cancel buttons in the parent
+          use "onCancel" => navigate('/dashboard'), 
+          "disabledSave" => !isFormValid() or active alerts
+        */}
+        <TripFormButtons
+          onSave={null} // if you want the button to do nothing because it's type=submit
+          onCancel={() => navigate('/dashboard')}
+          disabledSave={
+            !isFormValid() || !!Object.values(getAlert() || {}).length
+          }
+        />
+      </form>
     </div>
   );
 };

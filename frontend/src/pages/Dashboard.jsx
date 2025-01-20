@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
-import "../styles/dashboard.css";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import '../styles/dashboard.css';
 
-// Retrieve BASE_URL from environment variables
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Dashboard = () => {
@@ -20,42 +19,48 @@ const Dashboard = () => {
         setLoading(true);
 
         // Retrieve access token
-        const accessToken = localStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
-          throw new Error("Unauthorized: No access token found.");
+          throw new Error('Unauthorized: No access token found.');
         }
 
         // Fetch trips from backend
         const response = await fetch(`${BASE_URL}/trips`, {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: accessToken, // Use direct accessToken here
           },
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch trips.");
+          throw new Error(errorData.message || 'Failed to fetch trips.');
         }
 
         const data = await response.json();
 
-        // Filter trips by logged-in user's `_id`
-        const userTrips = data.data.filter(
-          (trip) => trip.userId?._id === user?.id
-        );
+        let filteredTrips = [];
+        if (user.role === 'admin') {
+          // Admins see all trips
+          filteredTrips = data.data;
+        } else {
+          // Regular users see only their trips
+          filteredTrips = data.data.filter(
+            (trip) => trip.userId?._id === user?.id
+          );
+        }
 
         // Calculate summary
-        const notSubmitted = userTrips.filter(
-          (trip) => trip.status.toLowerCase() === "not submitted"
+        const notSubmitted = filteredTrips.filter(
+          (trip) => trip.status.toLowerCase() === 'not submitted'
         ).length;
 
-        const submitted = userTrips.filter((trip) =>
-          ["approved", "awaiting approval"].includes(trip.status.toLowerCase())
+        const submitted = filteredTrips.filter((trip) =>
+          ['approved', 'awaiting approval'].includes(trip.status.toLowerCase())
         ).length;
 
-        setTrips(userTrips);
+        setTrips(filteredTrips);
         setSummary({ submitted, notSubmitted });
       } catch (err) {
         setError(err.message);
@@ -67,6 +72,8 @@ const Dashboard = () => {
     if (user) {
       fetchTrips();
     }
+
+    console.log('Dashboard rendered:', trips);
   }, [user]);
 
   if (loading) {
@@ -80,7 +87,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Header */}
-      <h1 className="dashboard-header">Hello, {user?.firstName || "Guest"}!</h1>
+      <h1 className="dashboard-header">Hello, {user?.firstName || 'Guest'}!</h1>
 
       {/* Summary Cards */}
       <div className="summary-cards">
@@ -119,7 +126,8 @@ const Dashboard = () => {
 
             {/* Trip Location */}
             <p className="trip-card-location">
-              Location: {trip.location?.city || "Unknown"}, {trip.location?.country || "Unknown"}
+              Location: {trip.location?.city || 'Unknown'},{' '}
+              {trip.location?.country || 'Unknown'}
             </p>
 
             {/* Trip Duration */}
@@ -136,12 +144,13 @@ const Dashboard = () => {
             <p
               className={`trip-card-status ${
                 trip.status
-                  ? `status-${trip.status.replace(" ", "-").toLowerCase()}`
-                  : "status-default"
+                  ? `status-${trip.status.replace(' ', '-').toLowerCase()}`
+                  : 'status-default'
               }`}
             >
-              Status: {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
-            </p>      
+              Status:{' '}
+              {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
+            </p>
           </li>
         ))}
       </ul>

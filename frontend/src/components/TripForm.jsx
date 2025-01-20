@@ -1,9 +1,12 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { IoLocationOutline, IoLocate } from 'react-icons/io5';
 import AlertMessage from '../components/AlertMessage';
 import '../styles/tripForm.css';
 
+/**
+ * A purely "fields-only" component that renders the input fields for a trip,
+ * but no <form> tag and no Save/Cancel buttons. The parent controls the form.
+ */
 const TripForm = ({
   formData,
   handleChange,
@@ -15,14 +18,9 @@ const TripForm = ({
   citySuggestions,
   handleSelect,
   getAlert,
-  onSubmit,
-  isModified,
-  hasActiveAlerts,
   includeStatus = false,
-  navigate, // Add navigate
-  id, // Add id
-}) => (
-  <form onSubmit={onSubmit}>
+}) => {
+  return (
     <div className="trip-form-content">
       {/* Title Input */}
       <div className="trip-form-row">
@@ -124,6 +122,7 @@ const TripForm = ({
         <AlertMessage message={getAlert('tripDate')} />
       </div>
 
+      {/* totalDays user override input */}
       <div className="trip-form-row">
         <p className="trip-form-label">Total Traktamente Day</p>
         <input
@@ -196,7 +195,6 @@ const TripForm = ({
       {includeStatus && (
         <>
           <hr className="trip-form-divider" />
-
           <div className="trip-form-row">
             <p className="trip-form-label">Status:</p>
             <p
@@ -211,32 +209,8 @@ const TripForm = ({
         </>
       )}
     </div>
-
-    <div className="trip-form-actions">
-      <div className="trip-form-actions-row">
-        <button
-          type="submit"
-          className={`primary-btn ${
-            isModified && !hasActiveAlerts ? '' : 'primary-btn-disabled'
-          }`}
-          disabled={!isModified || hasActiveAlerts}
-        >
-          Save
-        </button>
-        <button
-          type="button"
-          className="secondary-btn"
-          onClick={() => {
-            console.log('Navigating to:', `/trip/${id}`);
-            navigate(`/trip/${id}`);
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </form>
-);
+  );
+};
 
 TripForm.propTypes = {
   formData: PropTypes.object.isRequired,
@@ -249,9 +223,6 @@ TripForm.propTypes = {
   citySuggestions: PropTypes.array.isRequired,
   handleSelect: PropTypes.func.isRequired,
   getAlert: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  isModified: PropTypes.bool.isRequired,
-  hasActiveAlerts: PropTypes.bool.isRequired,
   includeStatus: PropTypes.bool,
 };
 
