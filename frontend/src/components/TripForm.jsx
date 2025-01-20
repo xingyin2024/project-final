@@ -226,7 +226,10 @@ const TripForm = ({
         <button
           type="button"
           className="secondary-btn"
-          onClick={() => navigate(`/trip/${id}`)}
+          onClick={() => {
+            console.log('Navigating to:', `/trip/${id}`);
+            navigate(`/trip/${id}`);
+          }}
         >
           Cancel
         </button>
