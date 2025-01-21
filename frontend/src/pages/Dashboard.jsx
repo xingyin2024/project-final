@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import TripCard from '../components/TripCard';
+import SummaryCard from '../components/SummaryCard';
+import Pagination from '../components/Pagination';
 import '../styles/dashboard.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+// Helper function from backend ref (if used client-side)
+export const getPagination = (page = 1, limit = 10) => {
+  const sanitizedPage = Math.max(1, Number(page) || 1);
+  const sanitizedLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+  return { page: sanitizedPage, limit: sanitizedLimit };
+};
 
 const Dashboard = () => {
   const { user } = useUser(); // Access logged-in user details
@@ -11,6 +21,10 @@ const Dashboard = () => {
   const [summary, setSummary] = useState({ submitted: 0, notSubmitted: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Client-side pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const tripsPerPage = 10;
   const navigate = useNavigate(); // Initialize navigate function
 
   useEffect(() => {
@@ -51,6 +65,12 @@ const Dashboard = () => {
           );
         }
 
+        // Sort trips in descending order based on updated/created date if available.
+        // Adjust the sorting field as needed.
+        filteredTrips.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+
         // Calculate summary
         const notSubmitted = filteredTrips.filter(
           (trip) => trip.status.toLowerCase() === 'not submitted'
@@ -72,9 +92,14 @@ const Dashboard = () => {
     if (user) {
       fetchTrips();
     }
-
-    console.log('Dashboard rendered:', trips);
   }, [user]);
+
+  // Get trips for current page
+  const { page, limit } = getPagination(currentPage, tripsPerPage);
+  const indexOfLastTrip = page * limit;
+  const indexOfFirstTrip = indexOfLastTrip - limit;
+  const currentTrips = trips.slice(indexOfFirstTrip, indexOfLastTrip);
+  const totalPages = Math.ceil(trips.length / tripsPerPage);
 
   if (loading) {
     return <p>Loading trips...</p>;
@@ -84,76 +109,59 @@ const Dashboard = () => {
     return <p className="error-message">Error: {error}</p>;
   }
 
+  // Handlers for navigating to TripOverView with filters.
+  const goToOverview = (filter) => {
+    navigate('/tripoverview', { state: { filter } });
+  };
+
   return (
     <div className="dashboard-container">
       {/* Header */}
       <h1 className="dashboard-header">Hello, {user?.firstName || 'Guest'}!</h1>
 
-      {/* Summary Cards */}
+      {/* Summary Cards (as buttons) */}
       <div className="summary-cards">
-        <div className="sum-card">
-          <h2 className="sum-card-title">{summary.notSubmitted}</h2>
-          <p className="sum-card-value">trip report(s)</p>
-          <p className="sum-card-value">
-            <b>Not Submitted</b>
-          </p>
-        </div>
-        <div className="sum-card">
-          <h2 className="sum-card-title">{summary.submitted}</h2>
-          <p className="sum-card-value">trip report(s)</p>
-          <p className="sum-card-value">
-            <b>Submitted</b>
-          </p>
-        </div>
+        <SummaryCard
+          title="Not Submitted"
+          value={summary.notSubmitted}
+          label="trip report(s)"
+          onClick={() => goToOverview('notSubmitted')}
+        />
+        <SummaryCard
+          title="Submitted"
+          value={summary.submitted}
+          label="trip report(s)"
+          onClick={() => goToOverview('submitted')}
+        />
       </div>
 
-      {/* Recent Trips */}
+      {/* Recent Trips Header */}
       <div className="recent-trips-header-container">
         <h2 className="recent-trips-header">Recent Trips</h2>
-        <button className="text-btn">View All</button>
+        <button className="text-btn" onClick={() => goToOverview('all')}>
+          View All
+        </button>
       </div>
-      <ul className="recent-trips-list">
-        {trips.map((trip) => (
-          <li
+
+      {/* Recent Trips List using TripCard */}
+      <div className="recent-trips-list">
+        {currentTrips.map((trip) => (
+          <TripCard
             key={trip._id}
-            className="trip-card"
-            onClick={() => navigate(`/trip/${trip._id}`, { state: { trip } })} // Navigate to trip detail page & Pass the trip data
-          >
-            {/* Trip Title and Date */}
-            <h3 className="trip-card-title">
-              {trip.title} ({new Date(trip.tripDate?.startDate).getFullYear()})
-            </h3>
-
-            {/* Trip Location */}
-            <p className="trip-card-location">
-              Location: {trip.location?.city || 'Unknown'},{' '}
-              {trip.location?.country || 'Unknown'}
-            </p>
-
-            {/* Trip Duration */}
-            <p className="trip-card-duration">
-              Duration: {trip.calculatedData?.totalDays || 0} day(s)
-            </p>
-
-            {/* Total Amount */}
-            <p className="trip-card-amount">
-              Total Amount: {trip.calculatedData?.totalAmount || 0} SEK
-            </p>
-
-            {/* Status */}
-            <p
-              className={`trip-card-status ${
-                trip.status
-                  ? `status-${trip.status.replace(' ', '-').toLowerCase()}`
-                  : 'status-default'
-              }`}
-            >
-              Status:{' '}
-              {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
-            </p>
-          </li>
+            trip={trip}
+            onClick={() => navigate(`/trip/${trip._id}`, { state: { trip } })}
+          />
         ))}
-      </ul>
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 };

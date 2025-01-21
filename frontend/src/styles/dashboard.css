@@ -18,7 +18,7 @@
   margin-bottom: 24px;
 }
 
-.sum-card {
+.summary-card {
   text-align: left;
   padding: 8px;
   background: white;
@@ -28,19 +28,21 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover transition */
 }
 
-.sum-card:hover {
+.summary-card:hover {
   transform: translateY(-4px); /* Slight lift effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
-  border-color: var(--pink-from); /* Change border color to pink gradient start */
+  border-color: var(
+    --pink-from
+  ); /* Change border color to pink gradient start */
 }
 
-.sum-card-title {
+.summary-card-value {
   font-size: 1.25rem;
   font-weight: bold;
   margin-top: 8px;
 }
 
-.sum-card-value {
+.summary-card-title {
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--black-mid);
