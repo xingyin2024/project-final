@@ -13,7 +13,17 @@
 
 .confirmation-popup {
   background: #fff;
-  padding: 20px 30px;
+  padding: 60px 30px;
   border-radius: 5px;
   text-align: center;
+}
+
+.confirmation-popup-message {
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+.confirmation-popup-btn {
+  margin-top: 24px;
+  max-width: 300px;
 }

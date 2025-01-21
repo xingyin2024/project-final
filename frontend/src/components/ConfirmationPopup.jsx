@@ -5,8 +5,11 @@ const ConfirmationPopup = ({ message, onClose }) => {
   return (
     <div className="confirmation-popup-overlay">
       <div className="confirmation-popup">
-        <p>{message}</p>
-        <button className="primary-btn" onClick={onClose}>
+        <p className="confirmation-popup-message">{message}</p>
+        <button
+          className="secondary-btn confirmation-popup-btn"
+          onClick={onClose}
+        >
           OK
         </button>
       </div>
