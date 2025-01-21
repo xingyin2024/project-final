@@ -1,10 +1,12 @@
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
-import TripFormHeader from '../components/TripFormHeader';
 import '../styles/tripForm.css';
+import TripFormHeader from '../components/TripFormHeader';
 import { formatDateTime } from '../utils/formatDateTime';
 import useActionButtons from '../hooks/useActionButtons';
+import { UpdatingAnimation } from '../components/UpdatingAnimation';
+import ConfirmationPopup from '../components/ConfirmationPopup';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -17,6 +19,12 @@ const TripDetail = () => {
   const [trip, setTrip] = useState(state?.trip || null);
   const [loading, setLoading] = useState(!state?.trip);
   const [error, setError] = useState(null);
+
+  // *** NEW states for action feedback (and confirmation popup) ***
+  const [actionLoading, setActionLoading] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
+  // callback to run after user dismisses the confirmation popup:
+  const [nextAction, setNextAction] = useState(null);
 
   // Fetch trip details if not available in state
   useEffect(() => {
@@ -53,10 +61,26 @@ const TripDetail = () => {
     };
 
     if (!state?.trip) fetchTrip();
-  }, [id]);
+  }, [id, state, navigate]);
 
+  // Helpers to show the confirmation popup and run a callback after dismissal
+  const showConfirmation = (message, callbackAfterClose) => {
+    setFeedbackMessage(message);
+    setNextAction(() => callbackAfterClose);
+  };
+
+  const handlePopupClose = () => {
+    setFeedbackMessage(null);
+    if (nextAction) {
+      nextAction();
+      setNextAction(null);
+    }
+  };
+  // *** DELETE trip ***
   const handleDelete = async () => {
     try {
+      setActionLoading(true);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'DELETE',
@@ -66,15 +90,26 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to delete trip.');
       }
-      // maybe navigate to dashboard
-      navigate('/dashboard', { state: { deleted: true } });
+
+      setActionLoading(false);
+
+      showConfirmation(
+        `Trip "${trip.title}" has been deleted successfully.`,
+        () => {
+          navigate('/dashboard', { state: { deleted: true } });
+        }
+      );
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
 
+  // *** SUBMIT trip => update status to 'awaiting approval' ***
   const handleSubmitTrip = async () => {
     try {
+      setActionLoading(true);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'PATCH',
@@ -88,15 +123,29 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to submit trip.');
       }
-      // reload or navigate
-      navigate(`/trip/${id}`, { state: { updated: true } });
+
+      setActionLoading(false);
+
+      // Option A: locally update the trip status => UI is immediate
+      setTrip((prev) => ({ ...prev, status: 'awaiting approval' }));
+      showConfirmation(
+        `Trip "${trip.title}" has been submitted successfully.`,
+        () => {}
+      );
+      // Option B: re-fetch the trip
+      // or navigate to /trip/:id => ...
+      // navigate(`/trip/${id}`, { state: { updated: true } });
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
 
+  // *** APPROVE trip => update status to 'approved' ***
   const handleApprove = async () => {
     try {
+      setActionLoading(true);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'PATCH',
@@ -110,8 +159,17 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to approve trip.');
       }
-      navigate(`/trip/${id}`, { state: { updated: true } });
+
+      setActionLoading(false);
+
+      // locally update trip status
+      setTrip((prev) => ({ ...prev, status: 'approved' }));
+      showConfirmation(
+        `Trip "${trip.title}" has been approved successfully.`,
+        () => {}
+      );
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
@@ -134,6 +192,23 @@ const TripDetail = () => {
         title="Trip Detail"
         onBack={() => navigate('/dashboard')}
       />
+
+      {/* LOADING ANIMATION */}
+      {actionLoading && (
+        <div className="loading-animation">
+          <UpdatingAnimation />
+          <p>Processing your request…</p>
+        </div>
+      )}
+
+      {/* Feedback Confirmation Popup */}
+      {feedbackMessage && (
+        <ConfirmationPopup
+          message={feedbackMessage}
+          onClose={handlePopupClose}
+        />
+      )}
+
       <div className="trip-form-content">
         {/* Trip Details */}
         {trip && (
