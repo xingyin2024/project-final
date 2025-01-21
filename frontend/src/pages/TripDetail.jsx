@@ -5,8 +5,9 @@ import '../styles/tripForm.css';
 import TripFormHeader from '../components/TripFormHeader';
 import { formatDateTime } from '../utils/formatDateTime';
 import useActionButtons from '../hooks/useActionButtons';
-import { UpdatingAnimation } from '../components/UpdatingAnimation';
 import ConfirmationPopup from '../components/ConfirmationPopup';
+import Lottie from 'lottie-react';
+import Updating from '../assets/Updating.json';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -195,9 +196,13 @@ const TripDetail = () => {
 
       {/* LOADING ANIMATION */}
       {actionLoading && (
-        <div className="loading-animation">
-          <UpdatingAnimation />
-          <p>Processing your request…</p>
+        <div className="loading-overlay">
+          <Lottie
+            animationData={Updating}
+            loop
+            autoplay
+            className="loading-animation"
+          />
         </div>
       )}
 
