@@ -5,6 +5,7 @@ import TripFormHeader from '../components/TripFormHeader';
 import '../styles/tripForm.css';
 import { formatDateTime } from '../utils/formatDateTime';
 import useActionButtons from '../hooks/useActionButtons';
+import { UpdatingAnimation } from '../components/UpdatingAnimation';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -17,6 +18,10 @@ const TripDetail = () => {
   const [trip, setTrip] = useState(state?.trip || null);
   const [loading, setLoading] = useState(!state?.trip);
   const [error, setError] = useState(null);
+
+  // *** NEW states for action feedback ***
+  const [actionLoading, setActionLoading] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
 
   // Fetch trip details if not available in state
   useEffect(() => {
@@ -55,8 +60,12 @@ const TripDetail = () => {
     if (!state?.trip) fetchTrip();
   }, [id]);
 
+  // *** DELETE trip ***
   const handleDelete = async () => {
     try {
+      setActionLoading(true);
+      setFeedbackMessage(null);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'DELETE',
@@ -66,15 +75,23 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to delete trip.');
       }
+
+      setActionLoading(false);
+      setFeedbackMessage(`Trip "${trip.title}" has been deleted successfully.`);
       // maybe navigate to dashboard
       navigate('/dashboard', { state: { deleted: true } });
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
 
+  // *** SUBMIT trip => update status to 'awaiting approval' ***
   const handleSubmitTrip = async () => {
     try {
+      setActionLoading(true);
+      setFeedbackMessage(null);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'PATCH',
@@ -88,15 +105,29 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to submit trip.');
       }
-      // reload or navigate
-      navigate(`/trip/${id}`, { state: { updated: true } });
+      setActionLoading(false);
+      setFeedbackMessage(
+        `Trip "${trip.title}" has been submitted successfully.`
+      );
+
+      // Option A: locally update the trip status => UI is immediate
+      setTrip((prev) => ({ ...prev, status: 'awaiting approval' }));
+
+      // Option B: re-fetch the trip
+      // or navigate to /trip/:id => ...
+      // navigate(`/trip/${id}`, { state: { updated: true } });
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
 
+  // *** APPROVE trip => update status to 'approved' ***
   const handleApprove = async () => {
     try {
+      setActionLoading(true);
+      setFeedbackMessage(null);
+
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${BASE_URL}/trips/${id}`, {
         method: 'PATCH',
@@ -110,8 +141,16 @@ const TripDetail = () => {
         const data = await response.json();
         throw new Error(data.message || 'Failed to approve trip.');
       }
-      navigate(`/trip/${id}`, { state: { updated: true } });
+
+      setActionLoading(false);
+      setFeedbackMessage(
+        `Trip "${trip.title}" has been approved successfully.`
+      );
+
+      // Locally update
+      setTrip((prev) => ({ ...prev, status: 'approved' }));
     } catch (err) {
+      setActionLoading(false);
       setError(err.message);
     }
   };
@@ -134,6 +173,20 @@ const TripDetail = () => {
         title="Trip Detail"
         onBack={() => navigate('/dashboard')}
       />
+
+      {/* LOADING ANIMATION for action or success message */}
+      {actionLoading && (
+        <div className="loading-animation">
+          <UpdatingAnimation />
+          <p>Processing your request…</p>
+        </div>
+      )}
+
+      {/* FEEDBACK MESSAGE ON SUCCESS */}
+      {feedbackMessage && (
+        <div className="success-message">{feedbackMessage}</div>
+      )}
+
       <div className="trip-form-content">
         {/* Trip Details */}
         {trip && (
