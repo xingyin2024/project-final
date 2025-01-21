@@ -158,11 +158,6 @@ const updateTrip = async (req, res) => {
         updates.submission = updates.submission || {};
         updates.submission.approvedBy = user._id.toString();
         updates.submission.approvedAt = new Date();
-      } else if (updates.status === 'approved' && trip.status === 'approved') {
-        return res.status(400).json({
-          success: false,
-          message: 'This trip is already approved.',
-        });
       }
     } else {
       // Non-admin users
