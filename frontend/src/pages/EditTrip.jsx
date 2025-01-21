@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import countriesData from '../assets/traktamente-en.json';
 import favoriteCities from '../assets/fav-city.json';
@@ -8,6 +8,7 @@ import TripFormHeader from '../components/TripFormHeader';
 import TripForm from '../components/TripForm';
 import TripFormButtons from '../components/TripFormButtons';
 import TripDayCalculator from '../components/TripDayCalculator';
+import ConfirmationPopup from '../components/ConfirmationPopup';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -42,9 +43,15 @@ const EditTrip = () => {
     country: false,
     city: false,
   });
+
+  // Confirmation popup state
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
+
+  // Suggestions for country and city
   const [countrySuggestions, setCountrySuggestions] = useState([]);
   const [citySuggestions, setCitySuggestions] = useState([]);
 
+  // Loading and error handling
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -62,29 +69,31 @@ const EditTrip = () => {
 
   /**
    * TripDayCalculator calls this. We only apply
-   * the autoDays if manualOverride is false.
+   * the autoDays if manualOverride is false,
+   * and use useCallback to stabilize the reference.
    */
-  const handleDaysCalculated = (autoDays) => {
-    setFormData((prev) => {
-      // If user manually typed a day count, skip auto-calc
-      if (manualOverride) {
-        return prev;
-      }
-      // If it’s the same as current totalDays, do nothing
-      if (prev.totalDays === autoDays) {
-        return prev;
-      }
-      // Otherwise update
-      return {
-        ...prev,
-        totalDays: autoDays,
-        calculatedData: {
-          ...prev.calculatedData,
+  const handleDaysCalculated = useCallback(
+    (autoDays) => {
+      setFormData((prev) => {
+        // If user manually typed a day count, skip auto-calc
+        if (manualOverride) return prev;
+
+        // If it’s the same as current totalDays, do nothing
+        if (prev.totalDays === autoDays) return prev;
+
+        // Otherwise update
+        return {
+          ...prev,
           totalDays: autoDays,
-        },
-      };
-    });
-  };
+          calculatedData: {
+            ...prev.calculatedData,
+            totalDays: autoDays,
+          },
+        };
+      });
+    },
+    [manualOverride]
+  );
 
   // ----------------------------------------------------------------
   // 4.1) Helper to format date for datetime-local
@@ -93,7 +102,7 @@ const EditTrip = () => {
     new Date(date).toISOString().slice(0, 16);
 
   // ----------------------------------------------------------------
-  // 4.1) Helper function to unify setting form data from any "trip" source
+  // 4.2) Helper function to unify setting form data from any "trip" source
   // ----------------------------------------------------------------
   const applyTripData = (trip) => {
     const formattedTripDate = {
@@ -155,7 +164,7 @@ const EditTrip = () => {
     } else {
       fetchTrip();
     }
-  }, [id, state]);
+  }, [id, state, setAlert]);
 
   // ----------------------------------------------------------------
   // 6) isModified:Check if form data has been modified
@@ -182,15 +191,26 @@ const EditTrip = () => {
 
     // (1) If totalDays is 0 -> totalAmount = 0 no matter what
     if (totalDays === 0) {
-      setFormData((prev) => ({
-        ...prev,
-        calculatedData: {
-          ...prev.calculatedData,
-          totalDays: 0,
-          totalAmount: 0,
-          standardAmount: 0,
-        },
-      }));
+      setFormData((prev) => {
+        // Only update if values differ
+        const current = prev.calculatedData;
+        if (
+          current.totalAmount === 0 &&
+          current.standardAmount === 0 &&
+          current.totalDays === 0
+        ) {
+          return prev;
+        }
+        return {
+          ...prev,
+          calculatedData: {
+            ...prev.calculatedData,
+            totalDays: 0,
+            totalAmount: 0,
+            standardAmount: 0,
+          },
+        };
+      });
       return;
     }
 
@@ -204,7 +224,7 @@ const EditTrip = () => {
       clearAlert('hotelBreakfastDays');
     }
 
-    // find standardAmount
+    // find standardAmount from countriesData
     const tripYear = new Date(formData.tripDate.startDate).getFullYear();
     const countryData = countriesData.find(
       (item) =>
@@ -219,16 +239,26 @@ const EditTrip = () => {
     const totalAmount =
       totalDays * standardAmount - hotelBreakfastDays * 58 + mileageKm * 25;
 
-    // Update your formData
-    setFormData((prev) => ({
-      ...prev,
-      calculatedData: {
-        ...prev.calculatedData,
-        totalDays,
-        totalAmount,
-        standardAmount,
-      },
-    }));
+    // Only update state if there is a difference
+    setFormData((prev) => {
+      const prevCalc = prev.calculatedData || {};
+      if (
+        prevCalc.totalDays === totalDays &&
+        prevCalc.totalAmount === totalAmount &&
+        prevCalc.standardAmount === standardAmount
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        calculatedData: {
+          ...prevCalc,
+          totalDays,
+          totalAmount,
+          standardAmount,
+        },
+      };
+    });
   };
 
   // ----------------------------------------------------------------
@@ -248,7 +278,6 @@ const EditTrip = () => {
     formData.hotelBreakfastDays,
     formData.mileageKm,
     formData.location.country,
-    formData.totalDays,
   ]);
 
   // ----------------------------------------------------------------
@@ -444,7 +473,7 @@ const EditTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 14) onSubmit: Save button click with form submission
+  // 14) onSubmit: Save button onclick with form submission and show confirmation before navigation.
   // ----------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -467,14 +496,22 @@ const EditTrip = () => {
         throw new Error(data.message || 'Failed to update trip.');
       }
 
+      // Instead of immediate navigate, show confirmation
+      setLoading(false);
+      setFeedbackMessage('Trip report updated successfully.');
+
       // Redirect to the TripDetail page on success
-      navigate(`/trip/${id}`, { state: { updated: true } });
+      // navigate(`/trip/${id}`, { state: { updated: true } });
     } catch (err) {
       setError(err.message);
       setAlert('general', 'Error updating trip details.');
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirmationClose = () => {
+    setFeedbackMessage(null);
+    navigate(`/trip/${id}`, { state: { updated: true } });
   };
 
   // ----------------------------------------------------------------
@@ -489,6 +526,13 @@ const EditTrip = () => {
         title="Edit Trip Report"
         onBack={() => navigate(`/trip/${id}`)}
       />
+
+      {feedbackMessage && (
+        <ConfirmationPopup
+          message={feedbackMessage}
+          onClose={handleConfirmationClose}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         {/*

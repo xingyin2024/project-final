@@ -72,8 +72,6 @@ const Dashboard = () => {
     if (user) {
       fetchTrips();
     }
-
-    console.log('Dashboard rendered:', trips);
   }, [user]);
 
   if (loading) {

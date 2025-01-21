@@ -5,16 +5,14 @@ import '../styles/tripForm.css';
  * Renders two buttons: Save and Cancel.
  * The parent is responsible for all logic (onSave, onCancel, etc.).
  */
-const TripFormButtons = ({ onSave, onCancel, disabledSave }) => {
+const TripFormButtons = ({ onSave = null, onCancel, disabledSave = false }) => {
   return (
     <div className="trip-form-actions">
       <div className="trip-form-actions-row">
         {/* The Save button can be "type=submit" if we rely on the parent's <form onSubmit=...> */}
         <button
           type="submit"
-          className={`primary-btn ${
-            disabledSave ? 'primary-btn-disabled' : ''
-          }`}
+          className="primary-btn"
           disabled={disabledSave}
           onClick={onSave}
         >

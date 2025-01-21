@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import countriesData from '../assets/traktamente-en.json';
 import favoriteCities from '../assets/fav-city.json';
@@ -8,6 +8,7 @@ import TripFormHeader from '../components/TripFormHeader';
 import TripForm from '../components/TripForm';
 import TripFormButtons from '../components/TripFormButtons';
 import TripDayCalculator from '../components/TripDayCalculator';
+import ConfirmationPopup from '../components/ConfirmationPopup';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -52,30 +53,36 @@ const CreateTrip = () => {
   // Manual override logic
   const [manualOverride, setManualOverride] = useState(false);
 
+  // Confirmation popup state
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
+
   // ----------------------------------------------------------------
-  // 2) TripDayCalculator calls this to set days, with guard
+  // 2) TripDayCalculator calls this to set days, with useCallback to stabilize the reference
   // ----------------------------------------------------------------
-  const handleDaysCalculated = (autoDays) => {
-    setFormData((prev) => {
-      // If user manually typed a day count, skip auto-calc
-      if (manualOverride) {
-        return prev;
-      }
-      // If it’s the same as current totalDays, do nothing
-      if (prev.totalDays === autoDays) {
-        return prev;
-      }
-      // Otherwise update
-      return {
-        ...prev,
-        totalDays: autoDays,
-        calculatedData: {
-          ...prev.calculatedData,
+  const handleDaysCalculated = useCallback(
+    (autoDays) => {
+      setFormData((prev) => {
+        // If user manually typed a day count, skip auto-calc
+        if (manualOverride) {
+          return prev;
+        }
+        // If it’s the same as current totalDays, do nothing
+        if (prev.totalDays === autoDays) {
+          return prev;
+        }
+        // Otherwise update
+        return {
+          ...prev,
           totalDays: autoDays,
-        },
-      };
-    });
-  };
+          calculatedData: {
+            ...prev.calculatedData,
+            totalDays: autoDays,
+          },
+        };
+      });
+    },
+    [manualOverride]
+  );
 
   // ----------------------------------------------------------------
   // 3) Calculate total amount & validate hotelBreakfast
@@ -156,22 +163,23 @@ const CreateTrip = () => {
     formData.hotelBreakfastDays,
     formData.mileageKm,
     formData.location.country,
-    formData.totalDays,
   ]);
 
   // ----------------------------------------------------------------
-  // 5) Symmetrical date auto-fix logic in handleChange
+  // 5) Helper: Format date for datetime-local input
   // ----------------------------------------------------------------
   const formatDateForInput = (date) =>
     new Date(date).toISOString().slice(0, 16);
 
+  // ----------------------------------------------------------------
+  // 6) handleChange for inputs and auto-fix dates
+  // ----------------------------------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // If user modifies the date => auto-calc can run again
     if (name === 'tripDate.startDate' || name === 'tripDate.endDate') {
-      // reset manual override => if user changes date, we
-      // allow autoDays to overwrite again
+      // reset manual override => if user changes date, allow autoDays to overwrite again
       setManualOverride(false);
     }
 
@@ -259,7 +267,7 @@ const CreateTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 6) handleInputChange for country/city
+  // 7) Input handler for location search and country validation
   // ----------------------------------------------------------------
   const validateCountry = (inputValue = formData.location.country) => {
     const trimmedCountry = inputValue.trim().toLowerCase();
@@ -328,8 +336,7 @@ const CreateTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 7) The Save button is disabled until required fields are filled
-  //    e.g. title, location.country, tripDate.startDate, tripDate.endDate
+  // 8) Enable Save button only when required fields are filled
   // ----------------------------------------------------------------
   const isFormValid = () => {
     if (!formData.title) return false;
@@ -340,14 +347,12 @@ const CreateTrip = () => {
   };
 
   // ----------------------------------------------------------------
-  // 8) handleSubmit -> POST to backend
+  // 9) handleSubmit -> POST to backend and show confirmation before navigation
   // ----------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isFormValid()) {
-      return; // do nothing if form isn't valid
-    }
+    if (!isFormValid()) return; // do nothing if form isn't valid
 
     setLoading(true);
     try {
@@ -366,17 +371,22 @@ const CreateTrip = () => {
         throw new Error(data.message || 'Failed to create trip.');
       }
 
-      navigate('/dashboard', { state: { created: true } });
+      setLoading(false);
+      setFeedbackMessage('Trip created successfully.');
     } catch (err) {
       setError(err.message);
       setAlert('general', 'Error creating trip.');
-    } finally {
       setLoading(false);
     }
   };
 
+  const handleConfirmationClose = () => {
+    setFeedbackMessage(null);
+    navigate('/dashboard', { state: { created: true } });
+  };
+
   // ----------------------------------------------------------------
-  // 9) Render
+  // 10) Render
   // ----------------------------------------------------------------
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="error-message">{error}</p>;
@@ -393,7 +403,17 @@ const CreateTrip = () => {
       />
 
       {/* 
-        (b) make a <form> here, so pressing "Save" (type="submit") triggers handleSubmit
+        (b) Add feedback with a confirmation popup before navigate
+      */}
+      {feedbackMessage && (
+        <ConfirmationPopup
+          message={feedbackMessage}
+          onClose={handleConfirmationClose}
+        />
+      )}
+
+      {/* 
+        (c) make a <form> here, so pressing "Save" (type="submit") triggers handleSubmit
       */}
       <form onSubmit={handleSubmit}>
         <TripDayCalculator
@@ -416,7 +436,7 @@ const CreateTrip = () => {
         />
 
         {/* 
-          (c) Place the Save/Cancel buttons in the parent
+          (d) Place the Save/Cancel buttons in the parent
           use "onCancel" => navigate('/dashboard'), 
           "disabledSave" => !isFormValid() or active alerts
         */}
