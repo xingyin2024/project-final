@@ -21,11 +21,13 @@ const TripDetail = () => {
   const [loading, setLoading] = useState(!state?.trip);
   const [error, setError] = useState(null);
 
-  // *** NEW states for action feedback (and confirmation popup) ***
+  // State to manage action loading and messages for the popup
   const [actionLoading, setActionLoading] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState(null);
-  // callback to run after user dismisses the confirmation popup:
-  const [nextAction, setNextAction] = useState(null);
+  // message to show on the popup
+  const [popupMessage, setPopupMessage] = useState(null);
+  // callbacks for the popup confirmation buttons (if needed)
+  const [popupOnConfirm, setPopupOnConfirm] = useState(null);
+  const [popupOnCancel, setPopupOnCancel] = useState(null);
 
   // Fetch trip details if not available in state
   useEffect(() => {
@@ -64,19 +66,44 @@ const TripDetail = () => {
     if (!state?.trip) fetchTrip();
   }, [id, state, navigate]);
 
-  // Helpers to show the confirmation popup and run a callback after dismissal
-  const showConfirmation = (message, callbackAfterClose) => {
-    setFeedbackMessage(message);
-    setNextAction(() => callbackAfterClose);
+  // Generic function to show the popup in confirmation mode
+  const showConfirmationPopup = (
+    message,
+    onConfirmAction,
+    onCancelAction = () => {
+      // By default, navigate back to TripDetail (no changes)
+      navigate(`/trip/${id}`);
+    }
+  ) => {
+    setPopupMessage(message);
+    setPopupOnConfirm(() => () => {
+      setPopupMessage(null);
+      setPopupOnConfirm(null);
+      setPopupOnCancel(null);
+      onConfirmAction();
+    });
+    setPopupOnCancel(() => () => {
+      setPopupMessage(null);
+      setPopupOnConfirm(null);
+      setPopupOnCancel(null);
+      onCancelAction();
+    });
   };
 
-  const handlePopupClose = () => {
-    setFeedbackMessage(null);
-    if (nextAction) {
-      nextAction();
-      setNextAction(null);
-    }
+  // Generic function to show an information popup (OK only)
+  const showInfoPopup = (message, callbackAfterClose = () => {}) => {
+    setPopupMessage(message);
+    // Do not set onConfirm and onCancel in info mode.
+    setPopupOnConfirm(null);
+    setPopupOnCancel(null);
+    // Pass the onClose callback using a temporary function.
+    setPopupOnConfirm(() => () => {
+      setPopupMessage(null);
+      setPopupOnConfirm(null);
+      callbackAfterClose();
+    });
   };
+
   // *** DELETE trip ***
   const handleDelete = async () => {
     try {
@@ -94,7 +121,8 @@ const TripDetail = () => {
 
       setActionLoading(false);
 
-      showConfirmation(
+      // After successful deletion, show an info popup and navigate afterward.
+      showInfoPopup(
         `Trip "${trip.title}" has been deleted successfully.`,
         () => {
           navigate('/dashboard', { state: { deleted: true } });
@@ -129,13 +157,7 @@ const TripDetail = () => {
 
       // Option A: locally update the trip status => UI is immediate
       setTrip((prev) => ({ ...prev, status: 'awaiting approval' }));
-      showConfirmation(
-        `Trip "${trip.title}" has been submitted successfully.`,
-        () => {}
-      );
-      // Option B: re-fetch the trip
-      // or navigate to /trip/:id => ...
-      // navigate(`/trip/${id}`, { state: { updated: true } });
+      showInfoPopup(`Trip "${trip.title}" has been submitted successfully.`);
     } catch (err) {
       setActionLoading(false);
       setError(err.message);
@@ -165,23 +187,52 @@ const TripDetail = () => {
 
       // locally update trip status
       setTrip((prev) => ({ ...prev, status: 'approved' }));
-      showConfirmation(
-        `Trip "${trip.title}" has been approved successfully.`,
-        () => {}
-      );
+      showInfoPopup(`Trip "${trip.title}" has been approved successfully.`);
     } catch (err) {
       setActionLoading(false);
       setError(err.message);
     }
   };
 
+  // Handler wrappers that first prompt the user for confirmation before executing the real action.
+  const handleDeleteWithConfirm = () => {
+    showConfirmationPopup(
+      `Are you sure to delete this trip "${trip.title}"?`,
+      handleDelete,
+      () => {
+        // if canceled, simply navigate back to the detail page (or leave as is)
+        navigate(`/trip/${id}`);
+      }
+    );
+  };
+
+  const handleSubmitWithConfirm = () => {
+    showConfirmationPopup(
+      `Are you sure to submit this trip "${trip.title}"?`,
+      handleSubmitTrip,
+      () => {
+        navigate(`/trip/${id}`);
+      }
+    );
+  };
+
+  const handleApproveWithConfirm = () => {
+    showConfirmationPopup(
+      `Are you sure to approve this trip "${trip.title}"?`,
+      handleApprove,
+      () => {
+        navigate(`/trip/${id}`);
+      }
+    );
+  };
+
   const actionButtons = useActionButtons({
     trip,
     isAdmin,
     navigate,
-    handleDelete,
-    handleSubmitTrip,
-    handleApprove,
+    handleDelete: handleDeleteWithConfirm,
+    handleSubmitTrip: handleSubmitWithConfirm,
+    handleApprove: handleApproveWithConfirm,
   });
 
   if (loading) return <p>Loading trip details...</p>;
@@ -206,11 +257,13 @@ const TripDetail = () => {
         </div>
       )}
 
-      {/* Feedback Confirmation Popup */}
-      {feedbackMessage && (
+      {/* Confirmation / Info Popup */}
+      {popupMessage && (
         <ConfirmationPopup
-          message={feedbackMessage}
-          onClose={handlePopupClose}
+          message={popupMessage}
+          onConfirm={popupOnConfirm}
+          onCancel={popupOnCancel}
+          onClose={popupOnConfirm} // In info mode, onClose is handled via popupOnConfirm
         />
       )}
 
