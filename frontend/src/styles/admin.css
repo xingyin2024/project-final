@@ -1,0 +1,35 @@
+.admin-container {
+  padding: 1rem;
+}
+
+.team-container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.search-input {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.search-input input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.team-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  list-style: none;
+  padding: 16px 0px;
+  margin: 0px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}

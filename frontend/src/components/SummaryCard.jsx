@@ -1,6 +1,5 @@
-// src/components/SummaryCard.jsx
 import PropTypes from 'prop-types';
-// import '../styles/summaryCard.css';
+import '../styles/summaryCard.css';
 
 const SummaryCard = ({ title, value, label, onClick }) => {
   return (

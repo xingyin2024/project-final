@@ -1,6 +1,5 @@
-// src/components/TripCard.jsx
 import PropTypes from 'prop-types';
-// import '../styles/tripCard.css';
+import '../styles/tripCard.css';
 
 const TripCard = ({ trip, onClick }) => {
   const startYear = trip.tripDate?.startDate

@@ -1,73 +1,84 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import TeamCard from '../components/TeamCard';
+import '../styles/admin.css';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
-  const [trips, setTrips] = useState([]);
-  const [userPage, setUserPage] = useState(1);
-  const [tripPage, setTripPage] = useState(1);
-  const [userTotalPages, setUserTotalPages] = useState(1);
-  const [tripTotalPages, setTripTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const apiUrl = import.meta.env.BASE_URL || "http://localhost:8080";
-
+  // Fetch all users
   useEffect(() => {
-    const getUsers = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await fetch(`${apiUrl}/users?page=${userPage}&limit=10`);
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken)
+          throw new Error('Unauthorized: No access token found.');
+
+        const response = await fetch(`${BASE_URL}/users`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: accessToken,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch users.');
+        }
+
         const data = await response.json();
-        setUsers(data.data);
-        setUserTotalPages(data.totalPages);
-      } catch (error) {
-        console.error("Error fetching users:", error);
+        setUsers(data.data); // Adjust based on API response structure
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const getTrips = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/trips?page=${tripPage}&limit=10`);
-        const data = await response.json();
-        setTrips(data.data);
-        setTripTotalPages(data.totalPages);
-      } catch (error) {
-        console.error("Error fetching trips:", error);
-      }
-    };
+    fetchUsers();
+  }, []);
 
-    getUsers();
-    getTrips();
-  }, [userPage, tripPage, apiUrl]);
+  // Filter users based on search query
+  const filteredUsers = users.filter((user) =>
+    [user.username, user.firstName, user.lastName, user.role]
+      .filter(Boolean)
+      .some((field) => field.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  if (loading) return <p>Loading users...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <div>
-        <h2>Users</h2>
-        <ul>
-          {users.map((user) => (
-            <li key={user.id}>
-              {user.firstName} {user.lastName}
-            </li>
-          ))}
-        </ul>
-        <div className="pagination">
-          <button disabled={userPage === 1} onClick={() => setUserPage(userPage - 1)}>Previous</button>
-          <span>Page {userPage} of {userTotalPages}</span>
-          <button disabled={userPage === userTotalPages} onClick={() => setUserPage(userPage + 1)}>Next</button>
+    <div className="admin-container">
+      <div className="team-container">
+        {/* Search Input */}
+        <div className="search-input">
+          <input
+            type="text"
+            placeholder="Search by username, firstname, lastname, or role"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-      </div>
-      <div>
-        <h2>Trips</h2>
-        <ul>
-          {trips.map((trip) => (
-            <li key={trip.id}>
-              {trip.title} - {trip.location.city}, {trip.location.country}
-            </li>
+
+        {/* Team List */}
+        <div className="team-list">
+          {filteredUsers.map((user) => (
+            <TeamCard
+              key={user._id}
+              user={user}
+              onClick={() =>
+                navigate(`/profile/${user._id}`, { state: { user } })
+              }
+            />
           ))}
-        </ul>
-        <div className="pagination">
-          <button disabled={tripPage === 1} onClick={() => setTripPage(tripPage - 1)}>Previous</button>
-          <span>Page {tripPage} of {tripTotalPages}</span>
-          <button disabled={tripPage === tripTotalPages} onClick={() => setTripPage(tripPage + 1)}>Next</button>
         </div>
       </div>
     </div>
