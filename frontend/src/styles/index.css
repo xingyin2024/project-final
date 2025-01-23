@@ -23,11 +23,18 @@
   --status-success: #1d9e33;
   --status-processing: #eaa221;
   --status-warning: #f42828;
-  --font-family-inter: "Inter", serif, sans-serif;
-  --font-family-roboto: "Roboto", serif, sans-serif;
+  --font-family-inter: 'Inter', serif, sans-serif;
+  --font-family-roboto: 'Roboto', serif, sans-serif;
 }
 
-code, body {
+main {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+code,
+body {
   font-family: var(--font-family-inter);
 }
 
@@ -76,10 +83,11 @@ hr {
   border-radius: 8px;
   border: none;
   background: linear-gradient(
-    to bottom, 
-    var(--pink-from) 0%, 
-    var(--pink-via) 50%, 
-    var(--pink-to) 100%);
+    to bottom,
+    var(--pink-from) 0%,
+    var(--pink-via) 50%,
+    var(--pink-to) 100%
+  );
   color: white;
   padding: 12px 16px;
   font-weight: 600;
@@ -95,10 +103,11 @@ hr {
 
 .primary-btn:disabled {
   background: linear-gradient(
-    to bottom, 
-    var(--pink-from) 0%, 
-    var(--pink-via) 50%, 
-    var(--pink-to) 100%);
+    to bottom,
+    var(--pink-from) 0%,
+    var(--pink-via) 50%,
+    var(--pink-to) 100%
+  );
   opacity: 0.4;
   pointer-events: none;
 }
@@ -145,8 +154,8 @@ hr {
 }
 
 .text-btn:hover {
-  transform: translateY(-4px); 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--pink-from);
   border-radius: 8px;
   padding: 8px;
@@ -157,21 +166,21 @@ hr {
 same om welcome, login, register pages*/
 
 .btn-footer {
-  width: 100%; 
-  max-width: 300px; 
-  position: absolute; 
+  width: 100%;
+  max-width: 300px;
+  position: absolute;
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  
+
   @media (min-width: 768px) {
     position: relative; /* Button near inputs for larger screens */
     margin-top: 32px; /* Place button closer to the inputs */
     bottom: auto;
     left: auto;
-    transform: none;  
+    transform: none;
   }
 }
 
@@ -188,7 +197,7 @@ same om welcome, login, register pages*/
 /* Input Fields */
 .textinput {
   width: 100%;
-  text-align: left;  
+  text-align: left;
   font-size: 1rem; /* Default text size */
   color: var(--black-mid); /* Input text color */
   border-radius: 8px;
@@ -199,9 +208,9 @@ same om welcome, login, register pages*/
 }
 
 .textinput::placeholder {
-  font-size: 0.875rem; 
-  color: var(--black-input); 
-  opacity: 1; 
+  font-size: 0.875rem;
+  color: var(--black-input);
+  opacity: 1;
 }
 
 .textinput:focus {

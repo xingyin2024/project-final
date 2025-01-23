@@ -13,6 +13,7 @@ import Profile from '../pages/Profile';
 import Admin from '../pages/Admin';
 import NotFound from '../pages/NotFound';
 import TripOverView from '../pages/TripOverView';
+import UpdateProfile from '../pages/UpdateProfile';
 
 const AppRoutes = () => {
   const { user, isAdmin, authLoading } = useUser();
@@ -59,6 +60,10 @@ const AppRoutes = () => {
       <Route
         path="/profile"
         element={user ? <Profile /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/profile/:id"
+        element={user ? <UpdateProfile /> : <Navigate to="/" />}
       />
 
       {/* Admin Route */}
