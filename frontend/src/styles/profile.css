@@ -1,8 +1,5 @@
 /* Profile Page Styles */
 .profile-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 24px;
   margin-top: 60px;
 }

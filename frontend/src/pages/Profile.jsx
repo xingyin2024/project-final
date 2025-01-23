@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { useUser } from "../context/UserContext";
-import "../styles/profile.css";
+import { useState } from 'react';
+import { useUser } from '../context/UserContext';
+import '../styles/profile.css';
 
 const Profile = () => {
   const { user, setUser } = useUser();
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -24,9 +24,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="settings-container">
+    <div className="profile-container">
       {/* Header */}
-      <h1 className="settings-header">Hello, {user?.firstName || "Guest"}!</h1>
+      <h1 className="profile-header">Hello, {user?.firstName || 'Guest'}!</h1>
 
       {/* Profile Section */}
       <div className="profile-section">
@@ -47,7 +47,7 @@ const Profile = () => {
             value={formData.firstName}
             disabled={!isEditing}
             onChange={handleChange}
-            className={`textinput ${!isEditing ? "disabled-input" : ""}`}
+            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
           />
         </div>
         <div className="form-row">
@@ -58,7 +58,7 @@ const Profile = () => {
             value={formData.lastName}
             disabled={!isEditing}
             onChange={handleChange}
-            className={`textinput ${!isEditing ? "disabled-input" : ""}`}
+            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
           />
         </div>
         <div className="form-row">
@@ -69,7 +69,7 @@ const Profile = () => {
             value={formData.email}
             disabled={!isEditing}
             onChange={handleChange}
-            className={`textinput ${!isEditing ? "disabled-input" : ""}`}
+            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
           />
         </div>
       </div>

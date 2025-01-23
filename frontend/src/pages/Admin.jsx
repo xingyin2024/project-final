@@ -57,7 +57,16 @@ const Admin = () => {
 
   return (
     <div className="admin-container">
+      {/* Header */}
+      <h1 className="admin-header">Admin Panel</h1>
+
+      {/* Team Member List */}
       <div className="team-container">
+        {/* Team Member Header */}
+        <div className="team-header-container">
+          <h2 className="team-header">Team Member</h2>
+        </div>
+
         {/* Search Input */}
         <div className="search-input">
           <input
@@ -68,7 +77,7 @@ const Admin = () => {
           />
         </div>
 
-        {/* Team List */}
+        {/* Team Member List using TeamCard */}
         <div className="team-list">
           {filteredUsers.map((user) => (
             <TeamCard
