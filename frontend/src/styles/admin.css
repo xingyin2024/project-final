@@ -44,7 +44,7 @@
   grid-template-columns: 1fr;
   list-style: none;
   padding: 16px 0px;
-  margin: 0px auto;
+  margin: 0px;
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(2, 1fr);

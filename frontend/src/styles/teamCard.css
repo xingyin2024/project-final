@@ -2,17 +2,20 @@
 .team-card {
   display: flex;
   align-items: center;
-  padding: 1rem;
-  border: 1px solid #ddd;
+  background: white;
+  border: 1px solid var(--black-border);
   border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .team-card:hover {
-  transform: translateY(-4px); /* Lift effect */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow */
-  border-color: var(--pink-from); /* Border matches hover color */
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: var(--pink-from);
 }
 
 .team-card-pic {
@@ -28,11 +31,13 @@
 }
 
 .team-card-name {
-  font-size: 1.2rem;
-  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .team-card-role {
-  color: #555;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  color: var(--black-mid);
+  margin-bottom: 8px;
 }

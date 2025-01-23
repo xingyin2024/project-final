@@ -332,9 +332,11 @@ const TripDetail = () => {
             <div className="trip-form-row">
               <p className="trip-form-label">Status:</p>
               <p
-                className={`trip-form-status ${trip.status
-                  .toLowerCase()
-                  .replace(' ', '-')}`}
+                className={`trip-card-status ${
+                  trip.status
+                    ? `status-${trip.status.replace(' ', '-').toLowerCase()}`
+                    : 'status-default'
+                }`}
               >
                 {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
               </p>

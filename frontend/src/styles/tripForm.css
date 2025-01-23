@@ -63,22 +63,6 @@
   font-size: 1rem;
 }
 
-.trip-form-status.approved {
-  color: var(--status-success);
-}
-
-.trip-form-status.awaiting-approval {
-  color: var(--status-processing);
-}
-
-.trip-form-status.not-submitted {
-  color: var(--status-warning);
-}
-
-.trip-form-status.default {
-  color: var(--black-dark);
-}
-
 .input-with-icon {
   position: relative;
   display: flex;

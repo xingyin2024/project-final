@@ -74,7 +74,7 @@
 
   @media screen and (min-width: 768px) {
     width: 100%; /* Smaller width on large screens */
-    max-width: 400px; /* Large screen responsiveness */    
+    max-width: 400px; /* Large screen responsiveness */
   }
 }
 
@@ -99,13 +99,12 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--black-border);
+  border: 4px solid white;
 
   @media screen and (min-width: 768px) {
     width: 100px; /* Larger profile pic on larger screens */
     height: 100px;
   }
-
 }
 
 .profile-name {
@@ -128,7 +127,7 @@
 .nav-items {
   list-style: none;
   padding: 0;
-  margin: 0;  
+  margin: 0;
 }
 
 .nav-item {

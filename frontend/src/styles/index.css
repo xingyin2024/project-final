@@ -235,3 +235,20 @@ input:focus {
   border-color: var(--pink-from);
   outline: none;
 }
+
+/* status */
+.status-approved {
+  color: var(--status-success);
+}
+
+.status-awaiting-approval {
+  color: var(--status-processing);
+}
+
+.status-not-submitted {
+  color: var(--status-warning);
+}
+
+.status-default {
+  color: var(--black-mid);
+}

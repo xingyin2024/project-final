@@ -1,97 +1,176 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import ProfileForm from '../components/ProfileForm';
+import ConfirmationPopup from '../components/ConfirmationPopup';
+import ActionButton from '../components/ActionButton';
 import '../styles/profile.css';
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const Profile = () => {
-  const { user, setUser } = useUser();
-  const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-  });
+  const { id } = useParams();
+  const { user, isAdmin } = useUser();
+  const navigate = useNavigate();
+
+  const [profileData, setProfileData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Popup state
+  const [popupMessage, setPopupMessage] = useState(null);
+  const [popupOnConfirm, setPopupOnConfirm] = useState(null);
+  const [popupOnCancel, setPopupOnCancel] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken)
+          throw new Error('Unauthorized: No access token found.');
+
+        const response = await fetch(`${BASE_URL}/users/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: accessToken,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch user profile.');
+        }
+
+        const data = await response.json();
+        setProfileData(data.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
-    // Simulate updating user details locally
-    setUser({ ...user, ...formData }); // Updates the context with new user details
-    setIsEditing(false);
+    setPopupMessage('Are you sure to save the update?');
+    setPopupOnConfirm(() => async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${BASE_URL}/users/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: accessToken,
+          },
+          body: JSON.stringify(profileData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update user profile.');
+        }
+
+        setPopupMessage(
+          `Profile of ${profileData.firstName} ${profileData.lastName} has been saved successfully.`
+        );
+        setPopupOnConfirm(() => () => navigate(`/profile/${id}`)); // Navigate back
+        setPopupOnCancel(null); // No cancel action needed after success
+      } catch (err) {
+        setPopupMessage(err.message);
+        setPopupOnConfirm(null);
+        setPopupOnCancel(null);
+      }
+    });
+    setPopupOnCancel(() => () => navigate(`/profile/${id}`));
   };
+
+  const handleDelete = () => {
+    setPopupMessage(
+      `Are you sure to delete team member ${profileData.firstName} ${profileData.lastName}?`
+    );
+    setPopupOnConfirm(() => async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${BASE_URL}/users/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: accessToken,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete user profile.');
+        }
+
+        setPopupMessage(
+          `Profile of ${profileData.firstName} ${profileData.lastName} has been deleted successfully.`
+        );
+        setPopupOnConfirm(() => () => navigate('/admin')); // Navigate to admin page
+        setPopupOnCancel(null);
+      } catch (err) {
+        setPopupMessage(err.message);
+        setPopupOnConfirm(null);
+        setPopupOnCancel(null);
+      }
+    });
+    setPopupOnCancel(() => () => navigate(`/profile/${id}`));
+  };
+
+  if (loading) return <p>Loading profile...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
     <div className="profile-container">
-      {/* Header */}
-      <h1 className="profile-header">Hello, {user?.firstName || 'Guest'}!</h1>
+      <h1 className="profile-header">
+        {id === user.id ? 'Your Profile' : `${profileData.firstName}'s Profile`}
+      </h1>
 
-      {/* Profile Section */}
-      <div className="profile-section">
-        <img
-          src="/profile-pic.png" // Replace with dynamic profile image source if available
-          alt="Profile"
-          className="profile-pic-main"
+      {popupMessage && (
+        <ConfirmationPopup
+          message={popupMessage}
+          onConfirm={popupOnConfirm}
+          onCancel={popupOnCancel}
+          onClose={() => setPopupMessage(null)}
         />
-      </div>
+      )}
 
-      {/* User Details */}
-      <div className="settings-form">
-        <div className="form-row">
-          <label className="form-label">Firstname</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.firstName}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
-          />
-        </div>
-        <div className="form-row">
-          <label className="form-label">Lastname</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
-          />
-        </div>
-        <div className="form-row">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            disabled={!isEditing}
-            onChange={handleChange}
-            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
-          />
-        </div>
-      </div>
+      <ProfileForm
+        profileData={profileData}
+        isEditing={isEditing}
+        onChange={handleChange}
+        showRole={isAdmin()}
+      />
 
-      {/* Buttons */}
-      <div className="btn-footer">
+      <div className="profile-actions">
         {isEditing ? (
-          <div className="sm-btn-footer">
-            <button onClick={handleSave} className="secondary-btn">
+          <>
+            <ActionButton type="primary" onClick={handleSave}>
               Save
-            </button>
-            <button
-              onClick={() => setIsEditing(false)}
-              className="secondary-btn"
+            </ActionButton>
+            <ActionButton
+              type="secondary"
+              onClick={() => navigate(`/profile/${id}`)}
             >
               Cancel
-            </button>
-          </div>
+            </ActionButton>
+          </>
         ) : (
-          <button onClick={() => setIsEditing(true)} className="primary-btn">
+          <ActionButton type="primary" onClick={() => setIsEditing(true)}>
             Update Profile
-          </button>
+          </ActionButton>
+        )}
+        {isAdmin() && !isEditing && (
+          <ActionButton type="secondary" onClick={handleDelete}>
+            Delete
+          </ActionButton>
         )}
       </div>
     </div>
