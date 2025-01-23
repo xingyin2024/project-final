@@ -23,6 +23,7 @@ const Profile = () => {
   const [popupOnConfirm, setPopupOnConfirm] = useState(null);
   const [popupOnCancel, setPopupOnCancel] = useState(null);
 
+  // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -52,8 +53,13 @@ const Profile = () => {
       }
     };
 
-    fetchUserProfile();
-  }, [id]);
+    // Ensure the `id` is fetched properly
+    if (!id && user) {
+      navigate(`/profile/${user.id}`);
+    } else {
+      fetchUserProfile();
+    }
+  }, [id, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,7 +87,10 @@ const Profile = () => {
         setPopupMessage(
           `Profile of ${profileData.firstName} ${profileData.lastName} has been saved successfully.`
         );
-        setPopupOnConfirm(() => () => navigate(`/profile/${id}`)); // Navigate back
+        setPopupOnConfirm(() => () => {
+          setIsEditing(false); // Disable editing after save
+          setPopupMessage(null); // Close popup
+        });
         setPopupOnCancel(null); // No cancel action needed after success
       } catch (err) {
         setPopupMessage(err.message);
@@ -89,7 +98,7 @@ const Profile = () => {
         setPopupOnCancel(null);
       }
     });
-    setPopupOnCancel(() => () => navigate(`/profile/${id}`));
+    setPopupOnCancel(() => () => setPopupMessage(null));
   };
 
   const handleDelete = () => {
@@ -121,7 +130,10 @@ const Profile = () => {
         setPopupOnCancel(null);
       }
     });
-    setPopupOnCancel(() => () => navigate(`/profile/${id}`));
+    setPopupOnCancel(() => () => {
+      setPopupMessage(null); // Close the popup
+      setIsEditing(false); // Reset editing state
+    });
   };
 
   if (loading) return <p>Loading profile...</p>;
@@ -152,19 +164,22 @@ const Profile = () => {
       <div className="profile-actions">
         {isEditing ? (
           <>
-            <ActionButton type="primary" onClick={handleSave}>
+            <ActionButton type="secondary" onClick={handleSave}>
               Save
             </ActionButton>
             <ActionButton
               type="secondary"
-              onClick={() => navigate(`/profile/${id}`)}
+              onClick={() => {
+                setIsEditing(false); // Disable editing
+                setPopupMessage(null); // Close any open popups
+              }}
             >
               Cancel
             </ActionButton>
           </>
         ) : (
-          <ActionButton type="primary" onClick={() => setIsEditing(true)}>
-            Update Profile
+          <ActionButton type="secondary" onClick={() => setIsEditing(true)}>
+            Update
           </ActionButton>
         )}
         {isAdmin() && !isEditing && (

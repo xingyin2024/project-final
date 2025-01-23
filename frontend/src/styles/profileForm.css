@@ -1,0 +1,46 @@
+/* Profile Form Styles */
+.profile-form {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.form-row {
+  margin-top: 16px;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--black-mid);
+  display: block;
+}
+
+.textinput {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid var(--black-light);
+  border-radius: 4px;
+}
+
+.textinput:focus {
+  outline: none;
+  border-color: var(--pink-via); /* Highlight border on focus */
+}
+
+.disabled-input {
+  /* background: var(--black-light); */
+  color: var(--black-darker);
+  cursor: not-allowed;
+  border: 1px solid var(--black-light);
+}
+
+/* Admin Role Row */
+.form-row.role-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}

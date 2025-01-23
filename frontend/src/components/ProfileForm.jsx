@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-// import '../styles/profileForm.css';
+import '../styles/profileForm.css';
 
 const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
   return (

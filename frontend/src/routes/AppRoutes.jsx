@@ -45,10 +45,6 @@ const AppRoutes = () => {
         element={user ? <TripDetail /> : <Navigate to="/" />}
       />
       <Route
-        path="/create-trip"
-        element={user ? <CreateTrip /> : <Navigate to="/" />}
-      />
-      <Route
         path="/edit-trip/:id"
         element={user ? <EditTrip /> : <Navigate to="/" />}
       />

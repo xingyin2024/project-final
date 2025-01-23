@@ -1,13 +1,13 @@
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
-import '../styles/tripForm.css';
-import TripFormHeader from '../components/TripFormHeader';
 import { formatDateTime } from '../utils/formatDateTime';
 import useActionButtons from '../hooks/useActionButtons';
+import TripFormHeader from '../components/TripFormHeader';
 import ConfirmationPopup from '../components/ConfirmationPopup';
 import Lottie from 'lottie-react';
 import Updating from '../assets/Updating.json';
+import '../styles/tripForm.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 

@@ -68,7 +68,7 @@ const Navbar = () => {
         { to: '/dashboard', icon: CiHome, label: 'Dashboard' },
         { to: '/create-trip', icon: IoCreateOutline, label: 'Create Trip' },
         {
-          to: '/profile/${user.id}',
+          to: `/profile/${user.id}`,
           icon: IoPersonCircleOutline,
           label: 'Profile',
         },
