@@ -65,12 +65,12 @@ const Admin = () => {
         {/* Team Member Header */}
         <div className="team-header-container">
           <h2 className="team-header">Team Member</h2>
-          <button
+          {/* <button
             className="text-btn"
             onClick={() => console.log('Add Team Member')}
           >
             Add Team Member
-          </button>
+          </button> */}
         </div>
 
         {/* Search Input */}
