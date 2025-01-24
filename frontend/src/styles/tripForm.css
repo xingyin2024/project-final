@@ -61,6 +61,7 @@
 
 .input-with-icon svg {
   position: absolute;
+  top: 12px; /* Icon position inside the input */
   right: 12px; /* Icon position inside the input */
   color: var(--black-darker);
 }
@@ -104,6 +105,18 @@
 .dropdown-item:hover {
   background: var(--pink-via);
   color: white;
+}
+
+.icon-button {
+  appearance: none;
+  -webkit-appearance: none; /* iOS/Safari */
+  -moz-appearance: none; /* Firefox */
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit; /* so it doesn't pick up default button font-styling */
 }
 
 /* percentage-btn */

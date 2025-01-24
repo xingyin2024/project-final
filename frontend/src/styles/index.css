@@ -38,7 +38,8 @@ body {
   font-family: var(--font-family-inter);
 }
 
-ul {
+ul,
+ul.dropdowns {
   list-style: none;
   margin: 0;
   padding: 0;

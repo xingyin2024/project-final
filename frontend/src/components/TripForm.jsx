@@ -15,7 +15,7 @@ import AlertMessage from './AlertMessage'; // if you need alert display
 // JSON data for amounts/cities
 import countriesData from '../assets/traktamente-en.json';
 import favoriteCities from '../assets/fav-city.json';
-
+import { IoLocationOutline, IoLocate } from 'react-icons/io5';
 import '../styles/tripForm.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -514,8 +514,11 @@ export default function TripForm({ mode = 'create', tripId }) {
         <div className="trip-form-content">
           {/* Trip Title */}
           <div className="trip-form-row">
-            <p className="trip-form-label">Trip Code</p>
+            <label htmlFor="trip-title" className="trip-form-label">
+              Trip Code
+            </label>
             <input
+              id="trip-title"
               type="text"
               name="title"
               value={trip.title}
@@ -529,9 +532,12 @@ export default function TripForm({ mode = 'create', tripId }) {
 
           {/* Country */}
           <div className="trip-form-row">
-            <p className="trip-form-label">Location (Country)</p>
+            <label htmlFor="country-input" className="trip-form-label">
+              Location (Country)
+            </label>
             <div className="input-with-icon">
               <input
+                id="country-input"
                 type="text"
                 className="dropdown-input"
                 value={trip.location.country}
@@ -539,19 +545,39 @@ export default function TripForm({ mode = 'create', tripId }) {
                 onChange={(e) => handleInputChange('country', e.target.value)}
                 onBlur={() => validateCountry()}
                 required
+                aria-expanded={dropdownState.country}
+                aria-haspopup="listbox"
               />
-              <button type="button" onClick={() => toggleDropdown('country')}>
-                ▼
+              {/* Use a button for the dropdown toggle */}
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Toggle country list"
+                onClick={() => toggleDropdown('country')}
+              >
+                <IoLocationOutline size={20} />
               </button>
+
               {dropdownState.country && (
-                <ul className="dropdown">
+                <ul
+                  className="dropdown"
+                  role="listbox"
+                  aria-label="Country suggestions"
+                >
                   {countrySuggestions.map((item, index) => (
                     <li
                       key={index}
+                      role="option"
+                      tabIndex={0}
+                      className="dropdown-item"
                       onClick={() =>
                         handleSelect('country', item['country or territory'])
                       }
-                      className="dropdown-item"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          handleSelect('country', item['country or territory']);
+                        }
+                      }}
                     >
                       {item['country or territory']}
                     </li>
@@ -564,25 +590,47 @@ export default function TripForm({ mode = 'create', tripId }) {
 
           {/* City */}
           <div className="trip-form-row">
-            <p className="trip-form-label">Location (City, optional)</p>
+            <label htmlFor="city-input" className="trip-form-label">
+              Location (City, optional)
+            </label>
             <div className="input-with-icon">
               <input
+                id="city-input"
                 type="text"
                 className="dropdown-input"
                 value={trip.location.city}
                 placeholder="Select or type City"
                 onChange={(e) => handleInputChange('city', e.target.value)}
+                aria-expanded={dropdownState.city}
+                aria-haspopup="listbox"
               />
-              <button type="button" onClick={() => toggleDropdown('city')}>
-                ▼
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Toggle city list"
+                onClick={() => toggleDropdown('city')}
+              >
+                <IoLocate size={20} />
               </button>
+
               {dropdownState.city && (
-                <ul className="dropdown">
+                <ul
+                  className="dropdown"
+                  role="listbox"
+                  aria-label="City suggestions"
+                >
                   {citySuggestions.map((city, index) => (
                     <li
                       key={index}
-                      onClick={() => handleSelect('city', city)}
+                      role="option"
+                      tabIndex={0}
                       className="dropdown-item"
+                      onClick={() => handleSelect('city', city)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          handleSelect('city', city);
+                        }
+                      }}
                     >
                       {city}
                     </li>
@@ -594,8 +642,11 @@ export default function TripForm({ mode = 'create', tripId }) {
 
           {/* Dates */}
           <div className="trip-form-row">
-            <p className="trip-form-label">Trip Start Date and Time</p>
+            <label htmlFor="startDate" className="trip-form-label">
+              Trip Start Date and Time
+            </label>
             <input
+              id="startDate"
               type="datetime-local"
               name="tripDate.startDate"
               value={trip.tripDate.startDate || ''}
@@ -604,8 +655,11 @@ export default function TripForm({ mode = 'create', tripId }) {
             />
           </div>
           <div className="trip-form-row">
-            <p className="trip-form-label">Trip End Date and Time</p>
+            <label htmlFor="endDate" className="trip-form-label">
+              Trip End Date and Time
+            </label>
             <input
+              id="endDate"
               type="datetime-local"
               name="tripDate.endDate"
               value={trip.tripDate.endDate || ''}
@@ -617,8 +671,11 @@ export default function TripForm({ mode = 'create', tripId }) {
 
           {/* totalDays user override */}
           <div className="trip-form-row">
-            <p className="trip-form-label">Total Traktamente Day(s)</p>
+            <label htmlFor="totalDays" className="trip-form-label">
+              Total Traktamente Day(s)
+            </label>
             <input
+              id="totalDays"
               type="number"
               name="calculatedData.totalDays"
               step="0.5"
@@ -632,8 +689,11 @@ export default function TripForm({ mode = 'create', tripId }) {
 
           {/* Breakfast & Mileage */}
           <div className="trip-form-row">
-            <p className="trip-form-label">No. of Hotel Breakfast (days)</p>
+            <label htmlFor="breakfastDays" className="trip-form-label">
+              No. of Hotel Breakfast (days)
+            </label>
             <input
+              id="breakfastDays"
               type="number"
               name="hotelBreakfastDays"
               value={trip.hotelBreakfastDays || 0}
@@ -642,10 +702,11 @@ export default function TripForm({ mode = 'create', tripId }) {
             />
           </div>
           <div className="trip-form-row">
-            <p className="trip-form-label">
+            <label htmlFor="mileage" className="trip-form-label">
               Driving Mil with Private Car (mil)
-            </p>
+            </label>
             <input
+              id="mileage"
               type="number"
               name="mileageKm"
               value={trip.mileageKm || 0}
@@ -664,7 +725,6 @@ export default function TripForm({ mode = 'create', tripId }) {
             </p>
           </div>
 
-          {/* If Admin => show totalAmount + finalAmount */}
           {isAdmin() && (
             <>
               <div className="trip-form-row">
@@ -680,9 +740,9 @@ export default function TripForm({ mode = 'create', tripId }) {
                   {trip.calculatedData?.totalDays === 0
                     ? 'Total Amount = 0 kr (since total days is 0).'
                     : `Total Amount = (${trip.calculatedData?.totalDays} days ×
-                       ${trip.calculatedData?.standardAmount || 'N/A'} kr)
-                       - (${trip.hotelBreakfastDays} × 58 kr)
-                       + (${trip.mileageKm} × 25 kr)`}
+                     ${trip.calculatedData?.standardAmount || 'N/A'} kr)
+                     - (${trip.hotelBreakfastDays} × 58 kr)
+                     + (${trip.mileageKm} × 25 kr)`}
                 </p>
               </div>
 
@@ -743,7 +803,7 @@ export default function TripForm({ mode = 'create', tripId }) {
         </div>
 
         <TripFormButtons
-          onSave={null} // rely on type="submit"
+          onSave={null}
           onCancel={() =>
             mode === 'create'
               ? navigate('/dashboard')
