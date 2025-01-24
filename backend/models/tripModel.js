@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const tripSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    minlength: [2, "Trip Code must be at least 2 characters long"],
+    minlength: [2, 'Trip Code must be at least 2 characters long'],
     maxlength: [50, "Trip Code can't be more than 50 characters"],
   },
   location: {
@@ -14,34 +14,40 @@ const tripSchema = new mongoose.Schema({
   tripDate: {
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-  },  
+  },
   hotelBreakfastDays: { type: Number, default: 0 }, // Validated in middleware
   mileageKm: { type: Number, default: 0 },
   status: {
     type: String,
-    enum: ["approved", "awaiting approval", "not submitted"],
-    default: "not submitted"
+    enum: ['approved', 'awaiting approval', 'not submitted'],
+    default: 'not submitted',
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   creation: {
-    createdBy: { type: String }, 
+    createdBy: { type: String },
     createdAt: { type: Date, default: Date.now },
-  },  
+  },
   submission: {
-    updatedAt: { type: Date, default: null }, 
-    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }, // Reference to Admin User
-    approvedAt: { type: Date, default: null }, 
-  },  
+    updatedAt: { type: Date, default: null },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    }, // Reference to Admin User
+    approvedAt: { type: Date, default: null },
+  },
   calculatedData: {
-    totalDays: { type: Number}, // Optional, generated from frontend
+    totalDays: { type: Number }, // Optional, generated from frontend
     totalAmount: { type: Number }, // Optional, generated from frontend
-  },    
+    standardAmount: { type: Number }, // added, fetched from frontend
+    finalAmount: { type: Number }, // added, generated from frontend
+  },
 });
 
-const Trip = mongoose.model("Trip", tripSchema);
+const Trip = mongoose.model('Trip', tripSchema);
 
 export default Trip;

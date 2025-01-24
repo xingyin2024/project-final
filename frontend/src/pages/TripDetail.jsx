@@ -238,6 +238,23 @@ const TripDetail = () => {
   if (loading) return <p>Loading trip details...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
+  // Derive finalAmount data (and the percentage vs totalAmount)
+  const totalAmt = trip?.calculatedData?.totalAmount || 0;
+  let finalAmt = trip?.calculatedData?.finalAmount || 0;
+
+  // If totalAmt > 0 but finalAmt == 0 => default finalAmt to totalAmt
+  if (totalAmt > 0 && finalAmt === 0) {
+    finalAmt = totalAmt;
+  }
+
+  // Calculate the percentage note
+  let pctNote = '';
+  if (totalAmt > 0 && finalAmt > 0) {
+    const ratio = (finalAmt / totalAmt) * 100;
+    const ratioRounded = Math.round(ratio); // Round to nearest integer
+    pctNote = ` (${ratioRounded}% of Total Amount)`;
+  }
+
   return (
     <div className="trip-form-container">
       <TripFormHeader
@@ -297,12 +314,12 @@ const TripDetail = () => {
               </p>
             </div>
 
-            <div className="trip-form-row">
+            {/* <div className="trip-form-row">
               <p className="trip-form-label">Total Traktamente Day</p>
               <p className="trip-form-value">
                 {trip.calculatedData?.totalDays || 0} days
               </p>
-            </div>
+            </div> */}
 
             <div className="trip-form-row">
               <p className="trip-form-label">No. of Hotel Breakfast</p>
@@ -320,19 +337,43 @@ const TripDetail = () => {
 
             <hr className="trip-form-divider" />
 
+            {/* Everyone sees totalDays in summary */}
             <div className="trip-form-row">
-              <p className="trip-form-label total-label">Total Amount</p>
+              <p className="trip-form-label">Total Traktamente Day(s)</p>
               <p className="trip-form-value total-value">
-                {trip.calculatedData?.totalAmount || 0} SEK
+                {trip.calculatedData?.totalDays || 0} day(s)
               </p>
             </div>
 
-            <hr className="trip-form-divider" />
+            {/* If Admin => show totalAmount */}
+            {isAdmin() && (
+              <>
+                <div className="trip-form-row">
+                  <p className="trip-form-label total-label">Total Amount</p>
+                  <p className="total-value">{totalAmt} SEK</p>
+                </div>
+
+                {/* Only show Final Amount row if there's a total */}
+                {totalAmt > 0 && (
+                  <div className="trip-form-row">
+                    <p className="trip-form-label">Final Amount</p>
+                    <p className="trip-form-value">
+                      {finalAmt} SEK
+                      {pctNote && (
+                        <span className="trip-form-note">{pctNote}</span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                <hr className="trip-form-divider" />
+              </>
+            )}
 
             <div className="trip-form-row">
               <p className="trip-form-label">Status:</p>
               <p
-                className={`trip-card-status ${
+                className={`trip-form-status ${
                   trip.status
                     ? `status-${trip.status.replace(' ', '-').toLowerCase()}`
                     : 'status-default'
