@@ -126,7 +126,7 @@ const TripForm = ({
 
       {/* totalDays user override input */}
       <div className="trip-form-row">
-        <p className="trip-form-label">Total Traktamente Day</p>
+        <p className="trip-form-label">Total Traktamente Day(s)</p>
         <input
           type="number"
           name="calculatedData.totalDays"
