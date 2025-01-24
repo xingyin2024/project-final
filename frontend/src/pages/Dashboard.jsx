@@ -154,6 +154,7 @@ const Dashboard = () => {
               <TripCard
                 key={trip._id}
                 trip={trip}
+                userRole={user?.role}
                 onClick={() =>
                   navigate(`/trip/${trip._id}`, { state: { trip } })
                 }

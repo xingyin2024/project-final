@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import '../styles/tripCard.css';
 
-const TripCard = ({ trip, onClick }) => {
+const TripCard = ({ trip, onClick, userRole }) => {
   const startYear = trip.tripDate?.startDate
     ? new Date(trip.tripDate.startDate).getFullYear()
     : 'Unknown';
@@ -24,10 +24,12 @@ const TripCard = ({ trip, onClick }) => {
         Total Traktamente Day: {trip.calculatedData?.totalDays || 0} day(s)
       </p>
 
-      {/* Total Amount */}
-      <p className="trip-card-amount">
-        Total Amount: {trip.calculatedData?.totalAmount || 0} SEK
-      </p>
+      {/* Show Total Amount ONLY if userRole === 'admin' */}
+      {userRole === 'admin' && (
+        <p className="trip-card-amount">
+          Total Amount: {trip.calculatedData?.totalAmount || 0} SEK
+        </p>
+      )}
 
       {/* Status */}
       <p
@@ -37,7 +39,10 @@ const TripCard = ({ trip, onClick }) => {
             : 'status-default'
         }`}
       >
-        Status: {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
+        Status:{' '}
+        {trip.status
+          ? trip.status.charAt(0).toUpperCase() + trip.status.slice(1)
+          : 'Unknown'}
       </p>
     </div>
   );
@@ -46,6 +51,7 @@ const TripCard = ({ trip, onClick }) => {
 TripCard.propTypes = {
   trip: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
+  userRole: PropTypes.string.isRequired, // e.g. 'admin', 'user', etc.
 };
 
 export default TripCard;

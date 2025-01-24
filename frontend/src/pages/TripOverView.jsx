@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import TripCard from '../components/TripCard';
 import Pagination from '../components/Pagination';
 import TripFormHeader from '../components/TripFormHeader';
@@ -9,6 +10,7 @@ import '../styles/tripOverview.css';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TripOverView = () => {
+  const { user } = useUser(); // Access logged-in user details
   const { state } = useLocation();
   const navigate = useNavigate();
   const filter = state?.filter || 'all';
@@ -110,6 +112,7 @@ const TripOverView = () => {
               <TripCard
                 key={trip._id}
                 trip={trip}
+                userRole={user?.role}
                 onClick={() =>
                   navigate(`/trip/${trip._id}`, { state: { trip } })
                 }
