@@ -23,7 +23,7 @@
 }
 
 .nav-icon-button:hover {
-  transform: scale(1.1) rotate(10deg);
+  transform: scale(1.1) rotate(30deg);
 }
 
 .nav-icon-lines {
@@ -72,9 +72,9 @@
   transition: width 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
 
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 1000px) {
     width: 100%; /* Smaller width on large screens */
-    max-width: 400px; /* Large screen responsiveness */
+    max-width: 260px; /* Large screen responsiveness */
   }
 }
 
@@ -86,9 +86,9 @@
 .profile-section {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 60px;
   text-align: center;
   width: 100%; /* Ensures it takes the full width */
   overflow: visible; /* Ensures nothing is clipped */

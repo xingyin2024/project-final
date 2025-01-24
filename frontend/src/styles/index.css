@@ -199,12 +199,12 @@ same om welcome, login, register pages*/
   width: 100%;
   text-align: left;
   font-size: 1rem; /* Default text size */
-  color: var(--black-mid); /* Input text color */
+  color: var(--black-darker);
   border-radius: 8px;
   border: 1px solid var(--black-border);
   padding: 10px 12px; /* Adjust padding for a balanced appearance */
   background: white;
-  margin-top: 24px;
+  margin-bottom: 16px;
 }
 
 .textinput::placeholder {
@@ -234,6 +234,10 @@ input {
 input:focus {
   border-color: var(--pink-from);
   outline: none;
+}
+
+.disabled-input {
+  cursor: not-allowed;
 }
 
 /* status */

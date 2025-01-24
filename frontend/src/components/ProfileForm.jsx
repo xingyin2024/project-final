@@ -13,6 +13,7 @@ const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
           value={profileData.username}
           disabled={!isEditing}
           onChange={onChange}
+          placeholder="Enter username, min 2 characters"
           className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
         />
       </div>
@@ -26,6 +27,7 @@ const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
           value={profileData.firstName}
           disabled={!isEditing}
           onChange={onChange}
+          placeholder="Enter your first name"
           className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
         />
       </div>
@@ -39,6 +41,7 @@ const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
           value={profileData.lastName}
           disabled={!isEditing}
           onChange={onChange}
+          placeholder="Enter your last name"
           className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
         />
       </div>
@@ -52,22 +55,42 @@ const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
           value={profileData.email}
           disabled={!isEditing}
           onChange={onChange}
+          placeholder="Enter your email"
           className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
         />
       </div>
 
-      {/* Role (only visible and editable for admin users) */}
+      {/* Role (only visible if showRole is true) */}
       {showRole && (
         <div className="form-row">
           <label className="form-label">Role</label>
-          <input
-            type="text"
-            name="role"
-            value={profileData.role}
-            disabled={!isEditing} // Editable only if isEditing is true
-            onChange={onChange}
-            className={`textinput ${!isEditing ? 'disabled-input' : ''}`}
-          />
+          <div className="role-options">
+            {/* Admin Radio */}
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                disabled={!isEditing}
+                onChange={onChange}
+                checked={profileData.role === 'admin'}
+              />
+              Admin
+            </label>
+
+            {/* Co-worker Radio */}
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="role"
+                value="co-worker"
+                disabled={!isEditing}
+                onChange={onChange}
+                checked={profileData.role === 'co-worker'}
+              />
+              Co-worker
+            </label>
+          </div>
         </div>
       )}
     </div>
@@ -75,10 +98,17 @@ const ProfileForm = ({ profileData, isEditing, onChange, showRole }) => {
 };
 
 ProfileForm.propTypes = {
-  profileData: PropTypes.object.isRequired,
+  profileData: PropTypes.shape({
+    username: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    email: PropTypes.string,
+    role: PropTypes.string,
+  }).isRequired,
   isEditing: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
-  showRole: PropTypes.bool, // Determines whether to show the Role field
+  showRole: PropTypes.bool,
+  placeholders: PropTypes.object,
 };
 
 export default ProfileForm;

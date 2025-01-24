@@ -1,19 +1,19 @@
-import { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Lottie from "lottie-react";
-import Loading from "../assets/Loading.json";
+import { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Lottie from 'lottie-react';
+import Loading from '../assets/Loading.json';
 
-import { useUser }  from "../context/UserContext";
-import "../styles/auth.css";
+import { useUser } from '../context/UserContext';
+import '../styles/auth.css';
 
 const Register = () => {
   const { register, loading, error, setError } = useUser(); // Use the register function from UserContext
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    email: "",
+    username: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    email: '',
   });
   const navigate = useNavigate(); // Navigation for successful registration
 
@@ -33,9 +33,9 @@ const Register = () => {
 
     try {
       await register(formData); // Call the register function from UserContext
-      navigate("/dashboard"); // Redirect to the dashboard upon success
+      navigate('/dashboard'); // Redirect to the dashboard upon success
     } catch (err) {
-      console.error("Registration failed:", err);
+      console.error('Registration failed:', err);
     }
   };
 
@@ -45,7 +45,7 @@ const Register = () => {
       <div className="login-register-header-container">
         <h1 className="login-register-header">Register</h1>
         <p className="login-register-text">
-          Already a member?{" "}
+          Already a member?{' '}
           <Link to="/login" className="text-btn">
             Login here
           </Link>
@@ -55,7 +55,12 @@ const Register = () => {
       {/* Loading Animation */}
       {loading ? (
         <div className="loading-overlay">
-          <Lottie animationData={Loading} loop autoplay className="loading-animation" />
+          <Lottie
+            animationData={Loading}
+            loop
+            autoplay
+            className="loading-animation"
+          />
         </div>
       ) : (
         // Register Form
@@ -63,7 +68,7 @@ const Register = () => {
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="Enter username, min 2 characters"
             className="textinput"
             value={formData.username}
             onChange={handleChange}
@@ -71,7 +76,7 @@ const Register = () => {
           <input
             type="text"
             name="firstName"
-            placeholder="First Name"
+            placeholder="Enter your first name"
             className="textinput"
             value={formData.firstName}
             onChange={handleChange}
@@ -79,7 +84,7 @@ const Register = () => {
           <input
             type="text"
             name="lastName"
-            placeholder="Last Name"
+            placeholder="Enter your last name"
             className="textinput"
             value={formData.lastName}
             onChange={handleChange}
@@ -87,7 +92,7 @@ const Register = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             className="textinput"
             value={formData.email}
             onChange={handleChange}
@@ -95,7 +100,7 @@ const Register = () => {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Enter password, min 6 characters"
             className="textinput"
             value={formData.password}
             onChange={handleChange}

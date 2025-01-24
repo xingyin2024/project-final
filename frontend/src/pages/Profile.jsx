@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import ProfileForm from '../components/ProfileForm';
 import ConfirmationPopup from '../components/ConfirmationPopup';
 import ActionButton from '../components/ActionButton';
+import TripFormHeader from '../components/TripFormHeader';
 import '../styles/profile.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -102,6 +103,15 @@ const Profile = () => {
   };
 
   const handleDelete = () => {
+    // Prevent user from deleting their own profile
+    if (id === user.id) {
+      setPopupMessage('You cannot delete your own profile.');
+      setPopupOnConfirm(null);
+      // Close the popup with Cancel button
+      setPopupOnCancel(() => () => setPopupMessage(null));
+      return;
+    }
+
     setPopupMessage(
       `Are you sure to delete team member ${profileData.firstName} ${profileData.lastName}?`
     );
@@ -141,9 +151,12 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <h1 className="profile-header">
-        {id === user.id ? 'Your Profile' : `${profileData.firstName}'s Profile`}
-      </h1>
+      <TripFormHeader
+        title={
+          id === user.id ? 'Your Profile' : `${profileData.firstName}'s Profile`
+        }
+        onBack={() => navigate(-1)}
+      />
 
       {popupMessage && (
         <ConfirmationPopup
