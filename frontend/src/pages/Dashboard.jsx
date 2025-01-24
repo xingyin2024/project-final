@@ -25,7 +25,7 @@ const Dashboard = () => {
 
   // Client-side pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const tripsPerPage = 10;
+  const tripsPerPage = 4;
   const navigate = useNavigate(); // Initialize navigate function
 
   useEffect(() => {

@@ -1,7 +1,6 @@
 import Trip from '../models/tripModel.js';
 import mongoose from 'mongoose';
 import { handleMongoError } from '../utils/handleMongoError.js';
-import { getPagination } from '../utils/pagination.js';
 
 // POST (create) a new trip
 const createTrip = async (req, res) => {
@@ -48,12 +47,8 @@ const createTrip = async (req, res) => {
 // Get trips (admin sees all, users see their own)
 const getTrips = async (req, res) => {
   try {
-    const { status, userId, page, limit } = req.query;
+    const { status, userId } = req.query;
     const user = req.user;
-    const { page: sanitizedPage, limit: sanitizedLimit } = getPagination(
-      page,
-      limit
-    );
 
     // Validate userId if provided
     if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
@@ -75,18 +70,12 @@ const getTrips = async (req, res) => {
     }
 
     const trips = await Trip.find(filter)
-      .skip((sanitizedPage - 1) * sanitizedLimit)
-      .limit(sanitizedLimit)
       .populate('userId', 'firstName lastName')
       .populate('submission.approvedBy', 'firstName lastName email'); // Populate only specific fields
-
-    const totalTrips = await Trip.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       data: trips,
-      currentPage: sanitizedPage,
-      totalPages: Math.ceil(totalTrips / sanitizedLimit),
     });
   } catch (error) {
     handleMongoError(error, res, 'Failed to fetch trips');

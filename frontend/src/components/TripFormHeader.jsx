@@ -1,7 +1,7 @@
 import { IoArrowBackSharp } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import '../styles/tripForm.css';
+import '../styles/tripFormHeader.css';
 
 const TripFormHeader = ({ title, onBack }) => {
   const navigate = useNavigate();

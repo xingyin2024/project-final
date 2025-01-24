@@ -184,16 +184,6 @@ same om welcome, login, register pages*/
   }
 }
 
-/* Back Button */
-.back-button {
-  position: absolute;
-  left: 24px;
-  top: 30px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
 /* Input Fields */
 .textinput {
   width: 100%;

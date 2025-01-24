@@ -1,21 +1,11 @@
 .trip-form-container {
-  max-width: 600px;
+  width: 100%;
   margin: 0 auto;
   padding: 16px;
-}
 
-.trip-form-header {
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.trip-form-title {
-  font-size: 1rem;
-  font-weight: 600;
+  @media screen and (min-width: 768px) {
+    width: 600px;
+  }
 }
 
 .trip-form-content {

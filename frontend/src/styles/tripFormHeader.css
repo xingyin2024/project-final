@@ -1,0 +1,37 @@
+/* trip form header component */
+.trip-form-header {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto;
+
+  @media screen and (min-width: 768px) {
+    margin: 24px auto;
+  }
+}
+
+.trip-form-title {
+  font-size: 1rem;
+  font-weight: 600;
+
+  @media screen and (min-width: 768px) {
+    font-size: 1.25rem;
+  }
+}
+
+/* Back Button */
+.back-button {
+  position: absolute;
+  left: 24px;
+  top: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  @media screen and (min-width: 768px) {
+    left: 32px;
+    top: 40px;
+  }
+}

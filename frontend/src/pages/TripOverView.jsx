@@ -22,9 +22,9 @@ const TripOverView = () => {
 
   // Define a mapping of filter values to titles
   const filterTitles = {
-    notSubmitted: 'Trips Not Submitted',
-    submitted: 'Trips Submitted',
-    all: 'All Trips',
+    notSubmitted: `${trips.length} Trips Not Submitted`,
+    submitted: `${trips.length} Trips Submitted`,
+    all: `${trips.length} Trips in Total`,
   };
 
   useEffect(() => {

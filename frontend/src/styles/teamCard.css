@@ -19,9 +19,8 @@
 }
 
 .team-card-pic {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 60px;
+  height: 60px;
   margin-right: 1rem;
   object-fit: cover;
 }

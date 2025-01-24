@@ -65,6 +65,7 @@ const Admin = () => {
         {/* Team Member Header */}
         <div className="team-header-container">
           <h2 className="team-header">Team Member</h2>
+          <p className="team-number">{`(Total ${users.length} members)`}</p>
           {/* <button
             className="text-btn"
             onClick={() => console.log('Add Team Member')}
