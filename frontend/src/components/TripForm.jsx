@@ -29,9 +29,11 @@ const TripForm = ({
           type="text"
           name="title"
           value={formData.title || ''}
-          placeholder="Select or type Trip Code"
+          placeholder="Code characters: min 2, max 50"
           onChange={handleChange}
           required
+          minLength={2}
+          maxLength={50}
         />
       </div>
 

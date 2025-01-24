@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import TripCard from '../components/TripCard';
 import SummaryCard from '../components/SummaryCard';
 import Pagination from '../components/Pagination';
+import NoTripsFound from '../components/NoTripsFound';
 import '../styles/dashboard.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -143,24 +144,30 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Recent Trips List using TripCard */}
-      <div className="recent-trips-list">
-        {currentTrips.map((trip) => (
-          <TripCard
-            key={trip._id}
-            trip={trip}
-            onClick={() => navigate(`/trip/${trip._id}`, { state: { trip } })}
-          />
-        ))}
-      </div>
-
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+      {trips.length === 0 ? (
+        <NoTripsFound />
+      ) : (
+        <>
+          {/* Existing UI for TripCard list and Pagination */}
+          <div className="recent-trips-list">
+            {currentTrips.map((trip) => (
+              <TripCard
+                key={trip._id}
+                trip={trip}
+                onClick={() =>
+                  navigate(`/trip/${trip._id}`, { state: { trip } })
+                }
+              />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          )}
+        </>
       )}
     </div>
   );

@@ -1,0 +1,18 @@
+.no-trips-found {
+  text-align: left;
+  margin: 36px 0 60px 0;
+
+  background-color: #fff;
+}
+
+.no-trips-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.no-trips-subtitle {
+  font-size: 1rem;
+  margin-bottom: 36px;
+  color: var(--black-mid);
+}

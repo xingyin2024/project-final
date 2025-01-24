@@ -184,11 +184,11 @@ same om welcome, login, register pages*/
   }
 }
 
-/* TripCard Back Button */
+/* Back Button */
 .back-button {
   position: absolute;
-  left: 16px;
-  top: 16px;
+  left: 24px;
+  top: 30px;
   background: none;
   border: none;
   cursor: pointer;

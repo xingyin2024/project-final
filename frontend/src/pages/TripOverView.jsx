@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import TripCard from '../components/TripCard';
 import Pagination from '../components/Pagination';
 import TripFormHeader from '../components/TripFormHeader';
+import NoTripsFound from '../components/NoTripsFound';
 import '../styles/tripOverview.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -100,22 +101,29 @@ const TripOverView = () => {
         title={filterTitles[filter] || 'Trips'}
         onBack={() => navigate('/dashboard')}
       />
-
-      <div className="trip-overview-list">
-        {currentTrips.map((trip) => (
-          <TripCard
-            key={trip._id}
-            trip={trip}
-            onClick={() => navigate(`/trip/${trip._id}`, { state: { trip } })}
-          />
-        ))}
-      </div>
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+      {trips.length === 0 ? (
+        <NoTripsFound />
+      ) : (
+        <>
+          <div className="trip-overview-list">
+            {currentTrips.map((trip) => (
+              <TripCard
+                key={trip._id}
+                trip={trip}
+                onClick={() =>
+                  navigate(`/trip/${trip._id}`, { state: { trip } })
+                }
+              />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          )}
+        </>
       )}
     </div>
   );
