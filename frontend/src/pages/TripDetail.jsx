@@ -238,6 +238,10 @@ const TripDetail = () => {
   if (loading) return <p>Loading trip details...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
+  // Check if user is admin or trip is approved
+  const isApproved = trip.status?.toLowerCase() === 'approved';
+  const canViewAnyAmount = isAdmin() || isApproved;
+
   // Derive finalAmount data (and the percentage vs totalAmount)
   const totalAmt = trip?.calculatedData?.totalAmount || 0;
   let finalAmt = trip?.calculatedData?.finalAmount || 0;
@@ -314,13 +318,6 @@ const TripDetail = () => {
               </p>
             </div>
 
-            {/* <div className="trip-form-row">
-              <p className="trip-form-label">Total Traktamente Day</p>
-              <p className="trip-form-value">
-                {trip.calculatedData?.totalDays || 0} days
-              </p>
-            </div> */}
-
             <div className="trip-form-row">
               <p className="trip-form-label">No. of Hotel Breakfast</p>
               <p className="trip-form-value">
@@ -345,31 +342,47 @@ const TripDetail = () => {
               </p>
             </div>
 
-            {/* If Admin => show totalAmount */}
-            {isAdmin() && (
+            {/* Show amounts only if canViewAnyAmount (admin or approved) */}
+            {canViewAnyAmount && (
               <>
-                <div className="trip-form-row">
-                  <p className="trip-form-label total-label">Total Amount</p>
-                  <p className="total-value">{totalAmt} SEK</p>
-                </div>
-
-                {/* Only show Final Amount row if there's a total */}
-                {totalAmt > 0 && (
-                  <div className="trip-form-row">
-                    <p className="trip-form-label">Final Amount</p>
-                    <p className="trip-form-value">
-                      {finalAmt} SEK
-                      {pctNote && (
-                        <span className="trip-form-note">{pctNote}</span>
-                      )}
-                    </p>
-                  </div>
-                )}
-
                 <hr className="trip-form-divider" />
+                {isAdmin() ? (
+                  <>
+                    {/* Admin sees raw total and final */}
+                    <div className="trip-form-row">
+                      <p className="trip-form-label total-label">
+                        Total Amount
+                      </p>
+                      <p className="total-value">{totalAmt} SEK</p>
+                    </div>
+
+                    {totalAmt > 0 && (
+                      <div className="trip-form-row">
+                        <p className="trip-form-label">Final Amount</p>
+                        <p className="trip-form-value">
+                          {finalAmt} SEK
+                          {pctNote && (
+                            <span className="trip-form-note">{pctNote}</span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Non-admin but trip is approved => show final only */}
+                    {totalAmt > 0 && (
+                      <div className="trip-form-row">
+                        <p className="trip-form-label">Final Amount</p>
+                        <p className="trip-form-value">{finalAmt} SEK</p>
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
 
+            <hr className="trip-form-divider" />
             <div className="trip-form-row">
               <p className="trip-form-label">Status:</p>
               <p
@@ -382,6 +395,26 @@ const TripDetail = () => {
                 {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
               </p>
             </div>
+
+            {isAdmin() && (
+              <>
+                <div className="trip-form-row">
+                  <p className="trip-form-label">Created By</p>
+                  <p className="trip-form-value">
+                    {trip.creation?.createdBy || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="trip-form-row">
+                  <p className="trip-form-label">Approved By</p>
+                  <p className="trip-form-value">
+                    {trip.submission?.approvedBy
+                      ? `${trip.submission.approvedBy.firstName} ${trip.submission.approvedBy.lastName}`
+                      : 'N/A'}
+                  </p>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

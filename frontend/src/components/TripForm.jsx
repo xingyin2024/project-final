@@ -202,20 +202,19 @@ export default function TripForm({ mode = 'create', tripId }) {
       ? parseFloat(countryData['standard amount'])
       : 0;
 
-    // compute final
-    const totalAmount =
+    // compute final (rounded)
+    const rawTotal =
       totalDays * standardAmount - hotelBreakfastDays * 58 + mileageKm * 25;
+    const total = Math.round(rawTotal); // no decimals
 
     setTrip((prev) => {
-      // If they previously set a final amount, keep the same percentage?
-      // or reset? For simplicity, let's reset finalAmount to totalAmount.
       return {
         ...prev,
         calculatedData: {
           ...prev.calculatedData,
           standardAmount,
-          totalAmount,
-          finalAmount: totalAmount, // By default 100%
+          totalAmount: total, // now integer
+          finalAmount: total, // also integer initially (100%)
         },
       };
     });
@@ -474,13 +473,14 @@ export default function TripForm({ mode = 'create', tripId }) {
   const handleFinalAmountChange = (pct) => {
     // totalAmount * (0.5 or 0.75 or 1)
     const total = trip.calculatedData?.totalAmount || 0;
-    const finalCalc = total * pct;
+    const rawFinal = total * pct;
+    const finalCalc = Math.round(rawFinal);
 
     setTrip((prev) => ({
       ...prev,
       calculatedData: {
         ...prev.calculatedData,
-        finalAmount: finalCalc,
+        finalAmount: finalCalc, // integer
       },
     }));
   };
@@ -746,7 +746,7 @@ export default function TripForm({ mode = 'create', tripId }) {
                 </p>
               </div>
 
-              {/* NEW: Final Amount Option */}
+              {/* Final Amount Option */}
               <hr className="trip-form-divider" />
               <div className="trip-form-row">
                 <p className="trip-form-label">Final Amount Option</p>
@@ -799,6 +799,26 @@ export default function TripForm({ mode = 'create', tripId }) {
                 {trip.status?.charAt(0).toUpperCase() + trip.status.slice(1)}
               </p>
             </div>
+          )}
+
+          {mode === 'edit' && isAdmin() && (
+            <>
+              <div className="trip-form-row">
+                <p className="trip-form-label">Trip Created By</p>
+                <p className="trip-form-value">
+                  {trip.creation?.createdBy || 'N/A'}
+                </p>
+              </div>
+
+              <div className="trip-form-row">
+                <p className="trip-form-label">Approved By</p>
+                <p className="trip-form-value">
+                  {trip.submission?.approvedBy
+                    ? `${trip.submission.approvedBy.firstName} ${trip.submission.approvedBy.lastName}`
+                    : 'N/A'}
+                </p>
+              </div>
+            </>
           )}
         </div>
 
