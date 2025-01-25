@@ -59,11 +59,16 @@ export default function TripForm({ mode = 'create', tripId }) {
     },
   });
 
-  // Manual override: if user types totalDays themselves
-  const [manualOverride, setManualOverride] = useState(false);
+  // (Used to store the user's existing trips for date range validation in "create" mode)
+  const [userTrips, setUserTrips] = useState([]);
+  const [userMinStartDate, setUserMinStartDate] = useState(null);
+  const [userMaxEndDate, setUserMaxEndDate] = useState(null);
 
   // (Used to compare if trip changed in "edit" mode)
   const [originalTrip, setOriginalTrip] = useState(null);
+
+  // Manual override: if user types totalDays themselves
+  const [manualOverride, setManualOverride] = useState(false);
 
   // -----------------------------------
   // 2) DROPDOWN STATE
@@ -76,7 +81,54 @@ export default function TripForm({ mode = 'create', tripId }) {
   const [citySuggestions, setCitySuggestions] = useState([]);
 
   // -----------------------------------
-  // 3) FETCH TRIP IF EDIT MODE
+  // 3.1) FETCH TRIP IF CREATE MODE
+  // -----------------------------------
+  useEffect(() => {
+    if (mode === 'create') {
+      fetchAllUserTrips();
+    }
+  }, [mode]);
+
+  // Fetch * all * existing trips for the logged -in user
+  const fetchAllUserTrips = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setError('No access token found. Please log in.');
+        return;
+      }
+      const response = await fetch(`${BASE_URL}/trips?userId=${user.id}`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch user trips.');
+      }
+      const existingTrips = data.data || [];
+      setUserTrips(existingTrips);
+
+      // Derive earliest start / latest end among all existing trips
+      if (existingTrips.length > 0) {
+        const earliestStart = existingTrips.reduce((acc, curr) => {
+          const s = new Date(curr.tripDate.startDate);
+          return s < acc ? s : acc;
+        }, new Date(existingTrips[0].tripDate.startDate));
+
+        const latestEnd = existingTrips.reduce((acc, curr) => {
+          const e = new Date(curr.tripDate.endDate);
+          return e > acc ? e : acc;
+        }, new Date(existingTrips[0].tripDate.endDate));
+
+        setUserMinStartDate(earliestStart);
+        setUserMaxEndDate(latestEnd);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // -----------------------------------
+  // 3.2) FETCH TRIP IF EDIT MODE
   // -----------------------------------
   useEffect(() => {
     if (mode === 'edit' && tripId) {
@@ -351,13 +403,26 @@ export default function TripForm({ mode = 'create', tripId }) {
   // Automatic date correction
   const handleDateAutoFix = (fieldName, newVal) => {
     setTrip((prev) => {
+      let updatedTrip = { ...prev };
       const newTripDate = { ...prev.tripDate };
+
       if (fieldName === 'tripDate.startDate') {
         newTripDate.startDate = newVal;
         const start = new Date(newVal);
         const end = new Date(newTripDate.endDate);
+
+        // 1) Check userMinStartDate in create mode
+        if (mode === 'create' && userMinStartDate && start < userMinStartDate) {
+          setAlert(
+            'tripDate',
+            `Cannot start trip before ${userMinStartDate.toDateString()}`
+          );
+          // Force revert
+          newTripDate.startDate = formatDateForInput(userMinStartDate);
+        }
+
+        // 2) If start > end => fix
         if (start > end) {
-          // fix start = end - 1 day
           const fixed = new Date(end);
           fixed.setDate(fixed.getDate() - 1);
           newTripDate.startDate = formatDateForInputLocal(fixed);
@@ -365,24 +430,53 @@ export default function TripForm({ mode = 'create', tripId }) {
             'tripDate',
             'Start date was adjusted to be before End date.'
           );
-        } else {
+        }
+
+        // 3) Otherwise, if none of the above triggered a fix => clear alert
+        else if (
+          mode === 'create' &&
+          userMinStartDate &&
+          start >= userMinStartDate
+        ) {
+          // No problem => clear alert
           clearAlert('tripDate');
         }
       } else if (fieldName === 'tripDate.endDate') {
         newTripDate.endDate = newVal;
         const end = new Date(newVal);
         const start = new Date(newTripDate.startDate);
+
+        // 1) Check userMaxEndDate in create mode
+        if (mode === 'create' && userMaxEndDate && end > userMaxEndDate) {
+          setAlert(
+            'tripDate',
+            `Cannot end trip after ${userMaxEndDate.toDateString()}`
+          );
+          // Force revert
+          newTripDate.endDate = formatDateForInput(userMaxEndDate);
+        }
+
+        // 2) If end < start => fix
         if (end < start) {
-          // fix end = start + 1 day
           const fixed = new Date(start);
           fixed.setDate(fixed.getDate() + 1);
           newTripDate.endDate = formatDateForInputLocal(fixed);
           setAlert('tripDate', 'End date was adjusted to be after Start date.');
-        } else {
+        }
+
+        // 3) Otherwise if no fix => clear
+        else if (
+          mode === 'create' &&
+          userMaxEndDate &&
+          end <= userMaxEndDate &&
+          end >= start
+        ) {
           clearAlert('tripDate');
         }
       }
-      return { ...prev, tripDate: newTripDate };
+
+      updatedTrip.tripDate = newTripDate;
+      return updatedTrip;
     });
   };
 
@@ -415,7 +509,10 @@ export default function TripForm({ mode = 'create', tripId }) {
   // -----------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (hasActiveAlerts()) return; // optional: prevent submission if alerts are active
     if (!isFormValid()) return;
+
     if (mode === 'edit' && !isModified()) {
       // No changes => skip
       navigate(`/trip/${tripId}`);
