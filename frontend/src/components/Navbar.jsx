@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { CiHome, CiLogin, CiLogout } from 'react-icons/ci';
@@ -53,7 +53,7 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
 );
 
 const Navbar = () => {
-  const { user, logout } = useUser();
+  const { user, logout, isAdmin } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -89,13 +89,7 @@ const Navbar = () => {
         { to: '/login', icon: CiLogin, label: 'Login' },
       ];
 
-  // Check if user is available before rendering
-  if (!user) {
-    return <p className="error-message">Error: User not found</p>;
-  }
-
-  const imgSrc =
-    user.role === 'admin' ? '/profile-pic-admin.png' : '/profile-pic.png';
+  const imgSrc = isAdmin() ? '/profile-pic-admin.png' : '/profile-pic.png';
 
   return (
     <div className="navbar-container">
