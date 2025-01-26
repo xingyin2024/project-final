@@ -88,6 +88,23 @@ const TripOverView = () => {
   const indexOfFirstTrip = indexOfLastTrip - tripsPerPage;
   const currentTrips = trips.slice(indexOfFirstTrip, indexOfLastTrip);
   const totalPages = Math.ceil(trips.length / tripsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter users based on search query
+  const filteredTrips = currentTrips.filter((trip) => {
+    const startYear = new Date(trip.tripDate.startDate)
+      .getFullYear()
+      .toString();
+    return [
+      trip.title,
+      trip.location?.city,
+      trip.location?.country,
+      trip.status,
+      startYear,
+    ]
+      .filter(Boolean)
+      .some((field) => field.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   if (loading) {
     return <p>Loading trips...</p>;
@@ -107,8 +124,18 @@ const TripOverView = () => {
         <NoTripsFound />
       ) : (
         <>
+          {/* Search Input */}
+          <div className="search-input-container">
+            <input
+              type="text"
+              placeholder="Search trips..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           <div className="trip-overview-list">
-            {currentTrips.map((trip) => (
+            {filteredTrips.map((trip) => (
               <TripCard
                 key={trip._id}
                 trip={trip}

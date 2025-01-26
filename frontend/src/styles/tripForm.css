@@ -24,13 +24,18 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--black-mid);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+}
+.trip-form-input,
+.dropdown-input {
+  margin-top: 8px;
 }
 
 .trip-form-value {
   font-size: 1rem;
   font-weight: 600;
   color: var(--black-darker);
+  margin-top: 8px;
 }
 
 .total-label {
@@ -61,7 +66,7 @@
 
 .input-with-icon svg {
   position: absolute;
-  top: 12px; /* Icon position inside the input */
+  top: 16px; /* Icon position inside the input */
   right: 12px; /* Icon position inside the input */
   color: var(--black-darker);
 }

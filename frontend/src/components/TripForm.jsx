@@ -615,6 +615,7 @@ export default function TripForm({ mode = 'create', tripId }) {
               Trip Code
             </label>
             <input
+              className="trip-form-input"
               id="trip-title"
               type="text"
               name="title"
@@ -743,6 +744,7 @@ export default function TripForm({ mode = 'create', tripId }) {
               Trip Start Date and Time
             </label>
             <input
+              className="trip-form-input"
               id="startDate"
               type="datetime-local"
               name="tripDate.startDate"
@@ -756,6 +758,7 @@ export default function TripForm({ mode = 'create', tripId }) {
               Trip End Date and Time
             </label>
             <input
+              className="trip-form-input"
               id="endDate"
               type="datetime-local"
               name="tripDate.endDate"
@@ -790,6 +793,7 @@ export default function TripForm({ mode = 'create', tripId }) {
               No. of Hotel Breakfast (days)
             </label>
             <input
+              className="trip-form-input"
               id="breakfastDays"
               type="number"
               name="hotelBreakfastDays"
@@ -803,6 +807,7 @@ export default function TripForm({ mode = 'create', tripId }) {
               Driving Mil with Private Car (mil)
             </label>
             <input
+              className="trip-form-input"
               id="mileage"
               type="number"
               name="mileageKm"
