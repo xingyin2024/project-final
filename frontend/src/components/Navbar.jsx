@@ -53,7 +53,7 @@ const NavItem = ({ to, icon: Icon, label, isButton = false, onClick }) => (
 );
 
 const Navbar = () => {
-  const { user, logout, isAdmin } = useUser();
+  const { user, logout } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -89,7 +89,10 @@ const Navbar = () => {
         { to: '/login', icon: CiLogin, label: 'Login' },
       ];
 
-  const imgSrc = isAdmin() ? '/profile-pic-admin.png' : '/profile-pic.png';
+  const imgSrc =
+    user && user.role === 'admin'
+      ? '/profile-pic-admin.png'
+      : '/profile-pic.png';
 
   return (
     <div className="navbar-container">

@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types';
-import { useUser } from '../context/UserContext';
-// import { useState, useContext } from 'react';
 import '../styles/teamCard.css';
 
-const TeamCard = ({ onClick }) => {
+const TeamCard = ({ user, onClick }) => {
   // Decide which fallback image to use based on role
-  const { user, isAdmin } = useUser();
-  const imgSrc = isAdmin() ? '/profile-pic-admin.png' : '/profile-pic.png';
+  const imgSrc =
+    user.role === 'admin' ? '/profile-pic-admin.png' : '/profile-pic.png';
 
   return (
     <div className="team-card" onClick={onClick}>
