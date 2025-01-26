@@ -1,5 +1,5 @@
-import PropTypes from "prop-types";
-import { createContext, useContext, useState, useEffect } from "react";
+import PropTypes from 'prop-types';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL; // For Vite-based projects
 
@@ -12,8 +12,8 @@ export const UserProvider = ({ children }) => {
 
   // Load user from localStorage on initial render
   useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
-    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem('accessToken');
+    const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
       setUser(JSON.parse(storedUser));
@@ -28,23 +28,23 @@ export const UserProvider = ({ children }) => {
 
     try {
       const response = await fetch(`${BASE_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed.");
+        throw new Error(data.message || 'Registration failed.');
       }
 
       setUser(data.data);
-      localStorage.setItem("accessToken", data.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.data));
+      localStorage.setItem('accessToken', data.data.accessToken);
+      localStorage.setItem('user', JSON.stringify(data.data));
     } catch (err) {
-      console.error("Error during registration:", err);
-      setError(err.message || "An unexpected error occurred.");
+      console.error('Error during registration:', err);
+      setError(err.message || 'An unexpected error occurred.');
       throw err; // Allow error handling in calling components
     } finally {
       setAuthLoading(false);
@@ -57,23 +57,23 @@ export const UserProvider = ({ children }) => {
 
     try {
       const response = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed.");
+        throw new Error(data.message || 'Login failed.');
       }
 
       setUser(data.data);
-      localStorage.setItem("accessToken", data.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.data));
+      localStorage.setItem('accessToken', data.data.accessToken);
+      localStorage.setItem('user', JSON.stringify(data.data));
     } catch (err) {
-      console.error("Error during login:", err);
-      setError(err.message || "An unexpected error occurred.");
+      console.error('Error during login:', err);
+      setError(err.message || 'An unexpected error occurred.');
       throw err; // Allow error handling in calling components
     } finally {
       setAuthLoading(false);
@@ -82,11 +82,13 @@ export const UserProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+
+    navigate('/');
   };
 
-  const isAdmin = () => user?.role === "admin";
+  const isAdmin = () => user?.role === 'admin';
 
   return (
     <UserContext.Provider
