@@ -7,7 +7,7 @@ import Pagination from '../components/Pagination';
 import NoTripsFound from '../components/NoTripsFound';
 import '../styles/dashboard.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
 
 // Helper function from backend ref (if used client-side)
 export const getPagination = (page = 1, limit = 10) => {

@@ -7,7 +7,7 @@ import ActionButton from '../components/ActionButton';
 import TripFormHeader from '../components/TripFormHeader';
 import '../styles/profile.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
 
 const Profile = () => {
   const { id } = useParams();

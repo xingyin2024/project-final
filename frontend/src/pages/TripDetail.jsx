@@ -9,7 +9,7 @@ import Lottie from 'lottie-react';
 import Updating from '../assets/Updating.json';
 import '../styles/tripForm.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
 
 const TripDetail = () => {
   const { id } = useParams();

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TeamCard from '../components/TeamCard';
 import '../styles/admin.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
 
 const Admin = () => {
   const [users, setUsers] = useState([]);

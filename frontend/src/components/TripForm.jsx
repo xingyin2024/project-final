@@ -18,7 +18,7 @@ import favoriteCities from '../assets/fav-city.json';
 import { IoLocationOutline, IoLocate } from 'react-icons/io5';
 import '../styles/tripForm.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
 
 /**
  * A single form component that handles both "create" and "edit" trip logic,
