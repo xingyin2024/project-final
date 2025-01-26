@@ -84,8 +84,6 @@ const Navbar = () => {
       ]
     : [
         { to: '/', icon: CiHome, label: 'Home' },
-        { to: '/about', icon: IoInformationCircleOutline, label: 'About' },
-        { to: '/contact', icon: IoMailOutline, label: 'Contact' },
         { to: '/login', icon: CiLogin, label: 'Login' },
       ];
 
