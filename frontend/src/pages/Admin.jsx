@@ -60,25 +60,21 @@ const Admin = () => {
       {/* Header */}
       <h1 className="admin-header">Admin Panel</h1>
 
+      <hr className="divider" />
+
       {/* Team Member List */}
       <div className="team-container">
         {/* Team Member Header */}
         <div className="team-header-container">
           <h2 className="team-header">Team Member</h2>
           <p className="team-number">{`(Total ${users.length} members)`}</p>
-          {/* <button
-            className="text-btn"
-            onClick={() => console.log('Add Team Member')}
-          >
-            Add Team Member
-          </button> */}
         </div>
 
         {/* Search Input */}
         <div className="search-input">
           <input
             type="text"
-            placeholder="Search by username, firstname, lastname, or role"
+            placeholder="Search team member..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

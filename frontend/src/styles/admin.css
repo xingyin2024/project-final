@@ -16,6 +16,12 @@
   font-weight: bold;
 }
 
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ddd;
+  margin: 16px 0px;
+}
 .team-number {
   font-size: 0.875rem;
   font-weight: 400;

@@ -89,6 +89,14 @@ const Navbar = () => {
         { to: '/login', icon: CiLogin, label: 'Login' },
       ];
 
+  // Check if user is available before rendering
+  if (!user) {
+    return <p className="error-message">Error: User not found</p>;
+  }
+
+  const imgSrc =
+    user.role === 'admin' ? '/profile-pic-admin.png' : '/profile-pic.png';
+
   return (
     <div className="navbar-container">
       {/* Hamburger Icon */}
@@ -105,8 +113,8 @@ const Navbar = () => {
             {user ? (
               <>
                 <img
-                  src="/profile-pic.png"
-                  alt="Profile"
+                  src={user.profilePicture || imgSrc}
+                  alt={`${user.firstName} ${user.lastName}`}
                   className="profile-pic"
                 />
                 <span className="profile-name">
