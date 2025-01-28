@@ -1,89 +1,103 @@
-* Documentation for Future Development: 
-Include a docs/ folder for storing developer documentation, such as API specs, architecture diagrams, and endpoint documentation. This will help new contributors.
-
 # Final-project-TRAKTAMENTE folder structure
-├── backend/                 # Backend logic for APIs and database interactions
-│   ├── .babelrc             # Babel configuration for JavaScript transpiling
-│   ├── package.json         # Backend dependencies and scripts
-│   ├── README.md            # Backend documentation
-│   ├── .gitignore           # Ignored files for Git
-│   ├── server.js            # Entry point for the backend
-│   ├── .env                 # Environment variables (e.g., MONGO_URI)
-│   ├── controllers/
-│   │   ├── userController.js    # User-related request handlers
-│   │   ├── tripController.js    # Trip-related request handlers
-│   ├── middleware/
-│   │   ├── auth.js              # Authentication and authorization middleware
-│   │   ├── validation.js        # Input validation middleware
-│   │   ├── checkDbConnection.js # MongoDB connection check middleware
-│   │   ├── errorHandler.js        # Error handler middleware
-│   ├── models/
-│   │   ├── userModel.js         # User Mongoose schema and model
-│   │   ├── tripModel.js         # Trip Mongoose schema and model
-│   ├── routes/
-│   │   ├── userRoutes.js        # User-related routes
-│   │   ├── authRoutes.js        # Login/register-related routes
-│   │   ├── tripRoutes.js        # Trip-related routes
-│   ├── utils/
-│   │   ├── handleMongoError.js  # Reusable error handler for MongoDB
-│   │   ├── pagination.js        # Pagination logic helper
-│
-├── frontend/                     # Frontend logic and React components
-│   ├── public/                   # Public assets like images and favicon
-│   │   ├── profile-pic.png       # Default profile picture
-│   ├── src/                      # Main React application code
-│   │   ├── assets/               # Design assets like images, icons, and fonts
-│   │   │   ├── logo.svg          # App logo
-│   │   ├── components/           # Reusable React components
-│   │   │   ├── Button.jsx        # Button component
-│   │   │   ├── Navbar.jsx        # Navbar/Sidebar component
-│   │   ├── context/              # Main pages for the app
-│   │   │   ├── UserContext.jsx   # React context for managing user authentication and related state
-│   │   ├── pages/                # Main pages for the app
-│   │   │   ├── Welcome.jsx       # Welcome page
-│   │   │   ├── Login.jsx         # Login page
-│   │   │   ├── Register.jsx      # Register page
-│   │   │   ├── Dashboard.jsx      # User dashboard
-│   │   │   ├── TripDetail.jsx      # Trip reporting page
-│   │   │   ├── CreateTrip.jsx      # Create a new trip page
-│   │   │   ├── EditTrip.jsx      # Edit an existing trip page
-│   │   │   ├── Admin.jsx         # Admin login page
-│   │   │   ├── Profile.jsx       # User profile page
-│   │   │   ├── NotFound.jsx       # 404 not found page (back to welcome page if not a valid user or to dashboard)
-│   │   ├── routes/              # Main pages for the app
-│   │   │   ├── AppRoutes.jsx     # Centralized app routes here
-│   │   │   ├── ProtectedRoutes.jsx # Render pages or not based on user role and id
-│   │   ├── styles/               # CSS files for styling the app
-│   │   │   ├── index.css         # Global and shared CSS styles
-│   │   │   ├── auth.css          # Welcome/Login/Register specific styles
-│   │   │   ├── dashboard.css     # Dashboard specific styles
-│   │   │   ├── admin.css         # Admin specific styles
-│   │   │   ├── profile.css       # Profile specific styles
-│   │   │   ├── trip.css          # Trip (create/edit/detail) specific styles
-│   │   ├── App.jsx               # Main React component
-│   │   ├── main.jsx              # Entry point for React app
-│   ├── index.html                # HTML template for the app
-│   ├── package.json              # Frontend dependencies and scripts
-│   ├── README.md                 # Frontend documentation
-│   ├── .gitignore                # Ignored files for Git
-│   ├── vite.config.js            # Vite configuration file
-│   ├── .env                      # Environment variables (e.g., an API base URL)
-│
-├── docs/                     # Developer documentation
-│   ├── README.md            # Notes on project setup, APIs, and architecture
-│
-├── README.md                 # Project-level documentation
-├── .gitignore                # Global ignored files for Git
-├── app.js                    # Wrapper for server setup if needed
-├── package.json              # Global dependencies and scripts
-├── netlify.toml              # Netlify configuration for deployment
-├── Procfile                  # Heroku deployment configuration
 
-
-
-# Summary of Key Milestones:
-1- Authentication (Backend and Frontend)
-2- Dashboard with trip reporting and filtering
-3- Admin functionality for trip approval
-4- MongoDB integration for users and trips
-5- Testing and Deployment
+├── backend/ # Backend logic for APIs and database interactions
+│ ├── .babelrc # Babel configuration for JavaScript transpiling
+│ ├── package.json # Backend dependencies and scripts
+│ ├── README.md # Backend documentation
+│ ├── .gitignore # Ignore unnecessary files like node_modules, env, etc.
+│ ├── server.js # Entry point for the backend application
+│ ├── .env # Environment variables (e.g., MONGO_URI, API keys)
+│ ├── controllers/ # Controllers handle business logic for API routes
+│ │ ├── userController.js # Handles user authentication, profile updates, etc.
+│ │ ├── tripController.js # Manages trip-related actions (create, update, fetch)
+│ ├── middleware/ # Middleware for authentication, validation, and error handling
+│ │ ├── auth.js # Middleware for verifying authentication tokens
+│ │ ├── validation.js # Middleware for Input validation
+│ │ ├── checkDbConnection.js # Middleware to check MongoDB connection
+│ │ ├── errorHandler.js # Global error handling middleware
+│ ├── models/ # MongoDB schemas and models
+│ │ ├── userModel.js # Mongoose schema and model for users
+│ │ ├── tripModel.js # Mongoose schema and model for trips
+│ ├── routes/ # Defines backend API endpoints
+│ │ ├── userRoutes.js # User-related API routes
+│ │ ├── authRoutes.js # Authentication (login/register) API routes
+│ │ ├── tripRoutes.js # Trip-related API routes
+│ ├── utils/ # Utility functions for backend logic
+│ │ ├── handleMongoError.js # Handles MongoDB-specific errors
+│ │ ├── pagination.js # Helper function for paginating API results
+│
+├── frontend/ # Frontend logic and React components
+│ ├── public/ # Public assets like images, favicon, etc.
+│ │ ├── profile-pic.png # Default profile picture for users
+│ │ ├── profile-pic-admin.png # Default profile picture for admin users
+│ ├── src/ # Main React application source code
+│ │ ├── assets/ # Static assets (JSON, images, etc.)
+│ │ │ ├── fav-city.json # JSON file storing frequently used cities
+│ │ │ ├── Loading.json # JSON for loading animation
+│ │ │ ├── traktamente-en.json # JSON storing per diem/travel allowance data
+│ │ │ ├── Updating.json # JSON handling update animations
+│ │ ├── components/ # Reusable React UI components
+│ │ │ ├── ActionButton.jsx # Generic action button component
+│ │ │ ├── AlertMessage.jsx # Component for displaying alert messages
+│ │ │ ├── ConfirmationPopup.jsx # Popup for confirming actions (e.g., delete trip)
+│ │ │ ├── Navbar.jsx # Navbar/Sidebar navigation component
+│ │ │ ├── NoTripsFound.jsx # Display message when no trips are found
+│ │ │ ├── Pagination.jsx # Component for paginating trip lists
+│ │ │ ├── ProfileForm.jsx # Form component for user profile updates
+│ │ │ ├── SummaryCard.jsx # Card component displaying trip summaries
+│ │ │ ├── TeamCard.jsx # Card displaying team members/admins
+│ │ │ ├── TripCard.jsx # Card component displaying a single trip
+│ │ │ ├── TripDayCalculator.jsx # Utility component for trip day calculations
+│ │ │ ├── TripForm.jsx # Form for creating or editing trips
+│ │ │ ├── TripFormButtons.jsx # Buttons for submitting/canceling trip forms
+│ │ │ ├── TripFormHeader.jsx # Header for trip forms
+│ │ ├── context/ # React Context for managing global state
+│ │ │ ├── UserContext.jsx # Manages authentication, user data, and state
+│ │ ├── hooks/ # Custom React hooks
+│ │ │ ├── useTripForm.js # Hook for handling trip form logic
+│ │ │ ├── useActionButtons.js # Hook managing action buttons
+│ │ │ ├── useAlert.js # Hook managing alerts/popups
+│ │ │ ├── useUniqueCountries.js # Hook for fetching unique country lists
+│ │ ├── pages/ # React pages for different views
+│ │ │ ├── Admin.jsx # Admin dashboard
+│ │ │ ├── CreateTrip.jsx # Page for creating a new trip
+│ │ │ ├── Dashboard.jsx # Main user dashboard displaying trips
+│ │ │ ├── EditTrip.jsx # Page for editing an existing trip
+│ │ │ ├── Home.jsx # Welcome page before logging in
+│ │ │ ├── Login.jsx # User login page
+│ │ │ ├── NotFound.jsx # 404 page redirecting to dashboard or login
+│ │ │ ├── Profile.jsx # User profile page
+│ │ │ ├── Register.jsx # User registration page
+│ │ │ ├── TripDetail.jsx # Detailed trip information page
+│ │ │ ├── TripOverView.jsx # Overview page for multiple trips
+│ │ ├── routes/ # Routing and access control
+│ │ │ ├── AppRoutes.jsx # Centralized route management
+│ │ │ ├── ProtectedRoutes.jsx # Ensures access control based on role
+│ │ ├── styles/ # CSS files for styling the app
+│ │ │ ├── index.css # Global and shared CSS styles
+│ │ │ ├── auth.css # Authentication-related styles (login/register)
+│ │ │ ├── dashboard.css # Dashboard styles
+│ │ │ ├── admin.css # Admin panel styles
+│ │ │ ├── profile.css # Profile page styles
+│ │ │ ├── trip.css # Trip-related styles (create/edit/detail)
+│ │ ├── utils/ # Utility functions
+│ │ │ ├── formatDateTime.js # Helper function for formatting dates
+│ │ ├── App.jsx # Main React component
+│ │ ├── main.jsx # Entry point for React app
+│ ├── index.html # HTML template for the app
+│ ├── package.json # Frontend dependencies and scripts
+│ ├── README.md # Frontend documentation
+│ ├── .gitignore # Ignore unnecessary frontend files
+│ ├── vite.config.js # Vite configuration for development setup
+│ ├── .env # Environment variables (e.g., API base URL)
+│
+├── docs/ # Developer documentation
+│ ├── README.md # Folder structure and comments
+│ ├──MVProadmap.md # Draft Roadmap generated by ChatGPT
+│
+├── README.md # Project-level documentation
+├── .gitignore # Global ignore file for project
+├── app.js # Wrapper for server setup if needed
+├── package.json # Global dependencies and scripts
+├── netlify.toml # Netlify configuration for deployment
+├── Procfile # Heroku deployment configuration
