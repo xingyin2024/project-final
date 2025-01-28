@@ -10,7 +10,7 @@ import { useUser } from '../context/UserContext';
 import TripFormHeader from './TripFormHeader';
 import TripFormButtons from './TripFormButtons';
 import TripDayCalculator from './TripDayCalculator';
-import AlertMessage from './AlertMessage'; // if you need alert display
+import AlertMessage from './AlertMessage'; // for alert display
 
 // JSON data for amounts/cities
 import countriesData from '../assets/traktamente-en.json';
@@ -59,10 +59,8 @@ export default function TripForm({ mode = 'create', tripId }) {
     },
   });
 
-  // (Used to store the user's existing trips for date range validation in "create" mode)
+  // (Used to store the user's existing trips for date range validation in "create" and "edit" modes)
   const [userTrips, setUserTrips] = useState([]);
-  const [userMinStartDate, setUserMinStartDate] = useState(null);
-  const [userMaxEndDate, setUserMaxEndDate] = useState(null);
 
   // (Used to compare if trip changed in "edit" mode)
   const [originalTrip, setOriginalTrip] = useState(null);
@@ -81,15 +79,16 @@ export default function TripForm({ mode = 'create', tripId }) {
   const [citySuggestions, setCitySuggestions] = useState([]);
 
   // -----------------------------------
-  // 3.1) FETCH TRIP IF CREATE MODE
+  // 3.1) FETCH TRIPS IF CREATE OR EDIT MODE
   // -----------------------------------
   useEffect(() => {
-    if (mode === 'create') {
+    if (mode === 'create' || mode === 'edit') {
       fetchAllUserTrips();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
-  // Fetch * all * existing trips for the logged -in user
+  // Fetch * all * existing trips for the logged-in user
   const fetchAllUserTrips = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -106,22 +105,6 @@ export default function TripForm({ mode = 'create', tripId }) {
       }
       const existingTrips = data.data || [];
       setUserTrips(existingTrips);
-
-      // Derive earliest start / latest end among all existing trips
-      if (existingTrips.length > 0) {
-        const earliestStart = existingTrips.reduce((acc, curr) => {
-          const s = new Date(curr.tripDate.startDate);
-          return s < acc ? s : acc;
-        }, new Date(existingTrips[0].tripDate.startDate));
-
-        const latestEnd = existingTrips.reduce((acc, curr) => {
-          const e = new Date(curr.tripDate.endDate);
-          return e > acc ? e : acc;
-        }, new Date(existingTrips[0].tripDate.endDate));
-
-        setUserMinStartDate(earliestStart);
-        setUserMaxEndDate(latestEnd);
-      }
     } catch (err) {
       setError(err.message);
     }
@@ -225,6 +208,7 @@ export default function TripForm({ mode = 'create', tripId }) {
         ...prev,
         calculatedData: {
           ...prev.calculatedData,
+          totalDays: 0,
           totalAmount: 0,
           standardAmount: 0,
           finalAmount: 0, // reset final too
@@ -233,7 +217,7 @@ export default function TripForm({ mode = 'create', tripId }) {
       return;
     }
 
-    // If breakfastDays>totalDays => alert
+    // If breakfastDays > totalDays => alert
     if (hotelBreakfastDays > totalDays) {
       setAlert(
         'hotelBreakfastDays',
@@ -254,7 +238,7 @@ export default function TripForm({ mode = 'create', tripId }) {
       ? parseFloat(countryData['standard amount'])
       : 0;
 
-    // compute final (rounded)
+    // Compute final (rounded)
     const rawTotal =
       totalDays * standardAmount - hotelBreakfastDays * 58 + mileageKm * 25;
     const total = Math.round(rawTotal); // no decimals
@@ -363,11 +347,8 @@ export default function TripForm({ mode = 'create', tripId }) {
   };
 
   // -----------------------------------
-  // 7) DATES + handleChange
+  // 7) DATES + handleChange & handleDateAutoFix
   // -----------------------------------
-  const formatDateForInputLocal = (date) =>
-    new Date(date).toISOString().slice(0, 16);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -400,7 +381,7 @@ export default function TripForm({ mode = 'create', tripId }) {
     }
   };
 
-  // Automatic date correction
+  // Automatic date correction and overlap validation
   const handleDateAutoFix = (fieldName, newVal) => {
     setTrip((prev) => {
       let updatedTrip = { ...prev };
@@ -408,76 +389,79 @@ export default function TripForm({ mode = 'create', tripId }) {
 
       if (fieldName === 'tripDate.startDate') {
         newTripDate.startDate = newVal;
-        const start = new Date(newVal);
-        const end = new Date(newTripDate.endDate);
-
-        // 1) Check userMinStartDate in create mode
-        if (mode === 'create' && userMinStartDate && start < userMinStartDate) {
-          setAlert(
-            'tripDate',
-            `Cannot start trip before ${userMinStartDate.toDateString()}`
-          );
-          // Force revert
-          newTripDate.startDate = formatDateForInput(userMinStartDate);
-        }
-
-        // 2) If start > end => fix
-        if (start > end) {
-          const fixed = new Date(end);
-          fixed.setDate(fixed.getDate() - 1);
-          newTripDate.startDate = formatDateForInputLocal(fixed);
-          setAlert(
-            'tripDate',
-            'Start date was adjusted to be before End date.'
-          );
-        }
-
-        // 3) Otherwise, if none of the above triggered a fix => clear alert
-        else if (
-          mode === 'create' &&
-          userMinStartDate &&
-          start >= userMinStartDate
-        ) {
-          // No problem => clear alert
-          clearAlert('tripDate');
-        }
       } else if (fieldName === 'tripDate.endDate') {
         newTripDate.endDate = newVal;
-        const end = new Date(newVal);
-        const start = new Date(newTripDate.startDate);
-
-        // 1) Check userMaxEndDate in create mode
-        if (mode === 'create' && userMaxEndDate && end > userMaxEndDate) {
-          setAlert(
-            'tripDate',
-            `Cannot end trip after ${userMaxEndDate.toDateString()}`
-          );
-          // Force revert
-          newTripDate.endDate = formatDateForInput(userMaxEndDate);
-        }
-
-        // 2) If end < start => fix
-        if (end < start) {
-          const fixed = new Date(start);
-          fixed.setDate(fixed.getDate() + 1);
-          newTripDate.endDate = formatDateForInputLocal(fixed);
-          setAlert('tripDate', 'End date was adjusted to be after Start date.');
-        }
-
-        // 3) Otherwise if no fix => clear
-        else if (
-          mode === 'create' &&
-          userMaxEndDate &&
-          end <= userMaxEndDate &&
-          end >= start
-        ) {
-          clearAlert('tripDate');
-        }
       }
 
       updatedTrip.tripDate = newTripDate;
+
+      // Validate the new date range
+      validateDateRange(newTripDate.startDate, newTripDate.endDate, mode);
       return updatedTrip;
     });
+  };
+
+  const validateDateRange = (startDate, endDate, mode) => {
+    // Parse dates
+    const newStart = new Date(startDate);
+    const newEnd = new Date(endDate);
+
+    // Check if start date is after end date
+    if (newStart > newEnd) {
+      // Adjust dates accordingly
+      if (mode === 'create' || mode === 'edit') {
+        // Decide which date to adjust. Here, we'll adjust the end date to be after the start date.
+        setAlert('tripDate', 'End date was adjusted to be after Start date.');
+
+        // Set end date to start date plus 1 day
+        const adjustedEnd = new Date(newStart);
+        adjustedEnd.setDate(adjustedEnd.getDate() + 1);
+        const formattedEnd = formatDateForInput(adjustedEnd.toISOString());
+        setTrip((prev) => ({
+          ...prev,
+          tripDate: {
+            ...prev.tripDate,
+            endDate: formattedEnd,
+          },
+        }));
+      }
+      return;
+    }
+
+    // Overlap Validation
+    // In "edit" mode, exclude the current trip from overlap checks
+    const overlappingTrip = userTrips.find((tripItem) => {
+      if (mode === 'edit' && tripItem.id === tripId) return false; // Exclude current trip
+
+      const existingStart = new Date(tripItem.tripDate.startDate);
+      const existingEnd = new Date(tripItem.tripDate.endDate);
+
+      // Check if the new trip overlaps with any existing trip
+      return (
+        (newStart >= existingStart && newStart <= existingEnd) ||
+        (newEnd >= existingStart && newEnd <= existingEnd) ||
+        (newStart <= existingStart && newEnd >= existingEnd)
+      );
+    });
+
+    if (overlappingTrip) {
+      setAlert(
+        'tripDate',
+        `The selected dates overlap with an existing trip: "${
+          overlappingTrip.title
+        }" from ${formatDateDisplay(
+          overlappingTrip.tripDate.startDate
+        )} to ${formatDateDisplay(overlappingTrip.tripDate.endDate)}.`
+      );
+    } else {
+      clearAlert('tripDate');
+    }
+  };
+
+  // Helper function to format dates for display in alerts
+  const formatDateDisplay = (dateStr) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateStr).toLocaleDateString(undefined, options);
   };
 
   // -----------------------------------
@@ -485,10 +469,16 @@ export default function TripForm({ mode = 'create', tripId }) {
   // -----------------------------------
   const isFormValid = () => {
     // Basic checks: title, country, start/end date
-    if (!trip.title) return false;
-    if (!trip.location.country) return false;
+    if (!trip.title.trim()) return false;
+    if (!trip.location.country.trim()) return false;
     if (!trip.tripDate.startDate) return false;
     if (!trip.tripDate.endDate) return false;
+
+    // Check for trip date alerts
+    if (getAlert('tripDate')) return false;
+
+    // Additional validations can be added here
+
     return true;
   };
 
@@ -510,7 +500,7 @@ export default function TripForm({ mode = 'create', tripId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (hasActiveAlerts()) return; // optional: prevent submission if alerts are active
+    if (hasActiveAlerts()) return; // prevent submission if alerts are active
     if (!isFormValid()) return;
 
     if (mode === 'edit' && !isModified()) {
@@ -584,6 +574,7 @@ export default function TripForm({ mode = 'create', tripId }) {
 
   const ratio =
     trip.calculatedData?.finalAmount / trip.calculatedData?.totalAmount;
+
   // -----------------------------------
   // RENDER
   // -----------------------------------
@@ -898,7 +889,9 @@ export default function TripForm({ mode = 'create', tripId }) {
             <div className="trip-form-row">
               <p className="trip-form-label">Status:</p>
               <p className={`trip-form-status ${trip?.status?.toLowerCase()}`}>
-                {trip.status?.charAt(0).toUpperCase() + trip.status.slice(1)}
+                {trip.status
+                  ? trip.status.charAt(0).toUpperCase() + trip.status.slice(1)
+                  : 'N/A'}
               </p>
             </div>
           )}

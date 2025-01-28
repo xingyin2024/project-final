@@ -1,10 +1,23 @@
 import PropTypes from 'prop-types';
 import '../styles/tripCard.css';
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const date = new Date(dateStr);
+  if (isNaN(date)) return 'N/A';
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}-${day}`;
+};
+
 const TripCard = ({ trip, onClick, userRole }) => {
   const startYear = trip.tripDate?.startDate
     ? new Date(trip.tripDate.startDate).getFullYear()
     : 'Unknown';
+
+  // Format start and end dates
+  const formattedStartDate = formatDate(trip.tripDate?.startDate);
+  const formattedEndDate = formatDate(trip.tripDate?.endDate);
 
   return (
     <div className="trip-card" onClick={onClick}>
@@ -19,9 +32,13 @@ const TripCard = ({ trip, onClick, userRole }) => {
         {trip.location?.country || 'Unknown'}
       </p>
 
-      {/* Trip Duration */}
+      {/* Trip Duration and Dates */}
       <p className="trip-card-duration">
         Total Traktamente Day: {trip.calculatedData?.totalDays || 0} day(s)
+        <span>
+          {' '}
+          (from {formattedStartDate} to {formattedEndDate})
+        </span>
       </p>
 
       {/* Show Total Amount ONLY if userRole === 'admin' */}
@@ -49,7 +66,22 @@ const TripCard = ({ trip, onClick, userRole }) => {
 };
 
 TripCard.propTypes = {
-  trip: PropTypes.object.isRequired,
+  trip: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    tripDate: PropTypes.shape({
+      startDate: PropTypes.string,
+      endDate: PropTypes.string,
+    }),
+    location: PropTypes.shape({
+      country: PropTypes.string,
+      city: PropTypes.string,
+    }),
+    calculatedData: PropTypes.shape({
+      totalDays: PropTypes.number,
+      totalAmount: PropTypes.number,
+    }),
+    status: PropTypes.string,
+  }).isRequired,
   onClick: PropTypes.func.isRequired,
   userRole: PropTypes.string.isRequired, // e.g. 'admin', 'user', etc.
 };
