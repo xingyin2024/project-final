@@ -115,7 +115,6 @@ const getTripById = async (req, res) => {
 
     res.status(200).json({ success: true, data: trip });
   } catch (error) {
-    console.error('Error fetching trip by ID:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch trip' });
   }
 };
