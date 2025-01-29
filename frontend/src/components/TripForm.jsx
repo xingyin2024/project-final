@@ -94,13 +94,13 @@ const TripForm = ({ mode = 'create', tripId }) => {
   // Fetch * all * existing trips for the logged-in user
   const fetchAllUserTrips = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
         setError('No access token found. Please log in.');
         return;
       }
       const response = await fetch(`${BASE_URL}/trips?userId=${user.id}`, {
-        headers: { Authorization: token },
+        headers: { Authorization: accessToken },
       });
       const data = await response.json();
       if (!response.ok) {
@@ -120,7 +120,6 @@ const TripForm = ({ mode = 'create', tripId }) => {
     if (mode === 'edit' && tripId) {
       fetchTrip();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, tripId]);
 
   const fetchTrip = async () => {
@@ -383,23 +382,26 @@ const TripForm = ({ mode = 'create', tripId }) => {
     }
   };
 
-  // Automatic date correction and overlap validation
+  // Updates the trip dates and triggers date range validation.
   const handleDateAutoFix = (fieldName, newVal) => {
     setTrip((prev) => {
-      let updatedTrip = { ...prev };
-      const newTripDate = { ...prev.tripDate };
-
-      if (fieldName === 'tripDate.startDate') {
-        newTripDate.startDate = newVal;
-      } else if (fieldName === 'tripDate.endDate') {
-        newTripDate.endDate = newVal;
-      }
-
-      updatedTrip.tripDate = newTripDate;
+      const dateField = fieldName.split('.')[1]; // Extract 'startDate' or 'endDate'
+      const updatedTripDate = {
+        ...prev.tripDate,
+        [dateField]: newVal,
+      };
 
       // Validate the new date range
-      validateDateRange(newTripDate.startDate, newTripDate.endDate, mode);
-      return updatedTrip;
+      validateDateRange(
+        updatedTripDate.startDate,
+        updatedTripDate.endDate,
+        mode
+      );
+
+      return {
+        ...prev,
+        tripDate: updatedTripDate,
+      };
     });
   };
 
@@ -410,23 +412,10 @@ const TripForm = ({ mode = 'create', tripId }) => {
 
     // Check if start date is after end date
     if (newStart > newEnd) {
-      // Adjust dates accordingly
-      if (mode === 'create' || mode === 'edit') {
-        // Adjust the end date to be after the start date.
-        setAlert('tripDate', 'End date was adjusted to be after Start date.');
-
-        // Set end date to start date plus 1 day
-        const adjustedEnd = new Date(newStart);
-        adjustedEnd.setDate(adjustedEnd.getDate() + 1);
-        const formattedEnd = formatDateForInput(adjustedEnd.toISOString());
-        setTrip((prev) => ({
-          ...prev,
-          tripDate: {
-            ...prev.tripDate,
-            endDate: formattedEnd,
-          },
-        }));
-      }
+      setAlert(
+        'tripDate',
+        'OBS! End date should NOT be earlier than Start date.'
+      );
       return;
     }
 
