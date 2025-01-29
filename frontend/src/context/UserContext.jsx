@@ -33,21 +33,15 @@ export const UserProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log('Register API response:', data); // Add this line
 
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed.');
       }
 
-      // Adjust based on actual API response structure
-      const registeredUser = data.data.user || data.data; // Modify accordingly
-      console.log('Registered User:', registeredUser); // Add this line
-
       setUser(data.data);
       localStorage.setItem('accessToken', data.data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.data));
     } catch (err) {
-      console.error('Error during registration:', err);
       setError(err.message || 'An unexpected error occurred.');
       throw err; // Allow error handling in calling components
     } finally {
@@ -76,7 +70,6 @@ export const UserProvider = ({ children }) => {
       localStorage.setItem('accessToken', data.data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.data));
     } catch (err) {
-      console.error('Error during login:', err);
       setError(err.message || 'An unexpected error occurred.');
       throw err; // Allow error handling in calling components
     } finally {
