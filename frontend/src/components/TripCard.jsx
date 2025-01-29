@@ -22,9 +22,9 @@ const TripCard = ({ trip, onClick, userRole }) => {
   return (
     <div className="trip-card" onClick={onClick}>
       {/* Trip Title and Date */}
-      <h3 className="trip-card-title">
+      <h1 className="trip-card-title">
         {trip.title} ({startYear})
-      </h3>
+      </h1>
 
       {/* Trip Location */}
       <p className="trip-card-location">

@@ -5,8 +5,6 @@ import { CiHome, CiLogin, CiLogout } from 'react-icons/ci';
 import {
   IoGridOutline,
   IoCreateOutline,
-  IoMailOutline,
-  IoInformationCircleOutline,
   IoPersonCircleOutline,
 } from 'react-icons/io5';
 

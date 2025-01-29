@@ -23,7 +23,7 @@ const ConfirmationPopup = ({
         {isConfirmationMode ? (
           <div className="confirmation-popup-buttons">
             <button
-              className="secondary-btn confirmation-popup-btn"
+              className="primary-btn confirmation-popup-btn"
               onClick={onConfirm}
             >
               Yes

@@ -11,6 +11,15 @@
   z-index: 1000;
 }
 
+.confirmation-popup-buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+}
+
 .confirmation-popup {
   background: #fff;
   padding: 60px 30px;

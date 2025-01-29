@@ -10,7 +10,7 @@ import { useUser } from '../context/UserContext';
 import TripFormHeader from './TripFormHeader';
 import TripFormButtons from './TripFormButtons';
 import TripDayCalculator from './TripDayCalculator';
-import AlertMessage from './AlertMessage'; // for alert display
+import AlertMessage from './AlertMessage';
 
 // JSON data for amounts/cities
 import countriesData from '../assets/traktamente-en.json';
@@ -18,14 +18,14 @@ import favoriteCities from '../assets/fav-city.json';
 import { IoLocationOutline, IoLocate } from 'react-icons/io5';
 import '../styles/tripForm.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 /**
  * A single form component that handles both "create" and "edit" trip logic,
  * including country/city dropdown, date auto-fix, day calculation, and alerts,
  * plus a new "Final Amount" option for admin to pick 50%/75%/100%.
  */
-export default function TripForm({ mode = 'create', tripId }) {
+const TripForm = ({ mode = 'create', tripId }) => {
   const navigate = useNavigate();
   const sortedCountries = useUniqueCountries(); // Unique country list
   const { user, isAdmin } = useUser(); // for user?.role checks
@@ -67,6 +67,9 @@ export default function TripForm({ mode = 'create', tripId }) {
 
   // Manual override: if user types totalDays themselves
   const [manualOverride, setManualOverride] = useState(false);
+
+  // Final Amount ratio (50%, 75%, 100%) for admin
+  const [selectedPct, setSelectedPct] = useState(100); // Default to 100%
 
   // -----------------------------------
   // 2) DROPDOWN STATE
@@ -265,7 +268,6 @@ export default function TripForm({ mode = 'create', tripId }) {
     ) {
       calculateDaysAndAmount();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     trip.calculatedData.totalDays,
     trip.tripDate.startDate,
@@ -410,7 +412,7 @@ export default function TripForm({ mode = 'create', tripId }) {
     if (newStart > newEnd) {
       // Adjust dates accordingly
       if (mode === 'create' || mode === 'edit') {
-        // Decide which date to adjust. Here, we'll adjust the end date to be after the start date.
+        // Adjust the end date to be after the start date.
         setAlert('tripDate', 'End date was adjusted to be after Start date.');
 
         // Set end date to start date plus 1 day
@@ -431,7 +433,9 @@ export default function TripForm({ mode = 'create', tripId }) {
     // Overlap Validation
     // In "edit" mode, exclude the current trip from overlap checks
     const overlappingTrip = userTrips.find((tripItem) => {
-      if (mode === 'edit' && tripItem.id === tripId) return false; // Exclude current trip
+      if (mode === 'edit' && String(tripItem._id) === String(tripId)) {
+        return false; // Exclude current trip
+      }
 
       const existingStart = new Date(tripItem.tripDate.startDate);
       const existingEnd = new Date(tripItem.tripDate.endDate);
@@ -463,6 +467,53 @@ export default function TripForm({ mode = 'create', tripId }) {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateStr).toLocaleDateString(undefined, options);
   };
+
+  // -----------------------------------
+  // Handle finalAmount changes to accept integer percentages (50, 75, 100)
+  // and calculate finalAmount accordingly
+  // -----------------------------------
+  const handleFinalAmountChange = (pct) => {
+    // pct is now an integer: 50, 75, 100
+    const total = trip.calculatedData?.totalAmount || 0;
+    const rawFinal = total * (pct / 100);
+    const finalCalc = Math.round(rawFinal);
+
+    setTrip((prev) => ({
+      ...prev,
+      calculatedData: {
+        ...prev.calculatedData,
+        finalAmount: finalCalc, // integer
+      },
+    }));
+
+    setSelectedPct(pct); // Update the selected percentage
+  };
+
+  // Ensure selectedPct reflects the current finalAmount in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && tripId && originalTrip) {
+      const { finalAmount, totalAmount } = trip.calculatedData;
+      if (totalAmount === 0) {
+        setSelectedPct(100); // Default to 100% if totalAmount is zero
+        return;
+      }
+
+      const options = [50, 75, 100];
+      let closestPct = 100;
+      let smallestDiff = Math.abs(finalAmount - totalAmount * 1);
+
+      options.forEach((pct) => {
+        const expectedFinal = Math.round(totalAmount * (pct / 100));
+        const diff = Math.abs(finalAmount - expectedFinal);
+        if (diff < smallestDiff) {
+          smallestDiff = diff;
+          closestPct = pct;
+        }
+      });
+
+      setSelectedPct(closestPct);
+    }
+  }, [mode, tripId, originalTrip, trip.calculatedData]);
 
   // -----------------------------------
   // 8) FORM VALIDATION
@@ -552,28 +603,6 @@ export default function TripForm({ mode = 'create', tripId }) {
       setLoading(false);
     }
   };
-
-  // -----------------------------------
-  // Handle finalAmount changes
-  // (when admin chooses 50%, 75%, 100%)
-  // -----------------------------------
-  const handleFinalAmountChange = (pct) => {
-    // totalAmount * (0.5 or 0.75 or 1)
-    const total = trip.calculatedData?.totalAmount || 0;
-    const rawFinal = total * pct;
-    const finalCalc = Math.round(rawFinal);
-
-    setTrip((prev) => ({
-      ...prev,
-      calculatedData: {
-        ...prev.calculatedData,
-        finalAmount: finalCalc, // integer
-      },
-    }));
-  };
-
-  const ratio =
-    trip.calculatedData?.finalAmount / trip.calculatedData?.totalAmount;
 
   // -----------------------------------
   // RENDER
@@ -775,7 +804,6 @@ export default function TripForm({ mode = 'create', tripId }) {
               onChange={handleChange}
               className="trip-form-input"
             />
-            <AlertMessage message={getAlert('hotelBreakfastDays')} />
           </div>
 
           {/* Breakfast & Mileage */}
@@ -792,7 +820,9 @@ export default function TripForm({ mode = 'create', tripId }) {
               onChange={handleChange}
               min="0"
             />
+            <AlertMessage message={getAlert('hotelBreakfastDays')} />
           </div>
+
           <div className="trip-form-row">
             <label htmlFor="mileage" className="trip-form-label">
               Driving Mil with Private Car (mil)
@@ -847,9 +877,9 @@ export default function TripForm({ mode = 'create', tripId }) {
                   <button
                     type="button"
                     className={`percentage-btn ${
-                      ratio === 0.5 ? 'active' : ''
+                      selectedPct === 50 ? 'active' : ''
                     }`}
-                    onClick={() => handleFinalAmountChange(0.5)}
+                    onClick={() => handleFinalAmountChange(50)}
                   >
                     50%
                   </button>
@@ -857,22 +887,25 @@ export default function TripForm({ mode = 'create', tripId }) {
                   <button
                     type="button"
                     className={`percentage-btn ${
-                      ratio === 0.75 ? 'active' : ''
+                      selectedPct === 75 ? 'active' : ''
                     }`}
-                    onClick={() => handleFinalAmountChange(0.75)}
+                    onClick={() => handleFinalAmountChange(75)}
                   >
                     75%
                   </button>
 
                   <button
                     type="button"
-                    className={`percentage-btn ${ratio === 1 ? 'active' : ''}`}
-                    onClick={() => handleFinalAmountChange(1)}
+                    className={`percentage-btn ${
+                      selectedPct === 100 ? 'active' : ''
+                    }`}
+                    onClick={() => handleFinalAmountChange(100)}
                   >
                     100%
                   </button>
                 </div>
               </div>
+
               <div className="trip-form-row">
                 <p className="trip-form-label total-label">Final Amount</p>
                 <p className="total-value">
@@ -933,4 +966,6 @@ export default function TripForm({ mode = 'create', tripId }) {
       </form>
     </div>
   );
-}
+};
+
+export default TripForm;

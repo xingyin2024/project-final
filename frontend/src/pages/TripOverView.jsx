@@ -7,7 +7,7 @@ import TripFormHeader from '../components/TripFormHeader';
 import NoTripsFound from '../components/NoTripsFound';
 import '../styles/tripOverview.css';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const TripOverView = () => {
   const { user } = useUser(); // Access logged-in user details

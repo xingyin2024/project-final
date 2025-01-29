@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { createContext, useContext, useState, useEffect } from 'react';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
