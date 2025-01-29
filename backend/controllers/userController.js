@@ -26,6 +26,7 @@ const registerUser = async (req, res) => {
       message: 'User registered successfully',
       data: {
         id: savedUser._id,
+        firstName: savedUser.firstName,
         accessToken: savedUser.accessToken,
       },
     });
@@ -61,10 +62,8 @@ const loginUser = async (req, res) => {
         message: 'Login successful',
         data: {
           id: user._id,
-          username: user.username,
           firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
+
           role: user.role, // Add role to response
           accessToken: user.accessToken,
         },
