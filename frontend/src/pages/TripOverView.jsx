@@ -67,11 +67,24 @@ const TripOverView = () => {
         }
         // For "all", no filter is applied.
 
-        // Sort trips (most recent first)
-        fetchedTrips.sort(
-          (a, b) =>
-            new Date(b.submission.updatedAt) - new Date(a.submission.updatedAt)
-        );
+        // Sort trips in descending order based on updated/created date if available.
+        // Adjust the sorting field as needed.
+        fetchedTrips.sort((a, b) => {
+          // Check if updatedAt is null for either trip and use createdAt if necessary
+          const updatedA = a.submission.updatedAt || a.creation.createdAt;
+          const updatedB = b.submission.updatedAt || b.creation.createdAt;
+
+          // If both updatedAt are not null, compare by updatedAt
+          if (a.submission.updatedAt && b.submission.updatedAt) {
+            return (
+              new Date(b.submission.updatedAt) -
+              new Date(a.submission.updatedAt)
+            );
+          }
+
+          // If updatedAt is null for one or both trips, compare by createdAt
+          return new Date(updatedB) - new Date(updatedA);
+        });
 
         setTrips(fetchedTrips);
       } catch (err) {
@@ -101,6 +114,8 @@ const TripOverView = () => {
       trip.location?.city,
       trip.location?.country,
       trip.status,
+      trip.creation.createdBy,
+      trip.submission.updatedBy,
       startYear,
     ]
       .filter(Boolean)
@@ -121,6 +136,7 @@ const TripOverView = () => {
         title={filterTitles[filter] || 'Trips'}
         onBack={() => navigate('/dashboard')}
       />
+
       {trips.length === 0 ? (
         <NoTripsFound />
       ) : (

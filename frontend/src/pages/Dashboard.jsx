@@ -68,9 +68,22 @@ const Dashboard = () => {
 
         // Sort trips in descending order based on updated/created date if available.
         // Adjust the sorting field as needed.
-        filteredTrips.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
+        filteredTrips.sort((a, b) => {
+          // Check if updatedAt is null for either trip and use createdAt if necessary
+          const updatedA = a.submission.updatedAt || a.creation.createdAt;
+          const updatedB = b.submission.updatedAt || b.creation.createdAt;
+
+          // If both updatedAt are not null, compare by updatedAt
+          if (a.submission.updatedAt && b.submission.updatedAt) {
+            return (
+              new Date(b.submission.updatedAt) -
+              new Date(a.submission.updatedAt)
+            );
+          }
+
+          // If updatedAt is null for one or both trips, compare by createdAt
+          return new Date(updatedB) - new Date(updatedA);
+        });
 
         // Calculate summary
         const notSubmitted = filteredTrips.filter(
@@ -101,6 +114,25 @@ const Dashboard = () => {
   const indexOfFirstTrip = indexOfLastTrip - limit;
   const currentTrips = trips.slice(indexOfFirstTrip, indexOfLastTrip);
   const totalPages = Math.ceil(trips.length / tripsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter users based on search query
+  const filteredTrips = currentTrips.filter((trip) => {
+    const startYear = new Date(trip.tripDate.startDate)
+      .getFullYear()
+      .toString();
+    return [
+      trip.title,
+      trip.location?.city,
+      trip.location?.country,
+      trip.status,
+      trip.creation.createdBy,
+      trip.submission.updatedBy,
+      startYear,
+    ]
+      .filter(Boolean)
+      .some((field) => field.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   if (loading) {
     return <p>Loading trips...</p>;
@@ -148,9 +180,19 @@ const Dashboard = () => {
         <NoTripsFound />
       ) : (
         <>
+          {/* Search Input */}
+          <div className="search-input-container">
+            <input
+              type="text"
+              placeholder="Search trips..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           {/* Existing UI for TripCard list and Pagination */}
           <div className="recent-trips-list">
-            {currentTrips.map((trip) => (
+            {filteredTrips.map((trip) => (
               <TripCard
                 key={trip._id}
                 trip={trip}
