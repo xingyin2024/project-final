@@ -1,6 +1,6 @@
 .trip-form-container {
   width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 30px auto;
   padding: 16px;
 
   @media screen and (min-width: 768px) {
