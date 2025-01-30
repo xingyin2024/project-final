@@ -42,3 +42,13 @@
   font-weight: 600;
   margin-bottom: 12px;
 }
+
+.trip-card-create-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  font-size: 0.875rem;
+  color: var(--black-mid);
+}

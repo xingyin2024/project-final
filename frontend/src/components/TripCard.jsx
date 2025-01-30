@@ -18,6 +18,7 @@ const TripCard = ({ trip, onClick, userRole }) => {
   // Format start and end dates
   const formattedStartDate = formatDate(trip.tripDate?.startDate);
   const formattedEndDate = formatDate(trip.tripDate?.endDate);
+  const formattedCreateAt = formatDate(trip.creation?.createdAt);
 
   return (
     <div className="trip-card" onClick={onClick}>
@@ -61,6 +62,18 @@ const TripCard = ({ trip, onClick, userRole }) => {
           ? trip.status.charAt(0).toUpperCase() + trip.status.slice(1)
           : 'Unknown'}
       </p>
+
+      {/* Show Total Amount ONLY if userRole === 'admin' */}
+      {userRole === 'admin' && (
+        <div className="trip-card-create-container">
+          <p className="trip-card-created-by">
+            Created By: {trip.creation?.createdBy || N / A}
+          </p>
+          <p className="trip-card-created-at">
+            Created At: {formattedCreateAt || N / A}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
