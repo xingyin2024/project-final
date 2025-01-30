@@ -18,7 +18,8 @@ const TripCard = ({ trip, onClick, userRole }) => {
   // Format start and end dates
   const formattedStartDate = formatDate(trip.tripDate?.startDate);
   const formattedEndDate = formatDate(trip.tripDate?.endDate);
-  const formattedCreateAt = formatDate(trip.creation?.createdAt);
+  const formattedCreatedAt = formatDate(trip.creation?.createdAt);
+  const formattedUpdatedAt = formatDate(trip.submission?.updatedAt);
 
   return (
     <div className="trip-card" onClick={onClick}>
@@ -70,7 +71,10 @@ const TripCard = ({ trip, onClick, userRole }) => {
             Created By: {trip.creation?.createdBy || N / A}
           </p>
           <p className="trip-card-created-at">
-            Created At: {formattedCreateAt || N / A}
+            Created At: {formattedCreatedAt || N / A}
+          </p>
+          <p className="trip-card-updated-at">
+            Updated At: {formattedUpdatedAt || N / A}
           </p>
         </div>
       )}

@@ -69,7 +69,8 @@ const TripOverView = () => {
 
         // Sort trips (most recent first)
         fetchedTrips.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          (a, b) =>
+            new Date(b.submission.updatedAt) - new Date(a.submission.updatedAt)
         );
 
         setTrips(fetchedTrips);
